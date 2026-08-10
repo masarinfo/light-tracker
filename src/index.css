@@ -1,0 +1,397 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+/* Global Font Unification - Cairo Font for Arabic Everywhere */
+* {
+  font-family: 'Cairo', 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Theme Design Tokens */
+body.theme-dark {
+  color-scheme: dark;
+  --bg-main: #0b0f19;
+  --bg-card: rgba(19, 27, 46, 0.85);
+  --bg-card-hover: rgba(26, 36, 61, 0.95);
+  --border-panel: rgba(255, 255, 255, 0.08);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --input-bg: rgba(11, 15, 25, 0.7);
+  --input-border: rgba(255, 255, 255, 0.12);
+  --shadow-panel: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+/* Clean, High-Contrast Light Mode (Soft Silver Slate Background) */
+body.theme-light {
+  color-scheme: light;
+  --bg-main: #edf2f7;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8fafc;
+  --border-panel: #cbd5e1;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --input-bg: #ffffff;
+  --input-border: #94a3b8;
+  --shadow-panel: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
+}
+
+body {
+  background-color: var(--bg-main) !important;
+  color: var(--text-primary) !important;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Glassmorphism Panels */
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-panel);
+  box-shadow: var(--shadow-panel);
+}
+
+.glass-panel-interactive {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-panel);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel-interactive:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(6, 182, 212, 0.4);
+  box-shadow: 0 10px 30px -10px rgba(6, 182, 212, 0.2);
+  transform: translateY(-2px);
+}
+
+.glass-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.glass-input:focus {
+  outline: none;
+  border-color: #06b6d4;
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+}
+
+/* Master Text Overrides for Light Mode */
+body.theme-light,
+body.theme-light p,
+body.theme-light h1,
+body.theme-light h2,
+body.theme-light h3,
+body.theme-light h4,
+body.theme-light h5,
+body.theme-light h6,
+body.theme-light span,
+body.theme-light td,
+body.theme-light th,
+body.theme-light label {
+  color: var(--text-primary);
+}
+
+body.theme-light .text-white {
+  color: #0f172a !important;
+}
+
+body.theme-light .text-gray-200,
+body.theme-light .text-gray-300 {
+  color: #1e293b !important;
+}
+
+body.theme-light .text-gray-400,
+body.theme-light .text-gray-500 {
+  color: #475569 !important;
+  font-weight: 600 !important;
+}
+
+/* ========================================================= */
+/* Master Button, Gradients & Icon Overrides for Light Mode */
+/* ========================================================= */
+
+body.theme-light button {
+  color: #0f172a;
+}
+
+/* Gradient Action Buttons in Light Mode (e.g. Create Strategy, Trade Entry, Add Exchange) */
+body.theme-light .bg-gradient-to-r.from-indigo-500,
+body.theme-light button.bg-gradient-to-r.from-indigo-500 {
+  background: linear-gradient(to right, #4f46e5, #7c3aed) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25) !important;
+}
+
+body.theme-light .bg-gradient-to-r.from-indigo-500 span,
+body.theme-light .bg-gradient-to-r.from-indigo-500 svg {
+  color: #ffffff !important;
+}
+
+body.theme-light .bg-gradient-to-r.from-cyan-500,
+body.theme-light button.bg-gradient-to-r.from-cyan-500 {
+  background: linear-gradient(to right, #0284c7, #4f46e5) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.25) !important;
+}
+
+body.theme-light .bg-gradient-to-r.from-cyan-500 span,
+body.theme-light .bg-gradient-to-r.from-cyan-500 svg {
+  color: #ffffff !important;
+}
+
+body.theme-light .bg-gradient-to-r.from-emerald-500,
+body.theme-light button.bg-gradient-to-r.from-emerald-500 {
+  background: linear-gradient(to right, #059669, #0284c7) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25) !important;
+}
+
+body.theme-light .bg-gradient-to-r.from-emerald-500 span,
+body.theme-light .bg-gradient-to-r.from-emerald-500 svg {
+  color: #ffffff !important;
+}
+
+/* Ghost & Secondary Buttons (Language toggle, theme switcher, modal cancel, menu items) */
+body.theme-light button.bg-white\/5,
+body.theme-light button.bg-white\/10,
+body.theme-light .bg-white\/5,
+body.theme-light .bg-white\/10 {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+body.theme-light button.bg-white\/5:hover,
+body.theme-light button.bg-white\/10:hover {
+  background-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* Sidebar Navigation Items */
+body.theme-light button.text-gray-300,
+body.theme-light button.text-gray-400 {
+  color: #334155 !important;
+}
+
+body.theme-light button.text-gray-300:hover,
+body.theme-light button.text-gray-400:hover {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* Primary Solid Action Buttons */
+body.theme-light .bg-cyan-500 {
+  background-color: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+body.theme-light .bg-indigo-500 {
+  background-color: #6366f1 !important;
+  color: #ffffff !important;
+}
+
+body.theme-light .bg-purple-600 {
+  background-color: #9333ea !important;
+  color: #ffffff !important;
+}
+
+body.theme-light .bg-emerald-500 {
+  background-color: #10b981 !important;
+  color: #ffffff !important;
+}
+
+/* Light Mode Dark 950 Box Background Overrides */
+body.theme-light .bg-emerald-950\/20,
+body.theme-light .bg-emerald-950\/30 {
+  background-color: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+}
+
+body.theme-light .bg-rose-950\/20,
+body.theme-light .bg-rose-950\/30 {
+  background-color: #fff1f2 !important;
+  border-color: #fecdd3 !important;
+}
+
+body.theme-light .bg-cyan-950\/20,
+body.theme-light .bg-cyan-950\/30 {
+  background-color: #f0f9ff !important;
+  border-color: #bae6fd !important;
+}
+
+body.theme-light .bg-indigo-950\/20,
+body.theme-light .bg-indigo-950\/30 {
+  background-color: #eef2ff !important;
+  border-color: #c7d2fe !important;
+}
+
+body.theme-light .bg-purple-950\/20,
+body.theme-light .bg-purple-950\/30 {
+  background-color: #faf5ff !important;
+  border-color: #e9d5ff !important;
+}
+
+/* Modal Overlay in Light Mode */
+body.theme-light .fixed.inset-0.bg-black\/70 {
+  background-color: rgba(15, 23, 42, 0.4) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+/* Form Inputs, Select Boxes & Options in Light Mode */
+body.theme-light input,
+body.theme-light select,
+body.theme-light textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+body.theme-light input::placeholder {
+  color: #94a3b8 !important;
+}
+
+body.theme-light select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* High Contrast Accent Text & Icon Colors for Light Mode */
+body.theme-light .text-indigo-400,
+body.theme-light .text-indigo-300 {
+  color: #4f46e5 !important;
+  font-weight: 700 !important;
+}
+
+body.theme-light .text-cyan-300,
+body.theme-light .text-cyan-400 {
+  color: #0369a1 !important;
+  font-weight: 700 !important;
+}
+
+body.theme-light .text-emerald-400,
+body.theme-light .text-emerald-300 {
+  color: #047857 !important;
+  font-weight: 700 !important;
+}
+
+body.theme-light .text-rose-400,
+body.theme-light .text-rose-300 {
+  color: #be123c !important;
+  font-weight: 700 !important;
+}
+
+body.theme-light .text-amber-400,
+body.theme-light .text-amber-300 {
+  color: #b45309 !important;
+  font-weight: 700 !important;
+}
+
+body.theme-light .text-purple-400,
+body.theme-light .text-purple-300 {
+  color: #7e22ce !important;
+  font-weight: 700 !important;
+}
+
+/* High Contrast Background Badges in Light Mode */
+body.theme-light .bg-cyan-500\/10,
+body.theme-light .bg-cyan-500\/20 {
+  background-color: #e0f2fe !important;
+  border-color: #7dd3fc !important;
+}
+
+body.theme-light .bg-emerald-500\/10,
+body.theme-light .bg-emerald-500\/20 {
+  background-color: #d1fae5 !important;
+  border-color: #6ee7b7 !important;
+}
+
+body.theme-light .bg-rose-500\/10,
+body.theme-light .bg-rose-500\/20 {
+  background-color: #ffe4e6 !important;
+  border-color: #fca5a5 !important;
+}
+
+body.theme-light .bg-amber-500\/10,
+body.theme-light .bg-amber-500\/20 {
+  background-color: #fef3c7 !important;
+  border-color: #fcd34d !important;
+}
+
+body.theme-light .bg-purple-500\/10,
+body.theme-light .bg-purple-500\/20 {
+  background-color: #f3e8ff !important;
+  border-color: #d8b4fe !important;
+}
+
+body.theme-light .bg-black\/30,
+body.theme-light .bg-black\/40,
+body.theme-light .bg-black\/70 {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(150, 150, 150, 0.25);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(150, 150, 150, 0.4);
+}
+
+/* Glow effects */
+.glow-emerald {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.25);
+}
+
+.glow-rose {
+  box-shadow: 0 0 20px rgba(244, 63, 94, 0.25);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.25);
+}
+
+/* Force numeric font where needed */
+.font-mono-numbers {
+  font-family: 'Inter', system-ui, monospace;
+}
+
+/* --- Price Flash Animations --- */
+@keyframes flashGreen {
+  0% { color: #34d399; text-shadow: 0 0 12px rgba(52, 211, 153, 0.8); transform: scale(1.05); }
+  100% { color: inherit; text-shadow: none; transform: scale(1); }
+}
+
+@keyframes flashRed {
+  0% { color: #fb7185; text-shadow: 0 0 12px rgba(251, 113, 133, 0.8); transform: scale(0.95); }
+  100% { color: inherit; text-shadow: none; transform: scale(1); }
+}
+
+.flash-green {
+  animation: flashGreen 1s ease-out forwards;
+  display: inline-block;
+  will-change: transform, color, text-shadow;
+}
+
+.flash-red {
+  animation: flashRed 1s ease-out forwards;
+  display: inline-block;
+  will-change: transform, color, text-shadow;
+}

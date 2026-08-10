@@ -1,0 +1,345 @@
+import React, { useState, useEffect } from 'react';
+import { useApp } from '../context/AppContext';
+import { generateTradeTargets, calculateTradePurchase } from '../utils/mathEngine';
+import { PlusCircle, Zap, Target, ShieldAlert, CheckCircle2, Sparkles, Building2 } from 'lucide-react';
+
+export default function TradeEntryPage() {
+  const { strategies, exchanges, addTrade, livePrices, t, lang, setActiveScreen } = useApp();
+
+  const [symbol, setSymbol] = useState('SOLUSDT');
+  const [selectedStrategyId, setSelectedStrategyId] = useState(strategies[0]?.id || 1);
+  
+  // Selected strategy details
+  const currentStrategy = strategies.find((s) => String(s.id) === String(selectedStrategyId)) || strategies[0];
+
+  // Selected exchange state
+  const [selectedExchangeId, setSelectedExchangeId] = useState(currentStrategy?.default_exchange_id || exchanges[0]?.id || 1);
+
+  // Formatted Input Strings with Auto Thousand Separators & Digit Normalization
+  const [entryPriceStr, setEntryPriceStr] = useState('100');
+  const [amountUsdStr, setAmountUsdStr] = useState('1,000');
+
+  const isRtl = lang === 'ar';
+
+  // Helper: Converts Eastern Arabic digits (٠١٢٣٤٥٦٧٨٩) to English digits (0123456789)
+  const convertArabicToEnglishDigits = (str) => {
+    if (str === undefined || str === null) return '';
+    const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+    const englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    
+    let result = String(str);
+    for (let i = 0; i < 10; i++) {
+      result = result.replace(new RegExp(arabicDigits[i], 'g'), englishDigits[i]);
+    }
+    // Replace Arabic decimal comma or separator with standard dot
+    result = result.replace(/٫/g, '.');
+    return result;
+  };
+
+  // Format Helper: Normalizes Arabic numerals and adds commas to string input as user types
+  const formatInputWithCommas = (val) => {
+    if (val === undefined || val === null || val === '') return '';
+    
+    // First, convert any Eastern Arabic numerals to English digits
+    const normalized = convertArabicToEnglishDigits(val);
+    
+    // Strip existing commas for calculation
+    const clean = normalized.replace(/,/g, '');
+    if (isNaN(clean) && clean !== '.') return normalized;
+    
+    const parts = clean.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return parts.join('.');
+  };
+
+  // Parse Helper: Strips commas to raw float number for math calculations
+  const parseCommasToNumber = (val) => {
+    if (!val) return 0;
+    const normalized = convertArabicToEnglishDigits(val);
+    const clean = normalized.replace(/,/g, '');
+    return parseFloat(clean) || 0;
+  };
+
+  const entryPrice = parseCommasToNumber(entryPriceStr);
+  const amountUsd = parseCommasToNumber(amountUsdStr);
+
+  // Update selected exchange when strategy changes
+  useEffect(() => {
+    if (currentStrategy?.default_exchange_id) {
+      setSelectedExchangeId(currentStrategy.default_exchange_id);
+    }
+  }, [selectedStrategyId]);
+
+  // Current active exchange object
+  const currentExchange = exchanges.find((ex) => String(ex.id) === String(selectedExchangeId)) || exchanges[0];
+
+  // Auto-fetch price if user types a known symbol
+  useEffect(() => {
+    if (symbol && livePrices[symbol.toUpperCase()]) {
+      const fetched = livePrices[symbol.toUpperCase()];
+      setEntryPriceStr(formatInputWithCommas(fetched.toString()));
+    }
+  }, [symbol, livePrices]);
+
+  // Instant calculation of Quantity and Targets based on selected exchange fee
+  const purchaseInfo = calculateTradePurchase({
+    amountUsd,
+    entryPrice,
+    feePct: currentExchange?.maker_fee_pct || 0.1
+  });
+
+  const { tpTargets, slTargets } = generateTradeTargets({
+    entryPrice,
+    amountUsd,
+    tpRules: currentStrategy?.tp_rules || [],
+    slRules: currentStrategy?.sl_rules || []
+  });
+
+  const handleExecuteTrade = (e) => {
+    e.preventDefault();
+    if (!symbol || entryPrice <= 0 || amountUsd <= 0) return;
+
+    const newTrade = {
+      symbol: symbol.toUpperCase(),
+      strategy_id: currentStrategy.id,
+      strategy_name: currentStrategy.name,
+      category: currentStrategy.category,
+      exchange_id: currentExchange.id,
+      exchange_name: currentExchange.name,
+      order_type: currentStrategy.default_order_type || 'Limit',
+      entry_price: entryPrice,
+      amount_usd: amountUsd,
+      quantity: purchaseInfo.quantity,
+      calculated_fee: purchaseInfo.feeUsd,
+      status: 'OPEN',
+      targets: [...tpTargets, ...slTargets]
+    };
+
+    addTrade(newTrade);
+    // Redirect to Portfolio
+    setActiveScreen('coin-portfolio');
+  };
+
+  return (
+    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+      {/* Header Banner */}
+      <div className="glass-panel p-6 rounded-2xl border border-white/10">
+        <h2 className="text-xl font-bold text-white flex items-center gap-2">
+          <PlusCircle className="w-6 h-6 text-emerald-400 shrink-0" />
+          <span>{t('tradeEntryTitle')}</span>
+        </h2>
+        <p className="text-sm text-gray-400 mt-1">{t('tradeEntryDesc')}</p>
+      </div>
+
+      {/* Main Trade Form & Instant Dynamic Targets Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Inputs Panel */}
+        <div className="lg:col-span-5 glass-panel p-6 rounded-2xl border border-white/10 space-y-5">
+          <h3 className="text-sm font-bold text-gray-300 uppercase tracking-wider border-b border-white/10 pb-3 flex items-center gap-2">
+            <Zap className="w-4 h-4 text-cyan-400 shrink-0" />
+            <span>{t('quickInputsTitle')}</span>
+          </h3>
+
+          <form onSubmit={handleExecuteTrade} className="space-y-4 text-xs">
+            {/* Symbol Input */}
+            <div>
+              <label className="block text-gray-300 mb-1 font-semibold">{t('symbol')}</label>
+              <div className="relative flex items-center">
+                <input
+                  type="text"
+                  dir="ltr"
+                  value={symbol}
+                  onChange={(e) => setSymbol(e.target.value.toUpperCase())}
+                  placeholder="e.g. BTCUSDT, SOLUSDT"
+                  required
+                  className={`w-full p-3 rounded-xl glass-input uppercase font-mono font-bold text-cyan-300 text-sm tracking-wider ${
+                    isRtl ? 'pl-16 pr-3 text-right' : 'pr-16 pl-3 text-left'
+                  }`}
+                />
+                <span
+                  className={`absolute ${
+                    isRtl ? 'left-3' : 'right-3'
+                  } top-3 text-[10px] text-gray-400 font-mono font-bold px-2 py-0.5 rounded bg-white/10 pointer-events-none`}
+                >
+                  SPOT
+                </span>
+              </div>
+            </div>
+
+            {/* Strategy Select */}
+            <div>
+              <label className="block text-gray-300 mb-1 font-semibold">{t('strategy')}</label>
+              <select
+                value={selectedStrategyId}
+                onChange={(e) => setSelectedStrategyId(e.target.value)}
+                className="w-full p-3 rounded-xl glass-input text-white font-semibold text-xs"
+              >
+                {strategies.map((st) => (
+                  <option key={st.id} value={st.id} className="bg-gray-900">
+                    {st.name} ({st.category})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Interactive Exchange Select Dropdown */}
+            <div>
+              <label className="block text-gray-300 mb-1 font-semibold flex items-center justify-between">
+                <span>{t('exchange')}</span>
+                <span className="text-[10px] text-cyan-400 font-mono">تحديث العمولة تلقائياً</span>
+              </label>
+              <select
+                value={selectedExchangeId}
+                onChange={(e) => setSelectedExchangeId(parseInt(e.target.value))}
+                className="w-full p-3 rounded-xl glass-input text-white font-bold text-xs"
+              >
+                {exchanges.map((ex) => (
+                  <option key={ex.id} value={ex.id} className="bg-gray-900">
+                    {ex.name} (الكاش المتاح: ${ex.initial_cash_balance.toLocaleString()})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Auto Calculated Fee Card based on selected exchange */}
+            <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-cyan-400 shrink-0" />
+                <span className="text-gray-300 font-semibold">{t('appliedFee')}:</span>
+              </div>
+              <span className="text-cyan-300 font-mono font-bold" dir="ltr">
+                ${purchaseInfo.feeUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ({currentExchange?.maker_fee_pct}%)
+              </span>
+            </div>
+
+            {/* Price & Amount Inputs with Automatic Eastern Arabic to English Digit Conversion */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-gray-300 mb-1 font-semibold flex items-center justify-between">
+                  <span>{t('entryPrice')}</span>
+                  <span className="text-[9px] text-emerald-400 font-mono">يقبل ٠١٢٣٤٥٦٧٨٩</span>
+                </label>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  dir="ltr"
+                  value={entryPriceStr}
+                  onChange={(e) => setEntryPriceStr(formatInputWithCommas(e.target.value))}
+                  placeholder="e.g. 1,000 / ١٠٠٠"
+                  className="w-full p-3 rounded-xl glass-input font-mono font-bold text-white text-sm"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-300 mb-1 font-semibold flex items-center justify-between">
+                  <span>{t('amountUsd')}</span>
+                  <span className="text-[9px] text-emerald-400 font-mono">تحويل آلي للإنجليزي</span>
+                </label>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  dir="ltr"
+                  value={amountUsdStr}
+                  onChange={(e) => setAmountUsdStr(formatInputWithCommas(e.target.value))}
+                  placeholder="e.g. 10,000 / ١٠٠٠٠"
+                  className="w-full p-3 rounded-xl glass-input font-mono font-bold text-emerald-400 text-sm"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Calculated Quantity Card */}
+            <div className="p-4 rounded-xl bg-gradient-to-r from-cyan-950/30 to-indigo-950/30 border border-cyan-500/30">
+              <span className="text-gray-400 text-[11px] block">{t('calculatedQuantity')}:</span>
+              <span className="text-xl font-bold font-mono text-cyan-300 mt-1 block" dir="ltr">
+                {purchaseInfo.quantity.toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 4 })} {symbol.replace('USDT', '')}
+              </span>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-black font-extrabold text-sm shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 font-sans"
+            >
+              <CheckCircle2 className="w-5 h-5 shrink-0" />
+              <span>{t('executeTradeBtn')}</span>
+            </button>
+          </form>
+        </div>
+
+        {/* Right Instant Target Auto-Generation Output Panel */}
+        <div className="lg:col-span-7 glass-panel p-6 rounded-2xl border border-white/10 space-y-5">
+          <div className="flex items-center justify-between border-b border-white/10 pb-3">
+            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>{t('autoTargetsTitle')}</span>
+            </h3>
+            <span className="px-3 py-1 rounded-full text-[11px] font-mono bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold animate-pulse shrink-0">
+              {t('instantGenerationBadge')}
+            </span>
+          </div>
+
+          {/* TP Targets Generated Table */}
+          <div>
+            <h4 className="text-xs font-bold text-emerald-400 mb-2 flex items-center gap-1.5">
+              <Target className="w-4 h-4 shrink-0" />
+              <span>{t('tpTargetsHeading')}</span>
+            </h4>
+            <div className="space-y-2">
+              {tpTargets.map((tp) => (
+                <div key={tp.stage} className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20 grid grid-cols-4 gap-2 items-center text-xs font-mono">
+                  <div>
+                    <span className="text-gray-400 block text-[10px] font-sans">{t('targetStageLabel')}</span>
+                    <span className="text-emerald-400 font-bold">TP{tp.stage} (+{tp.gainPct}%)</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block text-[10px] font-sans">{t('targetPrice')}</span>
+                    <span className="text-white font-bold" dir="ltr">${tp.targetPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block text-[10px] font-sans">{t('quantityToSell')}</span>
+                    <span className="text-gray-200" dir="ltr">{tp.quantityToSell.toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 })} ({tp.sellPortionPct}%)</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-gray-400 block text-[10px] font-sans">{t('expectedPnl')}</span>
+                    <span className="text-emerald-400 font-bold" dir="ltr">+${tp.expectedGainUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* SL Targets Generated Table */}
+          <div>
+            <h4 className="text-xs font-bold text-rose-400 mb-2 flex items-center gap-1.5">
+              <ShieldAlert className="w-4 h-4 shrink-0" />
+              <span>{t('slTargetsHeading')}</span>
+            </h4>
+            <div className="space-y-2">
+              {slTargets.map((sl) => (
+                <div key={sl.stage} className="p-3 rounded-xl bg-rose-500/5 border border-rose-500/20 grid grid-cols-4 gap-2 items-center text-xs font-mono">
+                  <div>
+                    <span className="text-gray-400 block text-[10px] font-sans">{t('stopStageLabel')}</span>
+                    <span className="text-rose-400 font-bold">SL{sl.stage} (-{sl.lossPct}%)</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block text-[10px] font-sans">{t('targetPrice')}</span>
+                    <span className="text-white font-bold" dir="ltr">${sl.targetPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block text-[10px] font-sans">{t('quantityToSell')}</span>
+                    <span className="text-gray-200" dir="ltr">{sl.quantityToSell.toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 })} ({sl.sellPortionPct}%)</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-gray-400 block text-[10px] font-sans">{t('expectedPnl')}</span>
+                    <span className="text-rose-400 font-bold" dir="ltr">-${sl.expectedLossUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -48,8 +48,12 @@ def fetch_coingecko_prices():
         logger.error(f"Failed to fetch CoinGecko prices: {str(e)}")
 
 def get_cached_prices():
+    if not MARKET_DATA_CACHE:
+        fetch_coingecko_prices()
     return LIVE_PRICES_CACHE
 
 def get_market_data():
+    if not MARKET_DATA_CACHE:
+        fetch_coingecko_prices()
     return MARKET_DATA_CACHE
 

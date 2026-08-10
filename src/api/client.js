@@ -21,6 +21,12 @@ async function request(endpoint, options = {}) {
       localStorage.removeItem('token');
       window.location.href = '/login'; 
     } else if (response.status === 402) {
+      // Default to Vercel/Railway production URL depending on environment, or localhost for local dev
+      const isVercel = window.location.hostname.includes('vercel.app') || window.location.hostname.includes('masarinfo');
+
+      const API_URL = isVercel
+        ? 'https://light-tracker-production.up.railway.app' 
+        : 'http://localhost:8001';
       // Payment required (subscription inactive)
       if (window.location.pathname !== '/pricing') {
         window.location.href = '/pricing';

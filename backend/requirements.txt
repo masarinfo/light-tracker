@@ -20,5 +20,6 @@ tzlocal==5.4.4
 urllib3==2.7.0
 uvicorn==0.52.1
 psycopg2-binary
-python-jose[cryptography]
+python-jose
+cryptography
 bcrypt

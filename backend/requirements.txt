@@ -25,3 +25,4 @@ cryptography
 bcrypt
 python-multipart
  
+yfinance

@@ -29,11 +29,17 @@ app.add_middleware(
 # Startup & Shutdown Events
 @app.on_event("startup")
 def on_startup():
-    start_scheduler()
+    import os
+    if not os.environ.get("VERCEL"):
+        start_scheduler()
+    else:
+        logging.info("Running on Vercel: background scheduler disabled. (Please set up a cron job or rely on dynamic fetches)")
 
 @app.on_event("shutdown")
 def on_shutdown():
-    stop_scheduler()
+    import os
+    if not os.environ.get("VERCEL"):
+        stop_scheduler()
 
 # Include Routers
 app.include_router(auth_router.router)

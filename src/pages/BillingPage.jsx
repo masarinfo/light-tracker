@@ -29,14 +29,14 @@ export default function BillingPage() {
   const activeSub = subscriptions.find(s => s.status === 'ACTIVE');
 
   return (
-    <div className="p-8 max-w-5xl mx-auto space-y-8 animate-fade-in" dir="rtl">
+    <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6 md:space-y-8 animate-fade-in" dir="rtl">
       <div>
         <h1 className="text-3xl font-black text-white mb-2">إدارة الاشتراك والفواتير</h1>
         <p className="text-slate-400">تابع حالة اشتراكك وسجل المدفوعات الخاصة بك.</p>
       </div>
 
       {/* Active Subscription Card */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 relative overflow-hidden">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-l from-emerald-400 to-cyan-500"></div>
         <h2 className="text-xl font-bold text-white flex items-center mb-6">
           <CreditCard className="w-5 h-5 ml-2 text-cyan-400" />

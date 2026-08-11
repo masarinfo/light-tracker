@@ -22,9 +22,11 @@ async function request(endpoint, options = {}) {
       window.location.href = '/login'; 
     } else if (response.status === 402) {
       // Payment required (subscription inactive)
-      if (window.location.pathname !== '/pricing') {
-        window.location.href = '/pricing';
-      }
+      // Disabling forced redirect so user can see dashboard
+      // if (window.location.pathname !== '/pricing') {
+      //   window.location.href = '/pricing';
+      // }
+      console.warn("402 Payment Required received.");
     }
     throw new Error(errorData.detail || `API request failed with status ${response.status}`);
   }

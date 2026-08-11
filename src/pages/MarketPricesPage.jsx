@@ -36,6 +36,65 @@ function CommodityCard({ item }) {
   );
 }
 
+function GoldGramsCard({ goldPriceOz, priceChangePct }) {
+  const [currency, setCurrency] = useState('USD');
+  const isPositive = priceChangePct >= 0;
+  
+  // 1 Troy Ounce = 31.1034768 grams
+  const exchangeRate = currency === 'SAR' ? 3.75 : 1;
+  const currencySymbol = currency === 'SAR' ? 'ر.س' : '$';
+
+  const gram24k = (goldPriceOz / 31.1034768) * exchangeRate;
+  const gram21k = gram24k * (21 / 24);
+  const goldCoin8g21k = gram21k * 8; // الجنيه الذهب 8 جرام عيار 21
+
+  return (
+    <div className="glass-panel p-5 rounded-2xl border border-amber-500/30 bg-amber-500/5 flex flex-col justify-between group hover:border-amber-500/50 transition-all">
+      <div className="flex items-center justify-between mb-4 border-b border-amber-500/20 pb-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
+            <Coins className="w-5 h-5 text-amber-400" />
+          </div>
+          <div>
+            <h3 className="text-amber-400 font-bold text-sm">أسعار الذهب بالجرام</h3>
+            <p className="text-[10px] text-amber-500/70 font-mono">Live Gram Prices</p>
+          </div>
+        </div>
+        {/* Currency Toggle */}
+        <div className="flex bg-black/20 rounded-lg p-0.5 border border-amber-500/20 shrink-0">
+          <button 
+            onClick={() => setCurrency('USD')}
+            className={`px-2 py-0.5 text-[10px] rounded font-bold transition-all ${currency === 'USD' ? 'bg-amber-500 text-black' : 'text-amber-500/60 hover:text-amber-400'}`}
+          >
+            USD
+          </button>
+          <button 
+            onClick={() => setCurrency('SAR')}
+            className={`px-2 py-0.5 text-[10px] rounded font-bold transition-all ${currency === 'SAR' ? 'bg-amber-500 text-black' : 'text-amber-500/60 hover:text-amber-400'}`}
+          >
+            SAR
+          </button>
+        </div>
+      </div>
+      
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-semibold text-gray-300">جرام عيار 24</span>
+          <span className="text-base font-bold font-mono text-white" dir="ltr">{currencySymbol}{gram24k.toFixed(2)}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-semibold text-gray-300">جرام عيار 21</span>
+          <span className="text-base font-bold font-mono text-white" dir="ltr">{currencySymbol}{gram21k.toFixed(2)}</span>
+        </div>
+        <div className="flex items-center justify-between border-t border-amber-500/20 pt-2 mt-1">
+          <span className="text-xs text-amber-300/80 font-bold">الجنيه (8ج عيار 21)</span>
+          <span className="text-base font-bold font-mono text-amber-400" dir="ltr">{currencySymbol}{goldCoin8g21k.toFixed(2)}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function CoinRow({ coin, index }) {
   const isPositive = coin.price_change_percentage_24h >= 0;
   const flashClass = usePriceFlash(coin.current_price);
@@ -184,12 +243,22 @@ export default function MarketPricesPage() {
         </div>
       )}
 
-      {/* Traditional Commodities Widgets */}
+      {/* Traditional Commodities Widgets & Gold Grams */}
       {commodities.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {commodities.map((item) => (
-            <CommodityCard key={item.id} item={item} />
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {commodities.map((item) => (
+              <CommodityCard key={item.id} item={item} />
+            ))}
+          </div>
+          <div className="md:col-span-1">
+            {commodities.find(c => c.name === 'Gold') && (
+              <GoldGramsCard 
+                goldPriceOz={commodities.find(c => c.name === 'Gold').current_price} 
+                priceChangePct={commodities.find(c => c.name === 'Gold').price_change_percentage_24h} 
+              />
+            )}
+          </div>
         </div>
       )}
 

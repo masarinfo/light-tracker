@@ -107,7 +107,7 @@ export default function WalletPage() {
   console.log("WALLET PAGE TRANSACTIONS:", walletTransactions);
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6" dir={t('dir')}>
+    <div className="p-4 md:p-6 max-w-6xl mx-auto space-y-4 md:space-y-6" dir={t('dir')}>
       <div className="flex items-center gap-3 mb-6">
         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center border border-white/10">
           <Wallet className="w-6 h-6 text-indigo-400" />
@@ -121,7 +121,7 @@ export default function WalletPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Actions Form */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="glass-panel p-6 rounded-2xl border border-white/10">
+          <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-white/10">
             {/* Tabs */}
             <div className="flex bg-white/5 rounded-xl p-1 mb-6">
               <button 
@@ -250,30 +250,30 @@ export default function WalletPage() {
               <table className="w-full text-left border-collapse" dir={t('dir')}>
                 <thead className="bg-white/5 sticky top-0 z-10 backdrop-blur-md">
                   <tr>
-                    <th className="p-4 text-xs text-gray-400 font-semibold text-right">التاريخ</th>
-                    <th className="p-4 text-xs text-gray-400 font-semibold text-right">العملية</th>
-                    <th className="p-4 text-xs text-gray-400 font-semibold text-right">التفاصيل</th>
-                    <th className="p-4 text-xs text-gray-400 font-semibold text-left">المبلغ</th>
-                    <th className="p-4 text-xs text-gray-400 font-semibold"></th>
+                    <th className="p-3 md:p-4 text-xs text-gray-400 font-semibold text-right">التاريخ</th>
+                    <th className="p-3 md:p-4 text-xs text-gray-400 font-semibold text-right">العملية</th>
+                    <th className="p-3 md:p-4 text-xs text-gray-400 font-semibold text-right">التفاصيل</th>
+                    <th className="p-3 md:p-4 text-xs text-gray-400 font-semibold text-left">المبلغ</th>
+                    <th className="p-3 md:p-4 text-xs text-gray-400 font-semibold"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
                   {walletTransactions.length === 0 ? (
                     <tr>
-                      <td colSpan="5" className="p-8 text-center text-gray-500">
+                      <td colSpan="5" className="p-4 sm:p-8 text-center text-gray-500">
                         لا توجد حركات مالية مسجلة بعد.
                       </td>
                     </tr>
                   ) : (
                     walletTransactions.map(tx => (
                       <tr key={tx.id} className="hover:bg-white/5 transition-colors group">
-                        <td className="p-4 text-xs text-gray-400 font-mono text-right">
+                        <td className="p-3 md:p-4 text-xs text-gray-400 font-mono text-right">
                           {new Date(tx.timestamp).toLocaleString(undefined, { 
                             year: 'numeric', month: 'short', day: 'numeric', 
                             hour: '2-digit', minute: '2-digit' 
                           })}
                         </td>
-                        <td className="p-4 text-right">
+                        <td className="p-3 md:p-4 text-right">
                           <div className="flex items-center gap-2">
                             {getIcon(tx.type)}
                             <span className="text-sm font-semibold text-gray-300">
@@ -281,7 +281,7 @@ export default function WalletPage() {
                             </span>
                           </div>
                         </td>
-                        <td className="p-4 text-right">
+                        <td className="p-3 md:p-4 text-right">
                           {tx.type === 'TRANSFER' ? (
                             <div className="text-sm text-gray-300">
                               من <span className="font-bold text-white">{tx.exchange_name}</span> إلى <span className="font-bold text-white">{tx.to_exchange_name}</span>
@@ -291,7 +291,7 @@ export default function WalletPage() {
                           )}
                           {tx.notes && <div className="text-[10px] text-gray-500 mt-1">{tx.notes}</div>}
                         </td>
-                        <td className="p-4 text-left">
+                        <td className="p-3 md:p-4 text-left">
                           <div className={`font-mono font-bold ${tx.type === 'DEPOSIT' ? 'text-emerald-400' : tx.type === 'WITHDRAW' ? 'text-rose-400' : 'text-cyan-400'}`} dir="ltr">
                             ${tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                           </div>
@@ -301,7 +301,7 @@ export default function WalletPage() {
                             </div>
                           )}
                         </td>
-                        <td className="p-4 text-center">
+                        <td className="p-3 md:p-4 text-center">
                           <button 
                             onClick={() => handleDelete(tx.id)}
                             className="p-1.5 rounded-lg bg-rose-500/10 text-rose-400 opacity-0 group-hover:opacity-100 hover:bg-rose-500/20 transition-all"

@@ -83,9 +83,9 @@ export default function ExchangeSetupPage() {
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6 max-w-7xl mx-auto">
       {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-6 rounded-2xl border border-white/10">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-4 sm:p-6 rounded-2xl border border-white/10">
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <Building2 className="w-6 h-6 text-cyan-400 shrink-0" />
@@ -104,12 +104,12 @@ export default function ExchangeSetupPage() {
       </div>
 
       {/* Strict Mathematical Formula Verification Card */}
-      <div className="glass-panel p-6 rounded-2xl border border-cyan-500/30 bg-cyan-950/10 space-y-3">
+      <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-cyan-500/30 bg-cyan-950/10 space-y-3">
         <h3 className="text-sm font-bold text-cyan-300 flex items-center gap-2 border-b border-cyan-500/20 pb-2">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           <span>{t('formulaDemoTitle')}</span>
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-mono">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-mono">
           <div className="p-3 rounded-xl bg-white/5 border border-white/10">
             <span className="text-gray-400 block text-[10px] font-sans">{t('formulaScenario')}</span>
             <span className="text-white font-bold">{t('formulaScenarioVal')}</span>
@@ -148,7 +148,7 @@ export default function ExchangeSetupPage() {
           const hasNegativeCash = liveCash < 0;
 
           return (
-            <div key={ex.id} className="glass-panel p-6 rounded-2xl border border-white/10 space-y-4 hover:border-cyan-500/40 transition-all flex flex-col justify-between">
+            <div key={ex.id} className="glass-panel p-4 sm:p-6 rounded-2xl border border-white/10 space-y-4 hover:border-cyan-500/40 transition-all flex flex-col justify-between">
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b border-white/10 pb-3">
                   <div className="flex items-center gap-3">
@@ -237,7 +237,7 @@ export default function ExchangeSetupPage() {
       {/* Add / Edit Exchange Modal Dialog */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md overflow-y-auto">
-          <div className="glass-panel w-full max-w-lg p-6 rounded-2xl border border-white/20 space-y-4 my-8">
+          <div className="glass-panel w-full max-w-lg p-4 sm:p-6 rounded-2xl border border-white/20 space-y-4 my-8">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
                 <Building2 className="w-5 h-5 text-cyan-400 shrink-0" />
@@ -266,7 +266,7 @@ export default function ExchangeSetupPage() {
               </div>
 
               {/* Maker Fee & Taker Fee Fields */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-gray-300 mb-1 font-semibold">{t('makerFee')}</label>
                   <input
@@ -316,7 +316,7 @@ export default function ExchangeSetupPage() {
                 </label>
 
                 {formData.use_discount_token && (
-                  <div className="grid grid-cols-2 gap-3 pt-1">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                     <div>
                       <label className="block text-gray-400 mb-1">{t('discountTokenSymbol')}</label>
                       <input

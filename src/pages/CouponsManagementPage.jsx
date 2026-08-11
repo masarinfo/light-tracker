@@ -63,13 +63,13 @@ export default function CouponsManagementPage() {
   if (error) return <div className="p-8 text-red-400">خطأ: {error}</div>;
 
   return (
-    <div className="p-8 max-w-6xl mx-auto space-y-8 animate-fade-in" dir="rtl">
+    <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-6 md:space-y-8 animate-fade-in" dir="rtl">
       <div>
         <h1 className="text-3xl font-black text-white mb-2">إدارة الكوبونات</h1>
         <p className="text-slate-400">إصدار كوبونات خصم للمستخدمين والمسوقين.</p>
       </div>
 
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6">
         <h2 className="text-xl font-bold text-white mb-6 flex items-center">
           <Plus className="w-5 h-5 ml-2 text-cyan-400" />
           إضافة كوبون جديد
@@ -123,26 +123,26 @@ export default function CouponsManagementPage() {
         <table className="w-full text-right text-sm">
           <thead className="bg-slate-950 text-slate-400 font-semibold border-b border-slate-800">
             <tr>
-              <th className="p-4">كود الكوبون</th>
-              <th className="p-4">قيمة الخصم</th>
-              <th className="p-4">تاريخ الإنشاء</th>
-              <th className="p-4">الإجراءات</th>
+              <th className="p-3 md:p-4">كود الكوبون</th>
+              <th className="p-3 md:p-4">قيمة الخصم</th>
+              <th className="p-3 md:p-4">تاريخ الإنشاء</th>
+              <th className="p-3 md:p-4">الإجراءات</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800 text-slate-200">
             {coupons.length === 0 ? (
-              <tr><td colSpan="4" className="p-8 text-center text-slate-400">لا توجد كوبونات</td></tr>
+              <tr><td colSpan="4" className="p-4 sm:p-8 text-center text-slate-400">لا توجد كوبونات</td></tr>
             ) : (
               coupons.map(c => (
                 <tr key={c.id} className="hover:bg-slate-800/50 transition-colors">
-                  <td className="p-4">
+                  <td className="p-3 md:p-4">
                     <span className="font-mono font-bold text-cyan-400 bg-cyan-500/10 px-2 py-1 rounded">{c.code}</span>
                   </td>
-                  <td className="p-4 font-bold">
+                  <td className="p-3 md:p-4 font-bold">
                     {c.discount_type === 'PERCENTAGE' ? `${c.discount_value}%` : `$${c.discount_value}`}
                   </td>
-                  <td className="p-4 text-slate-400">{new Date(c.created_at).toLocaleDateString('ar-SA')}</td>
-                  <td className="p-4">
+                  <td className="p-3 md:p-4 text-slate-400">{new Date(c.created_at).toLocaleDateString('ar-SA')}</td>
+                  <td className="p-3 md:p-4">
                     <button
                       onClick={() => handleDelete(c.id)}
                       className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all"

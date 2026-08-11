@@ -40,9 +40,9 @@ export default function Header() {
   };
 
   return (
-    <header className="h-16 glass-panel border-b border-white/10 px-6 flex items-center justify-between sticky top-0 z-20 shrink-0">
+    <header className="h-16 glass-panel border-b border-white/10 px-3 md:px-6 flex items-center justify-between sticky top-0 z-20 shrink-0">
       {/* Title & Menu Toggle Button */}
-      <div className="flex items-center gap-4 truncate min-w-0">
+      <div className="flex items-center gap-2 md:gap-4 truncate min-w-0 flex-1">
         <button
           onClick={toggleSidebar}
           className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-cyan-500/40 text-cyan-400 transition-all duration-200 shrink-0"
@@ -62,7 +62,7 @@ export default function Header() {
       </div>
 
       {/* Right Controls */}
-      <div className="flex items-center gap-3 shrink-0">
+      <div className="flex items-center gap-1.5 md:gap-3 shrink-0">
         {/* Live Market Price Badge with Timer */}
         <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-mono">
           <Radio className={`w-3.5 h-3.5 text-cyan-400 shrink-0 ${isFetchingPrices ? 'animate-spin' : 'animate-pulse'}`} />
@@ -124,22 +124,22 @@ export default function Header() {
         {/* Language Switcher */}
         <button
           onClick={toggleLanguage}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-cyan-500/40 text-gray-200 text-xs font-semibold transition-all duration-200"
+          className="flex items-center gap-2 px-2 md:px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-cyan-500/40 text-gray-200 text-xs font-semibold transition-all duration-200"
           title="Switch Language / تغيير اللغة"
         >
           <Globe className="w-4 h-4 text-cyan-400 shrink-0" />
-          <span className="font-sans">{lang === 'ar' ? 'English (EN)' : 'العربية (AR)'}</span>
+          <span className="font-sans hidden sm:inline">{lang === 'ar' ? 'English (EN)' : 'العربية (AR)'}</span>
         </button>
 
         {/* User Profile & Logout */}
-        <div className="flex items-center gap-2 border-l border-white/10 pl-3 ml-1">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-semibold">
+        <div className="flex items-center gap-1.5 md:gap-2 border-l border-white/10 pl-2 md:pl-3 ml-0.5 md:ml-1">
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-semibold">
             <User className="w-4 h-4 text-purple-400 shrink-0" />
             <span className="font-sans hidden sm:inline">{user?.username}</span>
           </div>
           <button
             onClick={logout}
-            className="p-1.5 rounded-xl bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400 transition-all duration-200"
+            className="p-1.5 rounded-xl bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400 transition-all duration-200 flex items-center justify-center"
             title="Logout / تسجيل الخروج"
           >
             <LogOut className="w-4 h-4" />

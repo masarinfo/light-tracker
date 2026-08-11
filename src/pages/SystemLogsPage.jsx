@@ -42,8 +42,8 @@ export default function SystemLogsPage() {
   });
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      <div className="glass-panel p-6 rounded-2xl border border-rose-500/30 flex flex-col md:flex-row justify-between items-center gap-4">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6 max-w-7xl mx-auto">
+      <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-rose-500/30 flex flex-col md:flex-row justify-between items-center gap-4">
         <div>
           <h2 className="text-xl font-bold text-rose-400 flex items-center gap-2">
             <ShieldAlert className="w-6 h-6 shrink-0" />
@@ -98,24 +98,24 @@ export default function SystemLogsPage() {
           <table className="w-full text-left rtl:text-right text-sm">
             <thead className="bg-white/5 text-gray-400 font-semibold border-b border-white/10 uppercase tracking-wider text-xs">
               <tr>
-                <th className="p-4">الوقت والتاريخ</th>
-                <th className="p-4">المستخدم</th>
-                <th className="p-4">نوع الحدث</th>
-                <th className="p-4">التفاصيل</th>
+                <th className="p-3 md:p-4">الوقت والتاريخ</th>
+                <th className="p-3 md:p-4">المستخدم</th>
+                <th className="p-3 md:p-4">نوع الحدث</th>
+                <th className="p-3 md:p-4">التفاصيل</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 text-gray-200">
               {loading ? (
-                <tr><td colSpan="4" className="p-8 text-center text-gray-400"><RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2" />جاري جلب السجلات...</td></tr>
+                <tr><td colSpan="4" className="p-4 sm:p-8 text-center text-gray-400"><RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2" />جاري جلب السجلات...</td></tr>
               ) : filteredLogs.length === 0 ? (
-                <tr><td colSpan="4" className="p-8 text-center text-gray-400">لا يوجد سجلات مطابقة للبحث</td></tr>
+                <tr><td colSpan="4" className="p-4 sm:p-8 text-center text-gray-400">لا يوجد سجلات مطابقة للبحث</td></tr>
               ) : (
                 filteredLogs.map(log => (
                   <tr key={log.id} className="hover:bg-white/5 transition-colors group">
-                    <td className="p-4 whitespace-nowrap text-gray-400 font-mono text-xs">
+                    <td className="p-3 md:p-4 whitespace-nowrap text-gray-400 font-mono text-xs">
                       {new Date(log.created_at).toLocaleString()}
                     </td>
-                    <td className="p-4">
+                    <td className="p-3 md:p-4">
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-rose-500 to-orange-500 flex items-center justify-center text-[10px] font-bold">
                           <User className="w-3 h-3 text-white" />
@@ -125,7 +125,7 @@ export default function SystemLogsPage() {
                         </span>
                       </div>
                     </td>
-                    <td className="p-4 font-mono">
+                    <td className="p-3 md:p-4 font-mono">
                       <span className={`px-2 py-1 rounded text-[10px] font-bold tracking-wider ${
                         log.action_type.includes('DELETE') ? 'bg-rose-500/20 text-rose-400' :
                         log.action_type.includes('CREATE') ? 'bg-emerald-500/20 text-emerald-400' :
@@ -136,7 +136,7 @@ export default function SystemLogsPage() {
                         {log.action_type}
                       </span>
                     </td>
-                    <td className="p-4 text-gray-300">
+                    <td className="p-3 md:p-4 text-gray-300">
                       {log.details || '-'}
                     </td>
                   </tr>

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { BarChart3, Wallet, DollarSign, PieChart as PieChartIcon, TrendingUp, ShieldAlert } from 'lucide-react';
+import { api } from '../api/client';
+import { BarChart3, Wallet, DollarSign, PieChart as PieChartIcon, TrendingUp, ShieldAlert, Coins } from 'lucide-react';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -14,9 +15,75 @@ import {
   Legend
 } from 'recharts';
 
+function GoldGramsWidget({ goldPriceOz }) {
+  const [currency, setCurrency] = useState('USD');
+  if (!goldPriceOz) return null;
+  
+  // 1 Troy Ounce = 31.1034768 grams
+  const exchangeRate = currency === 'SAR' ? 3.75 : 1;
+  const currencySymbol = currency === 'SAR' ? 'ر.س' : '$';
+
+  const gram24k = (goldPriceOz / 31.1034768) * exchangeRate;
+  const gram21k = gram24k * (21 / 24);
+  const goldCoin8g21k = gram21k * 8; // الجنيه الذهب 8 جرام عيار 21
+
+  return (
+    <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-amber-500/30 bg-amber-500/5 space-y-3 relative overflow-hidden">
+      <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+            <Coins className="w-4 h-4" />
+          </div>
+          <span className="text-xs text-amber-500/80 font-bold">أسعار الذهب (جرام)</span>
+        </div>
+        {/* Currency Toggle */}
+        <div className="flex bg-black/20 rounded-lg p-0.5 border border-amber-500/20">
+          <button 
+            onClick={() => setCurrency('USD')}
+            className={`px-2 py-0.5 text-[10px] rounded font-bold transition-all ${currency === 'USD' ? 'bg-amber-500 text-black' : 'text-amber-500/60 hover:text-amber-400'}`}
+          >
+            USD
+          </button>
+          <button 
+            onClick={() => setCurrency('SAR')}
+            className={`px-2 py-0.5 text-[10px] rounded font-bold transition-all ${currency === 'SAR' ? 'bg-amber-500 text-black' : 'text-amber-500/60 hover:text-amber-400'}`}
+          >
+            SAR
+          </button>
+        </div>
+      </div>
+      <div className="space-y-1">
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-gray-300">عيار 24</span>
+          <span className="text-sm font-bold font-mono text-white" dir="ltr">{currencySymbol}{gram24k.toFixed(2)}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-gray-300">عيار 21</span>
+          <span className="text-sm font-bold font-mono text-white" dir="ltr">{currencySymbol}{gram21k.toFixed(2)}</span>
+        </div>
+        <div className="flex items-center justify-between border-t border-amber-500/20 pt-1 mt-1">
+          <span className="text-[11px] text-amber-300/80 font-bold">الجنيه (8ج عيار 21)</span>
+          <span className="text-sm font-bold font-mono text-amber-400" dir="ltr">{currencySymbol}{goldCoin8g21k.toFixed(2)}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function OverviewDashboardPage() {
   const { overviewMetrics, coinPortfolios, theme, t } = useApp();
   const [allocationMode, setAllocationMode] = useState('coin'); // 'coin' | 'exchange' | 'category'
+  const [goldPrice, setGoldPrice] = useState(null);
+
+  useEffect(() => {
+    // Fetch commodities to get Gold price for the dashboard
+    api.getCommoditiesOverview().then(res => {
+      if (res.success && res.data) {
+        const gold = res.data.find(c => c.name === 'Gold');
+        if (gold) setGoldPrice(gold.current_price);
+      }
+    }).catch(console.error);
+  }, []);
 
   const isLight = theme === 'light';
 
@@ -62,9 +129,9 @@ export default function OverviewDashboardPage() {
   const maxDrawdownPct = 4.2;
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6 max-w-7xl mx-auto">
       {/* Top Banner */}
-      <div className="glass-panel p-6 rounded-2xl border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold flex items-center gap-2">
             <BarChart3 className="w-6 h-6 text-cyan-400 shrink-0" />
@@ -81,9 +148,12 @@ export default function OverviewDashboardPage() {
       </div>
 
       {/* Top Summary Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+        {/* Card 0: Gold Grams */}
+        <GoldGramsWidget goldPriceOz={goldPrice} />
+
         {/* Card 1: Total Portfolio Value */}
-        <div className="glass-panel p-6 rounded-2xl border border-white/10 space-y-3 relative overflow-hidden">
+        <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-white/10 space-y-3 relative overflow-hidden">
           <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
             <Wallet className="w-5 h-5" />
           </div>
@@ -100,7 +170,7 @@ export default function OverviewDashboardPage() {
         </div>
 
         {/* Card 2: Liquidity Distribution */}
-        <div className="glass-panel p-6 rounded-2xl border border-white/10 space-y-3">
+        <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-white/10 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs text-gray-400 font-semibold">{t('cashVsInvested')}</span>
             <PieChartIcon className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -126,7 +196,7 @@ export default function OverviewDashboardPage() {
         </div>
 
         {/* Card 3: Total Fees Deducted Counter */}
-        <div className="glass-panel p-6 rounded-2xl border border-white/10 space-y-3">
+        <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-white/10 space-y-3">
           <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0">
             <DollarSign className="w-5 h-5" />
           </div>
@@ -140,7 +210,7 @@ export default function OverviewDashboardPage() {
         </div>
 
         {/* Card 4: Max Drawdown Gauge */}
-        <div className="glass-panel p-6 rounded-2xl border border-white/10 space-y-3">
+        <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-white/10 space-y-3">
           <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 shrink-0">
             <ShieldAlert className="w-5 h-5" />
           </div>
@@ -157,7 +227,7 @@ export default function OverviewDashboardPage() {
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Equity Curve Line Chart */}
-        <div className="lg:col-span-8 glass-panel p-6 rounded-2xl border border-white/10 space-y-4">
+        <div className="lg:col-span-8 glass-panel p-4 sm:p-6 rounded-2xl border border-white/10 space-y-4">
           <div className="flex items-center justify-between border-b border-white/10 pb-3">
             <h3 className="text-sm font-bold flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-cyan-400 shrink-0" />
@@ -194,7 +264,7 @@ export default function OverviewDashboardPage() {
         </div>
 
         {/* Allocation Pie Chart */}
-        <div className="lg:col-span-4 glass-panel p-6 rounded-2xl border border-white/10 space-y-4">
+        <div className="lg:col-span-4 glass-panel p-4 sm:p-6 rounded-2xl border border-white/10 space-y-4">
           <div className="flex items-center justify-between border-b border-white/10 pb-3">
             <h3 className="text-xs font-bold flex items-center gap-1.5">
               <PieChartIcon className="w-4 h-4 text-amber-400 shrink-0" />

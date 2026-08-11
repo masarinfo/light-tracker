@@ -125,9 +125,9 @@ export default function StrategyFactoryPage() {
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6 max-w-7xl mx-auto">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-6 rounded-2xl border border-white/10">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-4 sm:p-6 rounded-2xl border border-white/10">
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <Factory className="w-6 h-6 text-indigo-400 shrink-0" />
@@ -148,7 +148,7 @@ export default function StrategyFactoryPage() {
       {/* Existing Strategies Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {strategies.map((strat) => (
-          <div key={strat.id} className="glass-panel p-6 rounded-2xl border border-white/10 space-y-4 hover:border-indigo-500/40 transition-all flex flex-col justify-between">
+          <div key={strat.id} className="glass-panel p-4 sm:p-6 rounded-2xl border border-white/10 space-y-4 hover:border-indigo-500/40 transition-all flex flex-col justify-between">
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-white/10 pb-3">
                 <div className="flex items-center gap-3 truncate min-w-0">
@@ -219,7 +219,7 @@ export default function StrategyFactoryPage() {
       {/* Strategy Add / Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md overflow-y-auto">
-          <div className="glass-panel w-full max-w-2xl p-6 rounded-2xl border border-white/20 space-y-4 my-8">
+          <div className="glass-panel w-full max-w-2xl p-4 sm:p-6 rounded-2xl border border-white/20 space-y-4 my-8">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
                 <Factory className="w-5 h-5 text-indigo-400 shrink-0" />

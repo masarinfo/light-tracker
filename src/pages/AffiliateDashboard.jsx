@@ -61,14 +61,14 @@ export default function AffiliateDashboard() {
   if (error) return <div className="p-8 text-red-400">خطأ: {error}</div>;
 
   return (
-    <div className="p-8 max-w-6xl mx-auto space-y-8 animate-fade-in" dir="rtl">
+    <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-6 md:space-y-8 animate-fade-in" dir="rtl">
       <div>
         <h1 className="text-3xl font-black text-white mb-2">نظام التسويق بالعمولة</h1>
         <p className="text-slate-400">انشر رابطك واربح عمولة على كل عميل يشترك عن طريقك.</p>
       </div>
 
       {/* Referral Link Card */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 relative overflow-hidden">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-l from-purple-500 to-pink-500"></div>
         <h2 className="text-xl font-bold text-white mb-4 flex items-center">
           <ExternalLink className="w-5 h-5 ml-2 text-purple-400" />
@@ -91,7 +91,7 @@ export default function AffiliateDashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6">
           <div className="flex justify-between items-start mb-4">
             <div>
               <p className="text-sm text-slate-400 mb-1">الرصيد القابل للسحب</p>
@@ -104,7 +104,7 @@ export default function AffiliateDashboard() {
           <p className="text-xs text-slate-500">أرباح مؤكدة وجاهزة للتحويل.</p>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6">
           <div className="flex justify-between items-start mb-4">
             <div>
               <p className="text-sm text-slate-400 mb-1">الرصيد المعلق</p>
@@ -117,7 +117,7 @@ export default function AffiliateDashboard() {
           <p className="text-xs text-slate-500">أرباح قيد المراجعة أو بانتظار فترة السماح.</p>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6">
           <div className="flex justify-between items-start mb-4">
             <div>
               <p className="text-sm text-slate-400 mb-1">عدد الإحالات الناجحة</p>
@@ -132,7 +132,7 @@ export default function AffiliateDashboard() {
       </div>
 
       {/* Withdrawal Section */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6">
         <h2 className="text-xl font-bold text-white mb-6">طلب سحب الأرباح (TRC20)</h2>
         <form onSubmit={handleWithdraw} className="max-w-xl">
           <div className="mb-4">

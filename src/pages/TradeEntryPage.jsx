@@ -126,9 +126,9 @@ export default function TradeEntryPage() {
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6 max-w-7xl mx-auto">
       {/* Header Banner */}
-      <div className="glass-panel p-6 rounded-2xl border border-white/10">
+      <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-white/10">
         <h2 className="text-xl font-bold text-white flex items-center gap-2">
           <PlusCircle className="w-6 h-6 text-emerald-400 shrink-0" />
           <span>{t('tradeEntryTitle')}</span>
@@ -139,7 +139,7 @@ export default function TradeEntryPage() {
       {/* Main Trade Form & Instant Dynamic Targets Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Inputs Panel */}
-        <div className="lg:col-span-5 glass-panel p-6 rounded-2xl border border-white/10 space-y-5">
+        <div className="lg:col-span-5 glass-panel p-4 sm:p-6 rounded-2xl border border-white/10 space-y-5">
           <h3 className="text-sm font-bold text-gray-300 uppercase tracking-wider border-b border-white/10 pb-3 flex items-center gap-2">
             <Zap className="w-4 h-4 text-cyan-400 shrink-0" />
             <span>{t('quickInputsTitle')}</span>
@@ -218,7 +218,7 @@ export default function TradeEntryPage() {
             </div>
 
             {/* Price & Amount Inputs with Automatic Eastern Arabic to English Digit Conversion */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-gray-300 mb-1 font-semibold flex items-center justify-between">
                   <span>{t('entryPrice')}</span>
@@ -290,7 +290,7 @@ export default function TradeEntryPage() {
         </div>
 
         {/* Right Instant Target Auto-Generation Output Panel */}
-        <div className="lg:col-span-7 glass-panel p-6 rounded-2xl border border-white/10 space-y-5">
+        <div className="lg:col-span-7 glass-panel p-4 sm:p-6 rounded-2xl border border-white/10 space-y-5">
           <div className="flex items-center justify-between border-b border-white/10 pb-3">
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -309,7 +309,7 @@ export default function TradeEntryPage() {
             </h4>
             <div className="space-y-2">
               {tpTargets.map((tp) => (
-                <div key={tp.stage} className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20 grid grid-cols-4 gap-2 items-center text-xs font-mono">
+                <div key={tp.stage} className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-2 items-center text-xs font-mono">
                   <div>
                     <span className="text-gray-400 block text-[10px] font-sans">{t('targetStageLabel')}</span>
                     <span className="text-emerald-400 font-bold">TP{tp.stage} (+{tp.gainPct}%)</span>
@@ -339,7 +339,7 @@ export default function TradeEntryPage() {
             </h4>
             <div className="space-y-2">
               {slTargets.map((sl) => (
-                <div key={sl.stage} className="p-3 rounded-xl bg-rose-500/5 border border-rose-500/20 grid grid-cols-4 gap-2 items-center text-xs font-mono">
+                <div key={sl.stage} className="p-3 rounded-xl bg-rose-500/5 border border-rose-500/20 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-2 items-center text-xs font-mono">
                   <div>
                     <span className="text-gray-400 block text-[10px] font-sans">{t('stopStageLabel')}</span>
                     <span className="text-rose-400 font-bold">SL{sl.stage} (-{sl.lossPct}%)</span>

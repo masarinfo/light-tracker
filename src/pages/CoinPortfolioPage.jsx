@@ -12,10 +12,10 @@ function PortfolioRow({ item, fmt, handleOpenCloseModalFromPortfolio }) {
 
   return (
     <tr className="hover:bg-white/5 transition-colors">
-      <td className="p-4 font-bold text-white font-sans">{item.symbol}</td>
-      <td className="p-4 font-sans text-gray-300">{item.exchange_name}</td>
-      <td className="p-4 font-sans text-cyan-300">{item.strategy_name}</td>
-      <td className="p-4 font-sans">
+      <td className="p-3 md:p-4 font-bold text-white font-sans">{item.symbol}</td>
+      <td className="p-3 md:p-4 font-sans text-gray-300">{item.exchange_name}</td>
+      <td className="p-3 md:p-4 font-sans text-cyan-300">{item.strategy_name}</td>
+      <td className="p-3 md:p-4 font-sans">
         <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
           item.category === 'Short-Term'
             ? 'bg-amber-500/10 border border-amber-500/30 text-amber-400'
@@ -24,19 +24,19 @@ function PortfolioRow({ item, fmt, handleOpenCloseModalFromPortfolio }) {
           {item.category === 'Short-Term' ? 'مضاربة' : 'استثمار'}
         </span>
       </td>
-      <td className="p-4 text-emerald-400 font-bold" dir="ltr">${fmt(item.averageCost, 4)}</td>
+      <td className="p-3 md:p-4 text-emerald-400 font-bold" dir="ltr">${fmt(item.averageCost, 4)}</td>
       <td className={`p-4 font-bold text-white transition-colors ${flashClass}`} dir="ltr">${fmt(item.livePrice, 4)}</td>
-      <td className="p-4 font-bold" dir="ltr">{fmt(item.currentQuantity, 4)}</td>
-      <td className="p-4 text-gray-300 font-bold" dir="ltr">${fmt(item.totalInvestedRemaining, 2)}</td>
-      <td className="p-4 text-white font-bold" dir="ltr">${fmt(item.currentValue, 2)}</td>
-      <td className="p-4 font-sans">
+      <td className="p-3 md:p-4 font-bold" dir="ltr">{fmt(item.currentQuantity, 4)}</td>
+      <td className="p-3 md:p-4 text-gray-300 font-bold" dir="ltr">${fmt(item.totalInvestedRemaining, 2)}</td>
+      <td className="p-3 md:p-4 text-white font-bold" dir="ltr">${fmt(item.currentValue, 2)}</td>
+      <td className="p-3 md:p-4 font-sans">
         <div className={`flex items-center gap-1.5 font-bold ${isProfit ? 'text-emerald-400' : 'text-rose-400'}`} dir="ltr">
           <TrendIcon className="w-4 h-4 shrink-0" />
           <span>{isProfit ? '+' : ''}${fmt(item.unrealizedPnlUsd, 2)}</span>
           <span className="text-xs opacity-70">({isProfit ? '+' : ''}{fmt(item.unrealizedPnlPct, 1)}%)</span>
         </div>
       </td>
-      <td className="p-4 text-right font-sans">
+      <td className="p-3 md:p-4 text-right font-sans">
         {item.currentQuantity > 0 && (
           <button
             onClick={() => handleOpenCloseModalFromPortfolio(item)}
@@ -145,9 +145,9 @@ export default function CoinPortfolioPage() {
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6 max-w-7xl mx-auto">
       {/* Top Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="glass-panel p-4 rounded-2xl border border-white/10">
           <div className="text-gray-400 text-xs mb-1 font-bold">إجمالي المستثمر</div>
           <div className="text-xl font-bold font-mono text-white">${fmt(stats.totalInvested, 2)}</div>
@@ -184,7 +184,7 @@ export default function CoinPortfolioPage() {
         </div>
       </div>
       {/* Header Banner */}
-      <div className="glass-panel p-6 rounded-2xl border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <Coins className="w-6 h-6 text-cyan-400 shrink-0" />
@@ -212,8 +212,8 @@ export default function CoinPortfolioPage() {
       </div>
 
       {/* Multi-Filter Toolbar */}
-      <div className="glass-panel p-4 rounded-2xl border border-white/10 flex flex-wrap items-center gap-4 text-xs">
-        <div className="flex items-center gap-2 font-bold text-gray-300 shrink-0">
+      <div className="glass-panel p-4 rounded-2xl border border-white/10 grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-wrap items-center gap-4 text-xs">
+        <div className="flex items-center gap-2 font-bold text-gray-300 shrink-0 sm:col-span-2 md:col-span-1">
           <Filter className="w-4 h-4 text-cyan-400 shrink-0" />
           <span>{t('actionFilter')}:</span>
         </div>
@@ -222,7 +222,7 @@ export default function CoinPortfolioPage() {
         <select
           value={selectedCoin}
           onChange={(e) => setSelectedCoin(e.target.value)}
-          className="p-2.5 rounded-xl glass-input text-white font-semibold min-w-[130px]"
+          className="w-full md:w-auto p-2.5 rounded-xl glass-input text-white font-semibold min-w-[130px]"
         >
           <option value="ALL" className="bg-gray-900">{t('allCoins')}</option>
           {coinsList.map((symbol) => (
@@ -236,7 +236,7 @@ export default function CoinPortfolioPage() {
         <select
           value={selectedExchange}
           onChange={(e) => setSelectedExchange(e.target.value)}
-          className="p-2.5 rounded-xl glass-input text-white font-semibold min-w-[140px]"
+          className="w-full md:w-auto p-2.5 rounded-xl glass-input text-white font-semibold min-w-[140px]"
         >
           <option value="ALL" className="bg-gray-900">{t('allExchanges')}</option>
           {exchangesList.map((exName) => (
@@ -250,7 +250,7 @@ export default function CoinPortfolioPage() {
         <select
           value={selectedStrategy}
           onChange={(e) => setSelectedStrategy(e.target.value)}
-          className="p-2.5 rounded-xl glass-input text-white font-semibold min-w-[150px]"
+          className="w-full md:w-auto p-2.5 rounded-xl glass-input text-white font-semibold min-w-[150px]"
         >
           <option value="ALL" className="bg-gray-900">{t('allStrategies')}</option>
           {strategiesList.map((stName) => (
@@ -272,23 +272,23 @@ export default function CoinPortfolioPage() {
           <table className="w-full text-left text-xs font-sans">
             <thead className="bg-white/5 text-gray-400 font-semibold border-b border-white/10 uppercase tracking-wider">
               <tr>
-                <th className="p-4">{t('symbol')}</th>
-                <th className="p-4">{t('exchange')}</th>
-                <th className="p-4">{t('strategy')}</th>
-                <th className="p-4">{t('statusLabel')}</th>
-                <th className="p-4">{t('totalQuantity')}</th>
-                <th className="p-4">{t('averageCost')}</th>
-                <th className="p-4">{t('totalInvested')}</th>
-                <th className="p-4">{t('livePrice')}</th>
-                <th className="p-4">{t('currentValue')}</th>
-                <th className="p-4">{t('unrealizedPnl')}</th>
-                <th className="p-4 text-right">الإجراءات</th>
+                <th className="p-3 md:p-4">{t('symbol')}</th>
+                <th className="p-3 md:p-4">{t('exchange')}</th>
+                <th className="p-3 md:p-4">{t('strategy')}</th>
+                <th className="p-3 md:p-4">{t('statusLabel')}</th>
+                <th className="p-3 md:p-4">{t('totalQuantity')}</th>
+                <th className="p-3 md:p-4">{t('averageCost')}</th>
+                <th className="p-3 md:p-4">{t('totalInvested')}</th>
+                <th className="p-3 md:p-4">{t('livePrice')}</th>
+                <th className="p-3 md:p-4">{t('currentValue')}</th>
+                <th className="p-3 md:p-4">{t('unrealizedPnl')}</th>
+                <th className="p-3 md:p-4 text-right">الإجراءات</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 text-gray-200 font-mono">
               {filteredPortfolios.length === 0 ? (
                 <tr>
-                  <td colSpan="11" className="p-6 text-center text-gray-500 font-sans">
+                  <td colSpan="11" className="p-4 sm:p-6 text-center text-gray-500 font-sans">
                     لا يوجد مراكز نشطة تطابق التصفية.
                   </td>
                 </tr>

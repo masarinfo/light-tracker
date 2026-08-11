@@ -52,8 +52,8 @@ export default function UsersManagementPage() {
   );
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      <div className="glass-panel p-6 rounded-2xl border border-indigo-500/30 flex flex-col md:flex-row justify-between items-center gap-4">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6 max-w-7xl mx-auto">
+      <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-indigo-500/30 flex flex-col md:flex-row justify-between items-center gap-4">
         <div>
           <h2 className="text-xl font-bold text-indigo-400 flex items-center gap-2">
             <User className="w-6 h-6 shrink-0" />
@@ -92,27 +92,27 @@ export default function UsersManagementPage() {
           <table className="w-full text-left rtl:text-right text-sm">
             <thead className="bg-white/5 text-gray-400 font-semibold border-b border-white/10 uppercase tracking-wider text-xs">
               <tr>
-                <th className="p-4">المعرف (ID)</th>
-                <th className="p-4">اسم المستخدم</th>
-                <th className="p-4">البريد الإلكتروني</th>
-                <th className="p-4">الباقة الفعالة</th>
-                <th className="p-4">تاريخ الانضمام</th>
-                <th className="p-4">الصلاحية</th>
-                <th className="p-4 text-left rtl:text-left">إجراءات</th>
+                <th className="p-3 md:p-4">المعرف (ID)</th>
+                <th className="p-3 md:p-4">اسم المستخدم</th>
+                <th className="p-3 md:p-4">البريد الإلكتروني</th>
+                <th className="p-3 md:p-4">الباقة الفعالة</th>
+                <th className="p-3 md:p-4">تاريخ الانضمام</th>
+                <th className="p-3 md:p-4">الصلاحية</th>
+                <th className="p-3 md:p-4 text-left rtl:text-left">إجراءات</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 text-gray-200">
               {loading ? (
-                <tr><td colSpan="5" className="p-8 text-center text-gray-400"><RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2" />جاري جلب المستخدمين...</td></tr>
+                <tr><td colSpan="5" className="p-4 sm:p-8 text-center text-gray-400"><RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2" />جاري جلب المستخدمين...</td></tr>
               ) : filteredUsers.length === 0 ? (
-                <tr><td colSpan="5" className="p-8 text-center text-gray-400">لا يوجد مستخدمين</td></tr>
+                <tr><td colSpan="5" className="p-4 sm:p-8 text-center text-gray-400">لا يوجد مستخدمين</td></tr>
               ) : (
                 filteredUsers.map(u => (
                   <tr key={u.id} className="hover:bg-white/5 transition-colors group">
-                    <td className="p-4 font-mono text-gray-400">#{u.id}</td>
-                    <td className="p-4 font-bold text-white text-base">{u.username}</td>
-                    <td className="p-4 text-gray-400">{u.email}</td>
-                    <td className="p-4">
+                    <td className="p-3 md:p-4 font-mono text-gray-400">#{u.id}</td>
+                    <td className="p-3 md:p-4 font-bold text-white text-base">{u.username}</td>
+                    <td className="p-3 md:p-4 text-gray-400">{u.email}</td>
+                    <td className="p-3 md:p-4">
                       {u.active_plan && u.active_plan !== "None" ? (
                         <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                           {u.active_plan}
@@ -121,8 +121,8 @@ export default function UsersManagementPage() {
                         <span className="text-gray-500 text-xs">لا يوجد</span>
                       )}
                     </td>
-                    <td className="p-4 font-mono text-gray-400 text-xs">{new Date(u.created_at).toLocaleString()}</td>
-                    <td className="p-4 flex gap-1">
+                    <td className="p-3 md:p-4 font-mono text-gray-400 text-xs">{new Date(u.created_at).toLocaleString()}</td>
+                    <td className="p-3 md:p-4 flex gap-1">
                       {u.is_superadmin && (
                         <span className="px-2 py-1 rounded text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30 w-fit block">
                           <ShieldAlert className="w-3 h-3 inline mr-1" /> Admin
@@ -132,7 +132,7 @@ export default function UsersManagementPage() {
                         {u.primary_role}
                       </span>
                     </td>
-                    <td className="p-4">
+                    <td className="p-3 md:p-4">
                       <div className="flex items-center gap-2 justify-start rtl:justify-end">
                         <button
                           onClick={() => handlePromote(u.id, u.is_superadmin)}

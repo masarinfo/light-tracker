@@ -16,6 +16,7 @@ services:
   - type: web
     name: light-tracker-backend
     env: python
+    plan: free
     buildCommand: cd backend && pip install -r requirements.txt
     startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
@@ -30,3 +31,4 @@ databases:
   - name: light-tracker-db
     databaseName: lighttracker
     user: lighttracker_user
+    plan: free

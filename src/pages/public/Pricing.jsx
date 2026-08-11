@@ -18,24 +18,8 @@ export default function Pricing() {
   const [joined, setJoined] = useState(false);
 
   useEffect(() => {
-    // We can still fetch plans to get the names, or just mock them if backend is empty.
-    api.getSubscriptionPlans()
-      .then(data => {
-        // Only keep the main plans (e.g. Free and Pro Monthly) to show as tiers
-        const uniqueTiers = [];
-        if (data && data.length > 0) {
-          const free = data.find(p => p.price_usd === 0);
-          const pro = data.find(p => p.plan_code.includes('PRO'));
-          if (free) uniqueTiers.push(free);
-          if (pro) uniqueTiers.push(pro);
-        }
-        setAllPlans(uniqueTiers);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setLoading(false);
-      });
+    // Static waitlist mode: No need to fetch plans from backend
+    setLoading(false);
   }, [isRtl]);
 
   const handleJoinWaitlist = (e) => {
@@ -53,12 +37,13 @@ export default function Pricing() {
 
   // Features mapping
   const featuresList = [
-    { id: 'crypto', labelAr: 'تتبع وإدخال الصفقات', labelEn: 'Trade Entry & Tracking', free: 'حد أقصى 10 صفقات', pro: 'غير محدود' },
-    { id: 'dashboard', labelAr: 'الداشبورد العام والتحليلات', labelEn: 'Overview Dashboard & Analytics', free: true, pro: true },
-    { id: 'strategies', labelAr: 'بناء الاستراتيجيات المخصصة', labelEn: 'Custom Strategy Builder', free: 'حد أقصى 2 استراتيجية', pro: 'غير محدود' },
-    { id: 'gold', labelAr: 'مركز إدارة وتداول الذهب', labelEn: 'Gold Hub (Karats & Grams)', free: false, pro: true },
-    { id: 'alerts', labelAr: 'تنبيهات العجز النقدي المتقدمة', labelEn: 'Advanced Cash Deficit Alerts', free: false, pro: true },
-    { id: 'support', labelAr: 'أولوية الدعم الفني الفوري (VIP)', labelEn: 'Priority VIP Support', free: false, pro: true },
+    { id: 'crypto', labelAr: 'تتبع وإدخال الصفقات', labelEn: 'Trade Entry & Tracking', free: 'حد أقصى 10 صفقات', pro: 'غير محدود', elite: 'غير محدود' },
+    { id: 'dashboard', labelAr: 'الداشبورد العام والتحليلات', labelEn: 'Overview Dashboard & Analytics', free: true, pro: true, elite: true },
+    { id: 'strategies', labelAr: 'بناء الاستراتيجيات المخصصة', labelEn: 'Custom Strategy Builder', free: 'حد أقصى 2 استراتيجية', pro: 'غير محدود', elite: 'غير محدود' },
+    { id: 'gold', labelAr: 'مركز إدارة وتداول الذهب', labelEn: 'Gold Hub (Karats & Grams)', free: false, pro: true, elite: true },
+    { id: 'alerts', labelAr: 'تنبيهات العجز النقدي المتقدمة', labelEn: 'Advanced Cash Deficit Alerts', free: false, pro: true, elite: true },
+    { id: 'support', labelAr: 'أولوية الدعم الفني الفوري (VIP)', labelEn: 'Priority VIP Support', free: false, pro: true, elite: 'أولوية قصوى 24/7' },
+    { id: 'reports', labelAr: 'تصدير التقارير (PDF/Excel)', labelEn: 'Export Reports (PDF/Excel)', free: false, pro: false, elite: true },
   ];
 
   if (loading) {
@@ -72,10 +57,11 @@ export default function Pricing() {
     );
   }
 
-  // Fallback if no plans in DB yet
-  const displayedPlans = allPlans.length > 0 ? allPlans : [
-    { id: 1, name: isRtl ? 'الباقة المجانية' : 'Free Plan', price_usd: 0, plan_code: 'FREE' },
-    { id: 2, name: isRtl ? 'باقة المحترفين' : 'Pro Plan', price_usd: 29, plan_code: 'PRO' }
+  // Static waitlist plans
+  const displayedPlans = [
+    { id: 1, name: isRtl ? 'الباقة الأساسية' : 'Basic Plan', type: 'free', plan_code: 'FREE' },
+    { id: 2, name: isRtl ? 'باقة المحترفين' : 'Pro Plan', type: 'pro', plan_code: 'PRO' },
+    { id: 3, name: isRtl ? 'باقة النخبة' : 'Elite Lifetime', type: 'elite', plan_code: 'ELITE' }
   ];
 
   return (
@@ -102,10 +88,11 @@ export default function Pricing() {
       </div>
 
       {/* Pricing Cards Grid (No Prices) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 max-w-4xl gap-8 mx-auto items-center">
+      <div className="grid grid-cols-1 md:grid-cols-3 max-w-6xl gap-8 mx-auto items-center">
         {displayedPlans.map((plan) => {
-          const isFree = plan.price_usd === 0;
-          const isPro = plan.plan_code.includes('PRO');
+          const isFree = plan.type === 'free';
+          const isPro = plan.type === 'pro';
+          const isElite = plan.type === 'elite';
           
           return (
             <div 
@@ -134,7 +121,11 @@ export default function Pricing() {
               {/* Dynamic Features List */}
               <ul className="mb-4 flex-1 space-y-4 text-sm">
                 {featuresList.map((feat) => {
-                  const hasFeature = isFree ? feat.free : feat.pro;
+                  let hasFeature = false;
+                  if (isFree) hasFeature = feat.free;
+                  else if (isPro) hasFeature = feat.pro;
+                  else if (isElite) hasFeature = feat.elite;
+
                   const label = isRtl ? feat.labelAr : feat.labelEn;
                   
                   if (hasFeature === false) {

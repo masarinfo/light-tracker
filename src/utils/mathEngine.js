@@ -4,6 +4,20 @@
  */
 
 /**
+ * Smart formatting for crypto prices dynamically scaling decimals
+ */
+export function formatCryptoPrice(price) {
+  const num = parseFloat(price);
+  if (isNaN(num) || num === 0) return '0.00';
+  
+  if (num >= 1000) return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (num >= 1) return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+  if (num >= 0.01) return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+  if (num >= 0.0001) return num.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 6 });
+  return num.toLocaleString('en-US', { minimumFractionDigits: 6, maximumFractionDigits: 10 });
+}
+
+/**
  * Calculates effective fee percentage based on base fee and discount token rules
  */
 export function calculateEffectiveFeePct(baseFeePct, useDiscountToken, discountPct) {

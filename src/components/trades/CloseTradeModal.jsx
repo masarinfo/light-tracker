@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { XCircle, Target, TrendingUp, TrendingDown, DollarSign, CheckCircle2, Copy, Check } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { formatCryptoPrice } from '../../utils/mathEngine';
 
 export default function CloseTradeModal({ trade, onClose, onSave }) {
   const { exchanges } = useApp();
@@ -223,7 +224,7 @@ export default function CloseTradeModal({ trade, onClose, onSave }) {
                         {tgt.type} (S{tgt.stage})
                       </span>
                       <span className="text-gray-300 flex items-center gap-1.5">
-                        السعر: ${fmt(price, 6)}
+                        السعر: ${formatCryptoPrice(price)}
                         <button 
                           type="button" 
                           onClick={() => copyToClipboard(price.toString(), `tgt${idx}`)}

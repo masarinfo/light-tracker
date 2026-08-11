@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { generateTradeTargets, calculateTradePurchase } from '../utils/mathEngine';
+import { generateTradeTargets, calculateTradePurchase, formatCryptoPrice } from '../utils/mathEngine';
 import { PlusCircle, Zap, Target, ShieldAlert, CheckCircle2, Sparkles, Building2, Copy, Check, Settings2, Search } from 'lucide-react';
 
 export default function TradeEntryPage() {
@@ -383,7 +383,7 @@ export default function TradeEntryPage() {
                   <div>
                     <span className="text-gray-400 block text-[10px] font-sans">{t('targetPrice')}</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-white font-bold" dir="ltr">${tp.targetPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}</span>
+                      <span className="text-white font-bold" dir="ltr">${formatCryptoPrice(tp.targetPrice)}</span>
                       <button 
                         type="button" 
                         onClick={() => copyToClipboard(tp.targetPrice.toString(), `tp${tp.stage}`)}
@@ -422,7 +422,7 @@ export default function TradeEntryPage() {
                   <div>
                     <span className="text-gray-400 block text-[10px] font-sans">{t('targetPrice')}</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-white font-bold" dir="ltr">${sl.targetPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}</span>
+                      <span className="text-white font-bold" dir="ltr">${formatCryptoPrice(sl.targetPrice)}</span>
                       <button 
                         type="button" 
                         onClick={() => copyToClipboard(sl.targetPrice.toString(), `sl${sl.stage}`)}

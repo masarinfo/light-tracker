@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { generateTradeTargets, calculateTradePurchase } from '../utils/mathEngine';
-import { PlusCircle, Zap, Target, ShieldAlert, CheckCircle2, Sparkles, Building2 } from 'lucide-react';
+import { PlusCircle, Zap, Target, ShieldAlert, CheckCircle2, Sparkles, Building2, Copy, Check, Settings2, Search } from 'lucide-react';
 
 export default function TradeEntryPage() {
   const { strategies, exchanges, addTrade, livePrices, t, lang, setActiveScreen } = useApp();
 
   const [symbol, setSymbol] = useState('SOLUSDT');
   const [selectedStrategyId, setSelectedStrategyId] = useState(strategies[0]?.id || 1);
+  const [showSymbolDropdown, setShowSymbolDropdown] = useState(false);
+  const [showManualQuantity, setShowManualQuantity] = useState(false);
+  const [copiedTarget, setCopiedTarget] = useState(null);
   
   // Selected strategy details
   const currentStrategy = strategies.find((s) => String(s.id) === String(selectedStrategyId)) || strategies[0];
@@ -64,6 +67,25 @@ export default function TradeEntryPage() {
   const entryPrice = parseCommasToNumber(entryPriceStr);
   const amountUsd = parseCommasToNumber(amountUsdStr);
   const manualQuantity = parseCommasToNumber(manualQuantityStr);
+
+  const handleQuantityChange = (val) => {
+    const formatted = formatInputWithCommas(val);
+    setManualQuantityStr(formatted);
+    const q = parseCommasToNumber(formatted);
+    if (q > 0 && entryPrice > 0) {
+      const feeMultiplier = (1 - (currentExchange?.maker_fee_pct || 0) / 100);
+      const newAmount = (q * entryPrice) / feeMultiplier;
+      setAmountUsdStr(formatInputWithCommas(newAmount.toFixed(2)));
+    }
+  };
+
+  const copyToClipboard = (text, targetId) => {
+    navigator.clipboard.writeText(text);
+    setCopiedTarget(targetId);
+    setTimeout(() => setCopiedTarget(null), 1500);
+  };
+
+  const coinOptions = Object.keys(livePrices).filter(k => k.includes(symbol.toUpperCase())).slice(0, 8);
 
   // Update selected exchange when strategy changes
   useEffect(() => {
@@ -146,19 +168,25 @@ export default function TradeEntryPage() {
           </h3>
 
           <form onSubmit={handleExecuteTrade} className="space-y-4 text-xs">
-            {/* Symbol Input */}
-            <div>
+            {/* Symbol Input (Searchable) */}
+            <div className="relative">
               <label className="block text-gray-300 mb-1 font-semibold">{t('symbol')}</label>
               <div className="relative flex items-center">
+                <Search className={`absolute ${isRtl ? 'right-3' : 'left-3'} w-4 h-4 text-gray-400 pointer-events-none z-10`} />
                 <input
                   type="text"
                   dir="ltr"
                   value={symbol}
-                  onChange={(e) => setSymbol(e.target.value.toUpperCase())}
+                  onChange={(e) => {
+                    setSymbol(e.target.value.toUpperCase());
+                    setShowSymbolDropdown(true);
+                  }}
+                  onFocus={() => setShowSymbolDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowSymbolDropdown(false), 200)}
                   placeholder="e.g. BTCUSDT, SOLUSDT"
                   required
                   className={`w-full p-3 rounded-xl glass-input uppercase font-mono font-bold text-cyan-300 text-sm tracking-wider ${
-                    isRtl ? 'pl-16 pr-3 text-right' : 'pr-16 pl-3 text-left'
+                    isRtl ? 'pl-16 pr-10 text-right' : 'pr-16 pl-10 text-left'
                   }`}
                 />
                 <span
@@ -169,6 +197,29 @@ export default function TradeEntryPage() {
                   SPOT
                 </span>
               </div>
+              
+              {showSymbolDropdown && coinOptions.length > 0 && (
+                <div className="absolute z-20 w-full mt-1 max-h-40 overflow-y-auto bg-slate-900 border border-white/10 rounded-xl shadow-xl shadow-black/50 overflow-hidden custom-scrollbar">
+                  {coinOptions.map(coin => (
+                    <button
+                      key={coin}
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()} // Prevent blur before click
+                      onClick={() => {
+                        setSymbol(coin);
+                        setShowSymbolDropdown(false);
+                        const fetched = livePrices[coin];
+                        if(fetched) setEntryPriceStr(formatInputWithCommas(fetched.toString()));
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm font-mono text-gray-300 hover:bg-cyan-500/20 hover:text-cyan-300 transition-colors flex justify-between items-center"
+                      dir="ltr"
+                    >
+                      <span className="font-bold">{coin}</span>
+                      <span className="text-gray-500 text-xs">${livePrices[coin]}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Strategy Select */}
@@ -256,19 +307,34 @@ export default function TradeEntryPage() {
 
             {/* Manual Quantity Override */}
             <div>
-              <label className="block text-gray-300 mb-1 font-semibold flex items-center justify-between">
-                <span>تعديل الكمية يدوياً (اختياري)</span>
-                <span className="text-[9px] text-cyan-400 font-mono">الكمية المحسوبة: {purchaseInfo.quantity.toLocaleString()}</span>
-              </label>
-              <input
-                type="text"
-                inputMode="decimal"
-                dir="ltr"
-                value={manualQuantityStr}
-                onChange={(e) => setManualQuantityStr(formatInputWithCommas(e.target.value))}
-                placeholder="اتركه فارغاً للاعتماد على الكمية المحسوبة آلياً"
-                className="w-full p-3 rounded-xl glass-input font-mono font-bold text-gray-300 text-sm focus:border-cyan-500/50"
-              />
+              <button 
+                type="button" 
+                onClick={() => setShowManualQuantity(!showManualQuantity)}
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+              >
+                <div className="flex items-center gap-2 text-gray-300 font-semibold">
+                  <Settings2 className="w-4 h-4 text-cyan-400" />
+                  <span>تعديل الكمية يدوياً (اختياري)</span>
+                </div>
+                <span className="text-[10px] text-gray-400 font-mono">
+                  الكمية الآلية: {purchaseInfo.quantity.toLocaleString()}
+                </span>
+              </button>
+              
+              {showManualQuantity && (
+                <div className="mt-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    dir="ltr"
+                    value={manualQuantityStr}
+                    onChange={(e) => handleQuantityChange(e.target.value)}
+                    placeholder="سيتم حساب المبلغ المستثمر آلياً عند الإدخال"
+                    className="w-full p-3 rounded-xl glass-input font-mono font-bold text-cyan-300 text-sm focus:border-cyan-500/50"
+                  />
+                  <p className="text-[10px] text-gray-500 mt-1">ملاحظة: إدخال الكمية سيقوم بتحديث حقل "المبلغ المستثمر" فوراً لتتطابق الحسابات.</p>
+                </div>
+              )}
             </div>
 
             {/* Calculated Quantity Card */}
@@ -316,7 +382,16 @@ export default function TradeEntryPage() {
                   </div>
                   <div>
                     <span className="text-gray-400 block text-[10px] font-sans">{t('targetPrice')}</span>
-                    <span className="text-white font-bold" dir="ltr">${tp.targetPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-white font-bold" dir="ltr">${tp.targetPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}</span>
+                      <button 
+                        type="button" 
+                        onClick={() => copyToClipboard(tp.targetPrice.toString(), `tp${tp.stage}`)}
+                        className="text-gray-500 hover:text-emerald-400 transition-colors"
+                      >
+                        {copiedTarget === `tp${tp.stage}` ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
                   </div>
                   <div>
                     <span className="text-gray-400 block text-[10px] font-sans">{t('quantityToSell')}</span>
@@ -346,7 +421,16 @@ export default function TradeEntryPage() {
                   </div>
                   <div>
                     <span className="text-gray-400 block text-[10px] font-sans">{t('targetPrice')}</span>
-                    <span className="text-white font-bold" dir="ltr">${sl.targetPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-white font-bold" dir="ltr">${sl.targetPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}</span>
+                      <button 
+                        type="button" 
+                        onClick={() => copyToClipboard(sl.targetPrice.toString(), `sl${sl.stage}`)}
+                        className="text-gray-500 hover:text-rose-400 transition-colors"
+                      >
+                        {copiedTarget === `sl${sl.stage}` ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
                   </div>
                   <div>
                     <span className="text-gray-400 block text-[10px] font-sans">{t('quantityToSell')}</span>

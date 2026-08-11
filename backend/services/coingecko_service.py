@@ -1,5 +1,6 @@
 import requests
 import logging
+from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
@@ -11,9 +12,10 @@ LIVE_PRICES_CACHE = {
     "NEARUSDT": 5.0
 }
 MARKET_DATA_CACHE = []
+LAST_FETCH_TIME = datetime.min
 
 def fetch_coingecko_prices():
-    global LIVE_PRICES_CACHE, MARKET_DATA_CACHE
+    global LIVE_PRICES_CACHE, MARKET_DATA_CACHE, LAST_FETCH_TIME
     try:
         # Fetch top 250 coins from CoinGecko
         response = requests.get(
@@ -41,6 +43,7 @@ def fetch_coingecko_prices():
         # Update the global caches
         LIVE_PRICES_CACHE.update(new_prices)
         MARKET_DATA_CACHE = data
+        LAST_FETCH_TIME = datetime.now()
         
         logger.info(f"Successfully updated {len(new_prices)} prices from CoinGecko.")
         
@@ -48,12 +51,12 @@ def fetch_coingecko_prices():
         logger.error(f"Failed to fetch CoinGecko prices: {str(e)}")
 
 def get_cached_prices():
-    if not MARKET_DATA_CACHE:
+    if not MARKET_DATA_CACHE or (datetime.now() - LAST_FETCH_TIME).total_seconds() > 60:
         fetch_coingecko_prices()
     return LIVE_PRICES_CACHE
 
 def get_market_data():
-    if not MARKET_DATA_CACHE:
+    if not MARKET_DATA_CACHE or (datetime.now() - LAST_FETCH_TIME).total_seconds() > 60:
         fetch_coingecko_prices()
     return MARKET_DATA_CACHE
 

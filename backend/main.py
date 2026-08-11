@@ -5,7 +5,6 @@ import logging
 import models
 from database import engine
 from routers import exchanges, strategies, trades, auth_router, admin_router, wallet, subscription_router, affiliate_router
-from scheduler import start_scheduler, stop_scheduler
 from services.coingecko_service import get_cached_prices, get_market_data
 from services.commodities_service import get_commodities_data
 
@@ -29,17 +28,11 @@ app.add_middleware(
 # Startup & Shutdown Events
 @app.on_event("startup")
 def on_startup():
-    import os
-    if not os.environ.get("VERCEL"):
-        start_scheduler()
-    else:
-        logging.info("Running on Vercel: background scheduler disabled. (Please set up a cron job or rely on dynamic fetches)")
+    logging.info("Background scheduler disabled. Data is fetched on-demand to save resources.")
 
 @app.on_event("shutdown")
 def on_shutdown():
-    import os
-    if not os.environ.get("VERCEL"):
-        stop_scheduler()
+    pass
 
 # Include Routers
 app.include_router(auth_router.router)

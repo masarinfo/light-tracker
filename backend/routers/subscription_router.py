@@ -6,11 +6,22 @@ import database
 import models
 import auth
 from services.payment_adapter_trc20 import TRC20Adapter
+from services.payment_orchestrator import PaymentOrchestrator
 
 router = APIRouter(
     prefix="/subscriptions",
     tags=["subscriptions"]
 )
+
+@router.post("/refresh-payments")
+def refresh_payments(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
+    """
+    Triggers the blockchain payment poller to check for any incoming payments.
+    Instead of running infinitely in the background, this is called on-demand to save resources.
+    """
+    orchestrator = PaymentOrchestrator(db)
+    orchestrator.poll_for_payments()
+    return {"message": "Payment polling triggered successfully"}
 
 @router.get("/plans")
 def get_plans(db: Session = Depends(database.get_db)):

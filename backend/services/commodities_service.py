@@ -1,12 +1,14 @@
 import yfinance as yf
 import logging
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
 COMMODITIES_CACHE = []
+LAST_FETCH_TIME = datetime.min
 
 def fetch_commodities_prices():
-    global COMMODITIES_CACHE
+    global COMMODITIES_CACHE, LAST_FETCH_TIME
     try:
         # GC=F (Gold), CL=F (Crude Oil), ^TNX (US 10-Yr Bond Yield)
         tickers = {
@@ -45,10 +47,13 @@ def fetch_commodities_prices():
                 
         if new_cache:
             COMMODITIES_CACHE = new_cache
+            LAST_FETCH_TIME = datetime.now()
             logger.info(f"Successfully updated {len(COMMODITIES_CACHE)} commodities from yfinance.")
             
     except Exception as e:
         logger.error(f"Failed to fetch commodities: {str(e)}")
 
 def get_commodities_data():
+    if not COMMODITIES_CACHE or (datetime.now() - LAST_FETCH_TIME).total_seconds() > 60:
+        fetch_commodities_prices()
     return COMMODITIES_CACHE

@@ -4,7 +4,8 @@ import logging
 
 import models
 from database import engine
-from routers import exchanges, strategies, trades, auth_router, admin_router, wallet, subscription_router, affiliate_router
+from routers import auth_router, exchanges, strategies, trades, admin_router, wallet, subscription_router, affiliate_router, waitlist_router
+
 from services.coingecko_service import get_cached_prices, get_market_data
 from services.commodities_service import get_commodities_data
 
@@ -43,7 +44,7 @@ app.include_router(admin_router.router)
 app.include_router(wallet.router)
 app.include_router(subscription_router.router)
 app.include_router(affiliate_router.router)
-
+app.include_router(waitlist_router.router)
 @app.get("/live-prices", tags=["prices"])
 def live_prices():
     """

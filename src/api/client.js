@@ -67,6 +67,10 @@ export const api = {
   subscribeToPlan: (planId) => request(`/subscriptions/subscribe/${planId}`, { method: 'POST' }),
   mockPayInvoice: (invoiceId) => request(`/subscriptions/mock-pay/${invoiceId}`, { method: 'POST' }),
 
+  // Waitlist
+  joinWaitlist: (email) => request('/api/waitlist', { method: 'POST', body: JSON.stringify({ email }) }),
+  getWaitlist: () => request('/api/waitlist/admin'),
+
   // Affiliates
   getAffiliateProfile: () => request('/affiliate/profile'),
   getAffiliateCommissions: () => request('/affiliate/commissions'),

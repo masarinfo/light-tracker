@@ -22,17 +22,20 @@ export default function Pricing() {
     setLoading(false);
   }, [isRtl]);
 
-  const handleJoinWaitlist = (e) => {
+  const handleJoinWaitlist = async (e) => {
     e.preventDefault();
     if (!email) return;
     
     setIsSubmitting(true);
-    // Mock API call to save email
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      await api.joinWaitlist(email);
       setJoined(true);
       setEmail('');
-    }, 1500);
+    } catch (err) {
+      alert(isRtl ? "حدث خطأ أثناء التسجيل، أو أن البريد مسجل مسبقاً." : "Error joining waitlist or email already registered.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Features mapping

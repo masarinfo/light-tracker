@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   ChevronLeft,
   ChevronRight,
+  Mail,
   LineChart,
   History,
   Globe,
@@ -111,6 +112,7 @@ export default function Sidebar() {
       icon: Shield,
       items: [
         { id: 'users-management', label: lang === 'ar' ? 'إدارة المستخدمين' : 'Users Mgt', icon: Users, onClick: () => setActiveScreen('users-management') },
+        { id: 'waitlist-management', label: lang === 'ar' ? 'قائمة الانتظار' : 'Waitlist', icon: Mail, onClick: () => setActiveScreen('waitlist-management') },
         { id: 'coupons-management', label: lang === 'ar' ? 'إدارة الكوبونات' : 'Coupons', icon: Tag, onClick: () => setActiveScreen('coupons-management') },
         { id: 'system-logs', label: lang === 'ar' ? 'سجل النظام (Admin)' : 'System Logs', icon: ShieldAlert, onClick: () => setActiveScreen('system-logs') },
       ]

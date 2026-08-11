@@ -20,6 +20,7 @@ import StrategyDashboardPage from './pages/StrategyDashboardPage';
 import SecurityPreviewPage from './pages/SecurityPreviewPage';
 import SystemLogsPage from './pages/SystemLogsPage';
 import UsersManagementPage from './pages/UsersManagementPage';
+import WaitlistManagementPage from './pages/admin/WaitlistManagementPage';
 import WalletPage from './pages/WalletPage';
 import BillingPage from './pages/BillingPage';
 import AffiliateDashboard from './pages/AffiliateDashboard';
@@ -63,6 +64,7 @@ function PrivateAppWrapper() {
     if (activeScreen === 'coupons-management') return <CouponsManagementPage />;
     if (activeScreen === 'system-logs') return <SystemLogsPage />;
     if (activeScreen === 'users-management') return <UsersManagementPage />;
+    if (activeScreen === 'waitlist-management') return <WaitlistManagementPage />;
     if (activeScreen === 'overview') return <OverviewDashboardPage />;
     if (activeScreen === 'short-term') return <ShortTermDashboardPage />;
     if (activeScreen === 'long-term') return <LongTermDashboardPage />;

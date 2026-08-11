@@ -264,7 +264,7 @@ export default function Sidebar() {
 
         {/* Build Version / Timestamp */}
         <div className="p-2 border-t border-white/5 mt-auto text-center">
-          <p className="text-[9px] text-gray-600 font-mono tracking-widest opacity-50 hover:opacity-100 transition-opacity">
+          <p className="text-xs text-gray-500 font-mono tracking-wide opacity-60 hover:opacity-100 transition-opacity">
             {typeof __BUILD_DATE__ !== 'undefined' ? `v${__BUILD_DATE__}` : 'DEV'}
           </p>
         </div>

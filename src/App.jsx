@@ -47,7 +47,7 @@ function PublicLayout({ children }) {
       
       {/* Build Version / Timestamp */}
       <div className="fixed bottom-2 left-0 right-0 text-center pointer-events-none z-50">
-        <p className="text-[10px] text-gray-500 font-mono tracking-widest opacity-30">
+        <p className="text-xs text-gray-500 font-mono tracking-wide opacity-50">
           {typeof __BUILD_DATE__ !== 'undefined' ? `v${__BUILD_DATE__}` : 'DEV'}
         </p>
       </div>

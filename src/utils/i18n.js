@@ -230,7 +230,7 @@ export const translations = {
 
     // Market Prices Page
     marketPricesTitle: "متابعة أسعار السوق (Market Overview)",
-    marketPricesDesc: "مراقبة حية لأسعار العملات الرقمية، التغيرات اليومية، أحجام التداول والقيمة السوقية مباشرة من CoinGecko.",
+    marketPricesDesc: "مراقبة حية لأسعار العملات الرقمية، التغيرات اليومية، أحجام التداول والقيمة السوقية مباشرة عبر Binance API.",
     searchCoin: "ابحث عن عملة...",
     colCoin: "العملة",
     colPrice: "السعر الحالي",
@@ -464,7 +464,7 @@ export const translations = {
 
     // Market Prices Page
     marketPricesTitle: "Market Overview",
-    marketPricesDesc: "Live monitoring of cryptocurrency prices, daily changes, volumes, and market cap directly from CoinGecko.",
+    marketPricesDesc: "Live monitoring of cryptocurrency prices, daily changes, volumes, and market cap directly via Binance API.",
     searchCoin: "Search for a coin...",
     colCoin: "Coin",
     colPrice: "Current Price",

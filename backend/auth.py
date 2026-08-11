@@ -56,21 +56,22 @@ def get_active_subscriber(current_user: models.User = Depends(get_current_user),
     """
     Dependency that enforces the user has an active subscription.
     Exempts SUPER_ADMIN and STAFF roles.
+    [BETA/WAITLIST MODE: Check bypassed so all users can test the platform]
     """
-    if current_user.primary_role in ["SUPER_ADMIN", "STAFF"]:
-        return current_user
-        
-    active_sub = db.query(models.Subscription).filter(
-        models.Subscription.customer_id == current_user.id,
-        models.Subscription.status == 'ACTIVE',
-        models.Subscription.current_period_end > datetime.utcnow()
-    ).first()
-    
-    if not active_sub:
-        raise HTTPException(
-            status_code=402, # Payment Required
-            detail="Active subscription required to access this feature."
-        )
+    # if current_user.primary_role in ["SUPER_ADMIN", "STAFF"]:
+    #     return current_user
+    #     
+    # active_sub = db.query(models.Subscription).filter(
+    #     models.Subscription.customer_id == current_user.id,
+    #     models.Subscription.status == 'ACTIVE',
+    #     models.Subscription.current_period_end > datetime.utcnow()
+    # ).first()
+    # 
+    # if not active_sub:
+    #     raise HTTPException(
+    #         status_code=402, # Payment Required
+    #         detail="Active subscription required to access this feature."
+    #     )
         
     return current_user
 

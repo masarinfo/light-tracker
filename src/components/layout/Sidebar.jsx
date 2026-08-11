@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -27,9 +27,16 @@ import {
 export default function Sidebar() {
   const { activeScreen, setActiveScreen, setSelectedStrategyId, strategies, t, lang, isSidebarCollapsed, toggleSidebar } = useApp();
   const { user } = useAuth();
+  
+  const [expandedGroups, setExpandedGroups] = useState({});
+
+  const toggleGroup = (key) => {
+    setExpandedGroups(prev => ({ ...prev, [key]: prev[key] === false ? true : false }));
+  };
 
   const navGroups = [
     {
+      id: 'trades',
       title: lang === 'ar' ? 'الصفقات' : 'Trades',
       items: [
         { id: 'trade-entry', label: t('navTradeEntry'), icon: PlusCircle, highlight: true },
@@ -39,6 +46,7 @@ export default function Sidebar() {
       ]
     },
     {
+      id: 'portfolios',
       title: lang === 'ar' ? 'المحافظ والاستراتيجيات' : 'Portfolios & Strategies',
       items: [
         { id: 'wallet', label: lang === 'ar' ? 'المحفظة' : 'Wallet', icon: Wallet },
@@ -47,6 +55,7 @@ export default function Sidebar() {
       ]
     },
     {
+      id: 'reports',
       title: lang === 'ar' ? 'التقارير والمقارنات' : 'Reports & Comparisons',
       items: [
         { id: 'overview', label: t('navOverview'), icon: BarChart3 },
@@ -55,6 +64,7 @@ export default function Sidebar() {
       ]
     },
     {
+      id: 'settings',
       title: lang === 'ar' ? 'الإعدادات والأمان' : 'Settings & Security',
       items: [
         { id: 'security-preview', label: t('navSecurityPreview'), icon: ShieldCheck },
@@ -67,6 +77,7 @@ export default function Sidebar() {
 
   if (user?.is_superadmin) {
     navGroups.push({
+      id: 'admin',
       title: lang === 'ar' ? 'الإدارة' : 'Admin',
       items: [
         { id: 'users-management', label: lang === 'ar' ? 'إدارة المستخدمين' : 'Users Mgt', icon: Users, highlight: true },
@@ -132,88 +143,113 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation Items */}
-      <nav className="p-3 space-y-4 overflow-y-auto flex-1">
-        {navGroups.map((group, groupIdx) => (
-          <div key={groupIdx} className="space-y-1">
-            {!isSidebarCollapsed && (
-              <div className="px-3 py-1 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                {group.title}
-              </div>
+      <nav className="p-3 space-y-4 overflow-y-auto flex-1 custom-scrollbar">
+        {navGroups.map((group) => (
+          <div key={group.id} className="space-y-1">
+            {!isSidebarCollapsed ? (
+              <button
+                onClick={() => toggleGroup(group.id)}
+                className="w-full px-3 py-1.5 flex items-center justify-between text-[11px] font-bold text-gray-400 uppercase tracking-wider hover:text-white transition-colors"
+              >
+                <span>{group.title}</span>
+                <ChevronRight 
+                  className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                    expandedGroups[group.id] !== false ? (isRtl ? '-rotate-90' : 'rotate-90') : ''
+                  }`} 
+                />
+              </button>
+            ) : (
+              <div className="h-2"></div>
             )}
-            {group.items.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeScreen === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveScreen(item.id)}
-                  title={isSidebarCollapsed ? item.label : undefined}
-                  className={`w-full flex items-center ${
-                    isSidebarCollapsed ? 'justify-center p-3' : 'justify-between px-3 py-2.5'
-                  } rounded-xl text-xs font-medium transition-all duration-200 ${
-                    isActive
-                      ? 'bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 text-cyan-300 border border-cyan-500/30 shadow-lg shadow-cyan-500/10 font-bold'
-                      : item.highlight
-                      ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20 font-semibold'
-                      : 'text-gray-300 hover:bg-white/5 hover:text-white'
-                  }`}
-                >
-                  <div className={`flex items-center gap-3 min-w-0 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
-                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-cyan-400' : item.highlight ? 'text-emerald-400' : 'text-gray-400'}`} />
-                    {!isSidebarCollapsed && <span className="truncate">{item.label}</span>}
-                  </div>
-                  {!isSidebarCollapsed && item.highlight && (
-                    <span className="px-2 py-0.5 text-[10px] bg-emerald-500 text-black font-extrabold rounded-full shrink-0 animate-pulse">
-                      NEW
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+            
+            <div className={`space-y-1 overflow-hidden transition-all duration-300 ${(!isSidebarCollapsed && expandedGroups[group.id] === false) ? 'max-h-0 opacity-0' : 'max-h-[1000px] opacity-100'}`}>
+              {group.items.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeScreen === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveScreen(item.id)}
+                    title={isSidebarCollapsed ? item.label : undefined}
+                    className={`w-full flex items-center ${
+                      isSidebarCollapsed ? 'justify-center p-3' : 'justify-between px-3 py-2.5'
+                    } rounded-xl text-xs font-medium transition-all duration-200 ${
+                      isActive
+                        ? 'bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 text-cyan-300 border border-cyan-500/30 shadow-lg shadow-cyan-500/10 font-bold'
+                        : item.highlight
+                        ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20 font-semibold'
+                        : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                    }`}
+                  >
+                    <div className={`flex items-center gap-3 min-w-0 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
+                      <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-cyan-400' : item.highlight ? 'text-emerald-400' : 'text-gray-400'}`} />
+                      {!isSidebarCollapsed && <span className="truncate">{item.label}</span>}
+                    </div>
+                    {!isSidebarCollapsed && item.highlight && (
+                      <span className="px-2 py-0.5 text-[10px] bg-emerald-500 text-black font-extrabold rounded-full shrink-0 animate-pulse">
+                        NEW
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         ))}
 
         {/* Dynamic Strategy Dashboards Submenu */}
         <div className="space-y-1">
           {!isSidebarCollapsed && strategies.length > 0 && (
-            <div className="pt-2 px-3 py-1 text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center justify-between border-t border-white/5">
-              <span className="truncate">{t('strategyDashboardsGroup')}</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-cyan-300 font-mono shrink-0">
-                {strategies.length}
-              </span>
-            </div>
+            <button
+              onClick={() => toggleGroup('strategies')}
+              className="w-full pt-2 px-3 py-1.5 flex items-center justify-between text-[11px] font-bold text-gray-400 uppercase tracking-wider hover:text-white transition-colors border-t border-white/5"
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="truncate">{t('strategyDashboardsGroup')}</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-cyan-300 font-mono shrink-0">
+                  {strategies.length}
+                </span>
+              </div>
+              <ChevronRight 
+                className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                  expandedGroups['strategies'] !== false ? (isRtl ? '-rotate-90' : 'rotate-90') : ''
+                }`} 
+              />
+            </button>
           )}
 
-          {strategies.map((strat) => {
-            const stratScreenId = `strategy-${strat.id}`;
-            const isActive = activeScreen === stratScreenId;
-            return (
-              <button
-                key={strat.id}
-                onClick={() => handleStrategyClick(strat.id)}
-                title={isSidebarCollapsed ? strat.name : undefined}
-                className={`w-full flex items-center ${
-                  isSidebarCollapsed ? 'justify-center p-3' : 'justify-between px-3 py-2'
-                } rounded-xl text-xs transition-all ${
-                  isActive
-                    ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-bold'
-                    : 'text-gray-400 hover:bg-white/5 hover:text-gray-200'
-                }`}
-              >
-                <div className={`flex items-center gap-2.5 min-w-0 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
-                  <Target className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-indigo-400' : 'text-gray-500'}`} />
-                  {!isSidebarCollapsed && <span className="truncate">{strat.name}</span>}
-                </div>
-                {!isSidebarCollapsed && (
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono shrink-0 ${
-                    strat.category === 'Short-Term' ? 'bg-amber-500/10 text-amber-400' : 'bg-purple-500/10 text-purple-400'
-                  }`}>
-                    {strat.category === 'Short-Term' ? 'ST' : 'LT'}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+          <div className={`space-y-1 overflow-hidden transition-all duration-300 ${(!isSidebarCollapsed && expandedGroups['strategies'] === false) ? 'max-h-0 opacity-0' : 'max-h-[1000px] opacity-100'}`}>
+            {strategies.map((strat) => {
+              const stratScreenId = `strategy-${strat.id}`;
+              const isActive = activeScreen === stratScreenId;
+              return (
+                <button
+                  key={strat.id}
+                  onClick={() => handleStrategyClick(strat.id)}
+                  title={isSidebarCollapsed ? strat.name : undefined}
+                  className={`w-full flex items-center ${
+                    isSidebarCollapsed ? 'justify-center p-3' : 'justify-between px-3 py-2'
+                  } rounded-xl text-xs transition-all ${
+                    isActive
+                      ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-bold'
+                      : 'text-gray-400 hover:bg-white/5 hover:text-gray-200'
+                  }`}
+                >
+                  <div className={`flex items-center gap-2.5 min-w-0 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
+                    <Target className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-indigo-400' : 'text-gray-500'}`} />
+                    {!isSidebarCollapsed && <span className="truncate">{strat.name}</span>}
+                  </div>
+                  {!isSidebarCollapsed && (
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono shrink-0 ${
+                      strat.category === 'Short-Term' ? 'bg-amber-500/10 text-amber-400' : 'bg-purple-500/10 text-purple-400'
+                    }`}>
+                      {strat.category === 'Short-Term' ? 'ST' : 'LT'}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </nav>
     </aside>

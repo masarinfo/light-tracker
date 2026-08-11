@@ -261,6 +261,13 @@ export default function Sidebar() {
             );
           })}
         </nav>
+
+        {/* Build Version / Timestamp */}
+        <div className="p-2 border-t border-white/5 mt-auto text-center">
+          <p className="text-[9px] text-gray-600 font-mono tracking-widest opacity-50 hover:opacity-100 transition-opacity">
+            {typeof __BUILD_DATE__ !== 'undefined' ? `v${__BUILD_DATE__}` : 'DEV'}
+          </p>
+        </div>
       </aside>
     </>
   );

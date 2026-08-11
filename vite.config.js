@@ -8,5 +8,8 @@ export default defineConfig({
   server: {
     port: 5174,
     strictPort: true,
+  },
+  define: {
+    '__BUILD_DATE__': JSON.stringify(new Date().toLocaleString('en-GB', { timeZone: 'UTC' }) + ' UTC')
   }
 })

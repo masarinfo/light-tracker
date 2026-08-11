@@ -31,7 +31,7 @@ export default function Sidebar() {
   const [expandedGroups, setExpandedGroups] = useState({});
 
   const toggleGroup = (key) => {
-    setExpandedGroups(prev => ({ ...prev, [key]: prev[key] === false ? true : false }));
+    setExpandedGroups(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
   const handleStrategyClick = (stratId) => {
@@ -45,9 +45,11 @@ export default function Sidebar() {
     { id: 'market-prices', label: t('navMarketPrices'), icon: Globe, onClick: () => setActiveScreen('market-prices') },
   ];
 
-  // Reports Group Items (Strategy Comparison + Dynamic Strategy Dashboards)
+  // Reports Group Items (Strategy Comparison + Dynamic Strategy Dashboards + Short/Long Term)
   const reportsItems = [
     { id: 'strategy-comparison', label: t('navStrategyComparison'), icon: LineChart, onClick: () => setActiveScreen('strategy-comparison') },
+    { id: 'short-term', label: t('navShortTerm'), icon: Zap, onClick: () => setActiveScreen('short-term') },
+    { id: 'long-term', label: t('navLongTerm'), icon: Gem, onClick: () => setActiveScreen('long-term') },
   ];
   
   strategies.forEach(strat => {
@@ -69,8 +71,6 @@ export default function Sidebar() {
         { id: 'trade-entry', label: t('navTradeEntry'), icon: PlusCircle, highlight: true, onClick: () => setActiveScreen('trade-entry') },
         { id: 'coin-portfolio', label: t('navCoinPortfolio'), icon: Coins, onClick: () => setActiveScreen('coin-portfolio') },
         { id: 'trade-history', label: lang === 'ar' ? 'سجل الصفقات' : 'Trade History', icon: History, onClick: () => setActiveScreen('trade-history') },
-        { id: 'short-term', label: t('navShortTerm'), icon: Zap, onClick: () => setActiveScreen('short-term') },
-        { id: 'long-term', label: t('navLongTerm'), icon: Gem, onClick: () => setActiveScreen('long-term') },
       ]
     },
     {
@@ -200,7 +200,7 @@ export default function Sidebar() {
                 <span>{group.title}</span>
                 <ChevronRight 
                   className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                    expandedGroups[group.id] !== false ? (isRtl ? '-rotate-90' : 'rotate-90') : ''
+                    expandedGroups[group.id] === true ? (isRtl ? '-rotate-90' : 'rotate-90') : ''
                   }`} 
                 />
               </button>
@@ -208,7 +208,7 @@ export default function Sidebar() {
               <div className="h-2"></div>
             )}
             
-            <div className={`space-y-1 overflow-hidden transition-all duration-300 ${(!isSidebarCollapsed && expandedGroups[group.id] === false) ? 'max-h-0 opacity-0' : 'max-h-[1000px] opacity-100'}`}>
+            <div className={`space-y-1 overflow-hidden transition-all duration-300 ${(!isSidebarCollapsed && !expandedGroups[group.id]) ? 'max-h-0 opacity-0' : 'max-h-[1000px] opacity-100'}`}>
               {group.items.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeScreen === item.id;

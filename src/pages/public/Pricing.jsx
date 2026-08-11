@@ -1,8 +1,14 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../../api/client';
+import { CheckCircle2, Sparkles, Shield, Zap, Coins, ArrowRight, HelpCircle, Copy, Check } from 'lucide-react';
+import { useApp } from '../../context/AppContext';
 
 export default function Pricing() {
+  const { lang, theme } = useApp();
+  const isRtl = lang === 'ar';
+  const isDark = theme === 'dark';
+
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,6 +17,7 @@ export default function Pricing() {
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [paymentInfo, setPaymentInfo] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [copied, setCopied] = useState(false);
   
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
@@ -24,10 +31,10 @@ export default function Pricing() {
       })
       .catch(err => {
         console.error(err);
-        setError("Failed to load subscription plans.");
+        setError(isRtl ? "تعذر تحميل خطط الاشتراك." : "Failed to load subscription plans.");
         setLoading(false);
       });
-  }, []);
+  }, [isRtl]);
 
   const handleSubscribe = async (plan) => {
     if (!token) {
@@ -41,7 +48,7 @@ export default function Pricing() {
       
       if (plan.price_usd === 0) {
         // Free plan activated instantly
-        alert("Subscription Activated Successfully! Welcome aboard.");
+        alert(isRtl ? "تم تفعيل الباقة المجانية بنجاح! مرحباً بك." : "Subscription Activated Successfully! Welcome aboard.");
         navigate('/dashboard');
       } else {
         // Show payment modal with crypto details
@@ -55,58 +62,117 @@ export default function Pricing() {
     }
   };
 
-  if (loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Loading plans...</div>;
-  if (error) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-red-500">{error}</div>;
+  const handleCopyAddress = (address) => {
+    navigator.clipboard.writeText(address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-white space-y-4">
+        <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-sm font-bold font-sans text-slate-400">
+          {isRtl ? 'جاري تحميل باقات الاشتراك...' : 'Loading subscription plans...'}
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-rose-400 space-y-4 px-4 text-center">
+        <p className="text-lg font-bold">{error}</p>
+        <button 
+          onClick={() => window.location.reload()} 
+          className="px-6 py-2 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-300 font-bold text-sm"
+        >
+          {isRtl ? 'إعادة المحاولة' : 'Try Again'}
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className="py-12 px-6 font-sans selection:bg-cyan-500/30">
+    <div dir={isRtl ? 'rtl' : 'ltr'} className="py-8 sm:py-16 px-4 sm:px-6 max-w-7xl mx-auto space-y-16 selection:bg-cyan-500/30 font-sans">
       
-      <div className="max-w-6xl mx-auto text-center mb-16">
-        <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400 mb-6">
-          Choose Your Trading Arsenal
+      {/* Header Banner */}
+      <div className="max-w-4xl mx-auto text-center space-y-4">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 text-xs sm:text-sm font-bold backdrop-blur-md">
+          <Sparkles className="w-4 h-4 text-cyan-400 animate-pulse" />
+          <span>{isRtl ? 'خطط وباقات واضحة بدون رسوم خفية' : 'Transparent Pricing & No Hidden Fees'}</span>
+        </div>
+
+        <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight leading-tight">
+          {isRtl ? 'اختر الباقة المناسبة لحجم استثماراتك' : 'Choose Your Trading Plan'}
         </h1>
-        <p className="text-xl text-[var(--text-secondary)] max-w-2xl mx-auto">
-          Unlock the full potential of your trading strategy. Pay securely with Crypto. No hidden fees.
+
+        <p className="text-slate-300 text-base sm:text-xl max-w-2xl mx-auto leading-relaxed">
+          {isRtl 
+            ? 'احصل على الخصائص الكاملة لتتبع صفقاتك والذهب والعملات الرقمية مع دفع آمن وسريع عبر العملات المشفرة.' 
+            : 'Unlock the full potential of your portfolio tracking. Pay securely with USDT. No hidden fees.'}
         </p>
       </div>
 
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {/* Pricing Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
         {plans.map((plan) => {
-          const isPro = plan.plan_code === 'PRO_MONTHLY';
+          const isFree = plan.price_usd === 0;
+          const isPro = plan.plan_code === 'PRO_MONTHLY' || plan.plan_code === 'PRO_YEARLY';
+          
           return (
             <div 
               key={plan.id} 
-              className={`relative rounded-3xl p-8 flex flex-col backdrop-blur-sm border transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl ${
+              className={`relative rounded-3xl p-8 flex flex-col backdrop-blur-xl border transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl ${
                 isPro 
-                  ? 'bg-gradient-to-b from-indigo-900/40 to-[var(--bg-card)] border-indigo-500/50 shadow-indigo-500/20' 
-                  : 'bg-[var(--bg-card)] border-[var(--border-panel)] hover:border-slate-500/50'
+                  ? 'bg-gradient-to-b from-slate-900/90 via-indigo-950/60 to-slate-950 border-cyan-500/40 shadow-xl shadow-cyan-500/10' 
+                  : 'bg-slate-900/60 border-white/10 hover:border-slate-400/40'
               }`}
             >
               {isPro && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-500 to-indigo-500 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">
-                  Most Popular
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-500 to-indigo-600 text-white px-4 py-1 rounded-full text-xs font-black tracking-wider uppercase shadow-lg border border-white/20">
+                  {isRtl ? 'الباقة الأكثر شعبية ⭐' : 'Most Popular ⭐'}
                 </div>
               )}
               
-              <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-2">{plan.name}</h3>
-              <div className="mb-6">
-                <span className="text-4xl font-extrabold text-[var(--text-primary)]">${plan.price_usd}</span>
-                <span className="text-[var(--text-secondary)] ml-2">/ {plan.billing_cycle_days === 30 ? 'month' : plan.billing_cycle_days === 365 ? 'year' : 'cycle'}</span>
+              <div className="space-y-2 mb-6">
+                <h3 className="text-2xl font-black text-white">{plan.name}</h3>
+                <p className="text-slate-400 text-xs">
+                  {isFree 
+                    ? (isRtl ? 'لتجربة المنصة والاستكشاف المجاني' : 'Ideal for exploring platform features') 
+                    : (isRtl ? 'للمتداولين والمستثمرين الجادين' : 'For serious traders and investors')}
+                </p>
+              </div>
+
+              <div className="mb-8 flex items-baseline gap-1">
+                <span className="text-5xl font-black font-mono text-white">${plan.price_usd}</span>
+                <span className="text-slate-400 text-sm font-semibold">
+                  / {plan.billing_cycle_days === 30 ? (isRtl ? 'شهر' : 'month') : plan.billing_cycle_days === 365 ? (isRtl ? 'سنة' : 'year') : (isRtl ? 'دورة' : 'cycle')}
+                </span>
               </div>
               
-              <ul className="mb-8 flex-1 space-y-4">
-                <li className="flex items-center text-[var(--text-primary)]">
-                  <svg className="w-5 h-5 text-emerald-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                  Advanced Portfolio Tracking
+              {/* Features List */}
+              <ul className="mb-8 flex-1 space-y-3.5 text-sm">
+                <li className="flex items-center text-slate-200 gap-3 font-semibold">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                  <span>{isRtl ? 'تتبع صفقات العملات الرقمية' : 'Crypto Portfolio Tracking'}</span>
                 </li>
-                <li className="flex items-center text-[var(--text-primary)]">
-                  <svg className="w-5 h-5 text-emerald-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                  Real-time Analytics
+                <li className="flex items-center text-slate-200 gap-3 font-semibold">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                  <span>{isRtl ? 'مركز إدارة وتداول الذهب (العيارات والجرامات)' : 'Gold Hub (Karats & Grams)'}</span>
                 </li>
-                {plan.price_usd > 0 && (
-                  <li className="flex items-center text-[var(--text-primary)]">
-                    <svg className="w-5 h-5 text-emerald-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                    Priority Support
+                <li className="flex items-center text-slate-200 gap-3 font-semibold">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                  <span>{isRtl ? 'تنبيهات العجز النقدي وإدارته' : 'Cash Deficit Alert Engine'}</span>
+                </li>
+                <li className="flex items-center text-slate-200 gap-3 font-semibold">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                  <span>{isRtl ? 'مصنع الاستراتيجيات (قصيرة/طويلة المدى)' : 'Strategy Factory (ST & LT)'}</span>
+                </li>
+                {!isFree && (
+                  <li className="flex items-center text-slate-200 gap-3 font-semibold">
+                    <CheckCircle2 className="w-5 h-5 text-cyan-400 shrink-0" />
+                    <span>{isRtl ? 'دعم فني سريع ومتميز' : 'Priority Technical Support'}</span>
                   </li>
                 )}
               </ul>
@@ -114,13 +180,20 @@ export default function Pricing() {
               <button 
                 onClick={() => handleSubscribe(plan)}
                 disabled={isProcessing}
-                className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 border ${
+                className={`w-full py-4 rounded-2xl font-black text-base transition-all duration-200 border shadow-lg active:scale-95 flex items-center justify-center gap-2 ${
                   isPro 
-                    ? 'bg-slate-800/50 text-slate-500 border-slate-700/50 cursor-not-allowed' 
-                    : 'bg-[var(--input-bg)] text-[var(--text-primary)] border-[var(--border-panel)] hover:border-cyan-500 hover:text-cyan-500'
-                } disabled:opacity-50`}
+                    ? 'bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 text-white border-white/20 hover:opacity-95 shadow-cyan-500/20' 
+                    : 'bg-slate-800 hover:bg-slate-700 text-white border-white/10'
+                }`}
               >
-                {isProcessing ? 'Processing...' : isPro ? 'قريباً (Coming Soon)' : (plan.price_usd === 0 ? 'ابدأ تجربتك المجانية' : 'Subscribe Now')}
+                <span>
+                  {isProcessing 
+                    ? (isRtl ? 'جاري المعالجة...' : 'Processing...') 
+                    : (isFree 
+                      ? (isRtl ? 'ابدأ تجاربك المجانية' : 'Start Free Trial') 
+                      : (isRtl ? 'اشترك الآن' : 'Subscribe Now'))}
+                </span>
+                <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           );
@@ -129,47 +202,48 @@ export default function Pricing() {
 
       {/* Payment Modal */}
       {paymentInfo && selectedPlan && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-3xl p-8 max-w-md w-full shadow-2xl relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative space-y-6 text-right" dir="rtl">
             <button 
               onClick={() => setPaymentInfo(null)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white"
+              className="absolute top-4 left-4 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+              ✕
             </button>
             
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-white mb-2">Awaiting Payment</h2>
-              <p className="text-slate-400">Please send exactly the amount below to activate your {selectedPlan.name} subscription.</p>
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl font-black text-white">في انتظار دفع الاشتراك</h2>
+              <p className="text-xs text-slate-300">يرجى تحويل المبلغ المحدد أدناه عبر شبكة {paymentInfo.network} لتفعيل باقة {selectedPlan.name}.</p>
             </div>
             
-            <div className="bg-slate-950 rounded-xl p-6 mb-6 text-center border border-slate-800">
-              <p className="text-sm text-slate-400 uppercase tracking-wider mb-1">Amount to send</p>
-              <div className="text-3xl font-extrabold text-emerald-400 mb-1">
-                {paymentInfo.amount_crypto} <span className="text-xl">{paymentInfo.asset}</span>
+            <div className="bg-slate-950 rounded-2xl p-6 text-center border border-slate-800 space-y-1">
+              <p className="text-xs text-slate-400 uppercase tracking-wider font-bold">المبلغ المطلوب تحويله بالضبط</p>
+              <div className="text-3xl font-black text-emerald-400 font-mono" dir="ltr">
+                {paymentInfo.amount_crypto} <span className="text-lg">{paymentInfo.asset}</span>
               </div>
-              <p className="text-xs text-slate-500">Network: {paymentInfo.network}</p>
+              <p className="text-xs text-cyan-400 font-mono">الشبكة: {paymentInfo.network}</p>
             </div>
             
-            <div className="mb-8">
-              <p className="text-sm text-slate-400 mb-2">Send to Address:</p>
-              <div className="bg-slate-800 p-4 rounded-lg flex items-center justify-between border border-slate-700">
-                <code className="text-cyan-400 text-sm break-all font-mono">
+            <div className="space-y-2">
+              <p className="text-xs text-slate-300 font-bold">عنوان المحفظة للاستلام:</p>
+              <div className="bg-slate-950 p-3.5 rounded-xl flex items-center justify-between border border-slate-800 gap-2">
+                <code className="text-cyan-400 text-xs break-all font-mono select-all" dir="ltr">
                   {paymentInfo.deposit_address}
                 </code>
                 <button 
-                  onClick={() => navigator.clipboard.writeText(paymentInfo.deposit_address)}
-                  className="ml-4 p-2 bg-slate-700 hover:bg-slate-600 rounded-md text-white transition-colors"
+                  onClick={() => handleCopyAddress(paymentInfo.deposit_address)}
+                  className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-white transition-colors shrink-0 flex items-center gap-1 text-xs font-bold"
                   title="Copy Address"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                  {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                  <span>{copied ? 'تم النسخ' : 'نسخ'}</span>
                 </button>
               </div>
             </div>
             
-            <div className="flex items-center justify-center space-x-3 text-amber-400 bg-amber-400/10 p-4 rounded-xl border border-amber-400/20 mb-4">
-              <svg className="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-              <span className="text-sm font-medium">Listening for payment on the blockchain...</span>
+            <div className="flex items-center justify-center gap-2 text-amber-400 bg-amber-500/10 p-3.5 rounded-xl border border-amber-500/20 text-xs font-bold">
+              <div className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></div>
+              <span>بانتظار تأكيد التحويل في البلوكشين...</span>
             </div>
 
             {/* Dev Only: Simulate Payment Button */}
@@ -177,16 +251,15 @@ export default function Pricing() {
               onClick={async () => {
                 try {
                   await api.mockPayInvoice(paymentInfo.invoice_id);
-                  alert("Payment simulated successfully! You now have full access.");
+                  alert(isRtl ? "تم محاكاة الدفع بنجاح! تم تفعيل حسابك الآن." : "Payment simulated successfully! You now have full access.");
                   window.location.href = '/dashboard';
                 } catch (e) {
                   alert("Failed to simulate payment: " + e.message);
                 }
               }}
-              className="w-full py-3 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/30 hover:bg-purple-500/30 font-bold transition-all text-sm flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/40 hover:bg-purple-500/30 font-bold transition-all text-xs flex items-center justify-center gap-2"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-              Simulate Payment (Dev Only)
+              <span>محاكاة الدفع (تجريبي Dev)</span>
             </button>
           </div>
         </div>

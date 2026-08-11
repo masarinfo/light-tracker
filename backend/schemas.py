@@ -178,7 +178,7 @@ class UserResponse(BaseModel):
 
 # --- WAITLIST SCHEMAS ---
 class WaitlistCreate(BaseModel):
-    email: EmailStr
+    email: str
 
 class WaitlistResponse(BaseModel):
     id: int

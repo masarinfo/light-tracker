@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 import models
 from schemas import WaitlistCreate, WaitlistResponse
-from routers.auth_router import get_current_user
+from auth import get_current_user
 
 router = APIRouter(prefix="/api/waitlist", tags=["Waitlist"])
 

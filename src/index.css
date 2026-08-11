@@ -21,17 +21,18 @@ body.theme-dark {
 }
 
 /* Clean, High-Contrast Light Mode (Soft Silver Slate Background) */
+/* Clean, Harmonious Light Mode (Soft Silver Slate Background) */
 body.theme-light {
   color-scheme: light;
-  --bg-main: #edf2f7;
+  --bg-main: #f8fafc;
   --bg-card: #ffffff;
-  --bg-card-hover: #f8fafc;
-  --border-panel: #cbd5e1;
+  --bg-card-hover: #f1f5f9;
+  --border-panel: #e2e8f0;
   --text-primary: #0f172a;
-  --text-secondary: #334155;
+  --text-secondary: #475569;
   --input-bg: #ffffff;
-  --input-border: #94a3b8;
-  --shadow-panel: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
+  --input-border: #cbd5e1;
+  --shadow-panel: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
 }
 
 body {
@@ -63,7 +64,7 @@ body {
 .glass-panel-interactive:hover {
   background: var(--bg-card-hover);
   border-color: rgba(6, 182, 212, 0.4);
-  box-shadow: 0 10px 30px -10px rgba(6, 182, 212, 0.2);
+  box-shadow: 0 10px 30px -10px rgba(6, 182, 212, 0.15);
   transform: translateY(-2px);
 }
 
@@ -76,256 +77,163 @@ body {
 
 .glass-input:focus {
   outline: none;
-  border-color: #06b6d4;
-  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
 }
 
-/* Master Text Overrides for Light Mode */
-body.theme-light,
-body.theme-light p,
+/* Harmonious Light Theme Overrides */
+body.theme-light .glass-panel {
+  background-color: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f172a;
+}
+
 body.theme-light h1,
 body.theme-light h2,
 body.theme-light h3,
 body.theme-light h4,
 body.theme-light h5,
-body.theme-light h6,
-body.theme-light span,
-body.theme-light td,
-body.theme-light th,
-body.theme-light label {
-  color: var(--text-primary);
-}
-
-body.theme-light .text-white {
-  color: #0f172a !important;
-}
-
-body.theme-light .text-gray-200,
-body.theme-light .text-gray-300 {
-  color: #1e293b !important;
-}
-
-body.theme-light .text-gray-400,
-body.theme-light .text-gray-500 {
-  color: #475569 !important;
-  font-weight: 600 !important;
-}
-
-/* ========================================================= */
-/* Master Button, Gradients & Icon Overrides for Light Mode */
-/* ========================================================= */
-
-body.theme-light button {
+body.theme-light h6 {
   color: #0f172a;
 }
 
-/* Gradient Action Buttons in Light Mode (e.g. Create Strategy, Trade Entry, Add Exchange) */
-body.theme-light .bg-gradient-to-r.from-indigo-500,
-body.theme-light button.bg-gradient-to-r.from-indigo-500 {
-  background: linear-gradient(to right, #4f46e5, #7c3aed) !important;
-  color: #ffffff !important;
-  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25) !important;
+body.theme-light .text-gray-300,
+body.theme-light .text-gray-400,
+body.theme-light .text-slate-300,
+body.theme-light .text-slate-400 {
+  color: #475569;
 }
 
-body.theme-light .bg-gradient-to-r.from-indigo-500 span,
-body.theme-light .bg-gradient-to-r.from-indigo-500 svg {
-  color: #ffffff !important;
+/* Buttons in Light Mode */
+body.theme-light button {
+  color: inherit;
 }
 
-body.theme-light .bg-gradient-to-r.from-cyan-500,
-body.theme-light button.bg-gradient-to-r.from-cyan-500 {
-  background: linear-gradient(to right, #0284c7, #4f46e5) !important;
-  color: #ffffff !important;
-  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.25) !important;
-}
-
-body.theme-light .bg-gradient-to-r.from-cyan-500 span,
-body.theme-light .bg-gradient-to-r.from-cyan-500 svg {
+/* Gradient Action Buttons (Always White Text) */
+body.theme-light .bg-gradient-to-r {
   color: #ffffff !important;
 }
 
-body.theme-light .bg-gradient-to-r.from-emerald-500,
-body.theme-light button.bg-gradient-to-r.from-emerald-500 {
-  background: linear-gradient(to right, #059669, #0284c7) !important;
-  color: #ffffff !important;
-  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25) !important;
-}
-
-body.theme-light .bg-gradient-to-r.from-emerald-500 span,
-body.theme-light .bg-gradient-to-r.from-emerald-500 svg {
+body.theme-light .bg-gradient-to-r span,
+body.theme-light .bg-gradient-to-r svg,
+body.theme-light .bg-gradient-to-r p,
+body.theme-light .bg-gradient-to-r h1,
+body.theme-light .bg-gradient-to-r h2,
+body.theme-light .bg-gradient-to-r h3 {
   color: #ffffff !important;
 }
 
-/* Ghost & Secondary Buttons (Language toggle, theme switcher, modal cancel, menu items) */
+/* Secondary Ghost Buttons & Controls in Light Mode */
 body.theme-light button.bg-white\/5,
 body.theme-light button.bg-white\/10,
 body.theme-light .bg-white\/5,
 body.theme-light .bg-white\/10 {
-  background-color: #e2e8f0 !important;
-  color: #0f172a !important;
-  border-color: #cbd5e1 !important;
+  background-color: #f1f5f9;
+  color: #1e293b;
+  border-color: #cbd5e1;
 }
 
 body.theme-light button.bg-white\/5:hover,
 body.theme-light button.bg-white\/10:hover {
-  background-color: #cbd5e1 !important;
-  color: #0f172a !important;
+  background-color: #e2e8f0;
+  color: #0f172a;
 }
 
-/* Sidebar Navigation Items */
-body.theme-light button.text-gray-300,
-body.theme-light button.text-gray-400 {
-  color: #334155 !important;
+/* Sidebar Text in Light Mode */
+body.theme-light aside button.text-gray-300,
+body.theme-light aside button.text-gray-400 {
+  color: #334155;
 }
 
-body.theme-light button.text-gray-300:hover,
-body.theme-light button.text-gray-400:hover {
-  background-color: #e2e8f0 !important;
-  color: #0f172a !important;
+body.theme-light aside button.text-gray-300:hover,
+body.theme-light aside button.text-gray-400:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
 }
 
-/* Primary Solid Action Buttons */
-body.theme-light .bg-cyan-500 {
-  background-color: #0284c7 !important;
-  color: #ffffff !important;
-}
-
-body.theme-light .bg-indigo-500 {
-  background-color: #6366f1 !important;
-  color: #ffffff !important;
-}
-
-body.theme-light .bg-purple-600 {
-  background-color: #9333ea !important;
-  color: #ffffff !important;
-}
-
-body.theme-light .bg-emerald-500 {
-  background-color: #10b981 !important;
-  color: #ffffff !important;
-}
-
-/* Light Mode Dark 950 Box Background Overrides */
-body.theme-light .bg-emerald-950\/20,
-body.theme-light .bg-emerald-950\/30 {
-  background-color: #ecfdf5 !important;
-  border-color: #a7f3d0 !important;
-}
-
-body.theme-light .bg-rose-950\/20,
-body.theme-light .bg-rose-950\/30 {
-  background-color: #fff1f2 !important;
-  border-color: #fecdd3 !important;
-}
-
-body.theme-light .bg-cyan-950\/20,
-body.theme-light .bg-cyan-950\/30 {
-  background-color: #f0f9ff !important;
-  border-color: #bae6fd !important;
-}
-
-body.theme-light .bg-indigo-950\/20,
-body.theme-light .bg-indigo-950\/30 {
-  background-color: #eef2ff !important;
-  border-color: #c7d2fe !important;
-}
-
-body.theme-light .bg-purple-950\/20,
-body.theme-light .bg-purple-950\/30 {
-  background-color: #faf5ff !important;
-  border-color: #e9d5ff !important;
-}
-
-/* Modal Overlay in Light Mode */
-body.theme-light .fixed.inset-0.bg-black\/70 {
-  background-color: rgba(15, 23, 42, 0.4) !important;
-  backdrop-filter: blur(8px) !important;
-}
-
-/* Form Inputs, Select Boxes & Options in Light Mode */
+/* Inputs & Selects in Light Mode */
 body.theme-light input,
 body.theme-light select,
 body.theme-light textarea {
-  background-color: #ffffff !important;
-  color: #0f172a !important;
-  border-color: #cbd5e1 !important;
+  background-color: #ffffff;
+  color: #0f172a;
+  border-color: #cbd5e1;
 }
 
 body.theme-light input::placeholder {
-  color: #94a3b8 !important;
+  color: #94a3b8;
 }
 
 body.theme-light select option {
-  background-color: #ffffff !important;
-  color: #0f172a !important;
+  background-color: #ffffff;
+  color: #0f172a;
 }
 
-/* High Contrast Accent Text & Icon Colors for Light Mode */
+/* High Contrast Accent Colors for Light Mode */
 body.theme-light .text-indigo-400,
 body.theme-light .text-indigo-300 {
-  color: #4f46e5 !important;
-  font-weight: 700 !important;
+  color: #4f46e5;
 }
 
 body.theme-light .text-cyan-300,
 body.theme-light .text-cyan-400 {
-  color: #0369a1 !important;
-  font-weight: 700 !important;
+  color: #0284c7;
 }
 
 body.theme-light .text-emerald-400,
 body.theme-light .text-emerald-300 {
-  color: #047857 !important;
-  font-weight: 700 !important;
+  color: #059669;
 }
 
 body.theme-light .text-rose-400,
 body.theme-light .text-rose-300 {
-  color: #be123c !important;
-  font-weight: 700 !important;
+  color: #e11d48;
 }
 
 body.theme-light .text-amber-400,
 body.theme-light .text-amber-300 {
-  color: #b45309 !important;
-  font-weight: 700 !important;
+  color: #d97706;
 }
 
 body.theme-light .text-purple-400,
 body.theme-light .text-purple-300 {
-  color: #7e22ce !important;
-  font-weight: 700 !important;
+  color: #9333ea;
 }
 
-/* High Contrast Background Badges in Light Mode */
+/* Soft Badges in Light Mode */
 body.theme-light .bg-cyan-500\/10,
 body.theme-light .bg-cyan-500\/20 {
-  background-color: #e0f2fe !important;
-  border-color: #7dd3fc !important;
+  background-color: #f0f9ff;
+  border-color: #bae6fd;
+  color: #0369a1;
 }
 
 body.theme-light .bg-emerald-500\/10,
 body.theme-light .bg-emerald-500\/20 {
-  background-color: #d1fae5 !important;
-  border-color: #6ee7b7 !important;
+  background-color: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #047857;
 }
 
 body.theme-light .bg-rose-500\/10,
 body.theme-light .bg-rose-500\/20 {
-  background-color: #ffe4e6 !important;
-  border-color: #fca5a5 !important;
+  background-color: #fff1f2;
+  border-color: #fecdd3;
+  color: #be123c;
 }
 
 body.theme-light .bg-amber-500\/10,
 body.theme-light .bg-amber-500\/20 {
-  background-color: #fef3c7 !important;
-  border-color: #fcd34d !important;
+  background-color: #fffbeb;
+  border-color: #fde68a;
+  color: #b45309;
 }
 
 body.theme-light .bg-purple-500\/10,
 body.theme-light .bg-purple-500\/20 {
-  background-color: #f3e8ff !important;
-  border-color: #d8b4fe !important;
+  background-color: #faf5ff;
+  border-color: #e9d5ff;
+  color: #7e22ce;
 }
 
 body.theme-light .bg-black\/30,

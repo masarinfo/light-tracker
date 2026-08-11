@@ -1,17 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../../api/client';
-import { CheckCircle2, Sparkles, Shield, Zap, Coins, ArrowRight, HelpCircle, Copy, Check } from 'lucide-react';
+import { CheckCircle2, Sparkles, Copy, Check, ArrowRight, XCircle, Lock, ChevronDown, ChevronUp } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+
+// --- FAQ Component ---
+function FAQItem({ question, answer, isRtl, isDark }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className={`border-b ${isDark ? 'border-white/10' : 'border-slate-200'} py-4`}>
+      <button 
+        onClick={() => setOpen(!open)}
+        className="flex items-center justify-between w-full text-left focus:outline-none"
+        dir={isRtl ? 'rtl' : 'ltr'}
+      >
+        <span className={`font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{question}</span>
+        {open ? <ChevronUp className="w-5 h-5 text-cyan-500" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
+      </button>
+      {open && (
+        <div className={`mt-3 text-sm leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`} dir={isRtl ? 'rtl' : 'ltr'}>
+          {answer}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Pricing() {
   const { lang, theme } = useApp();
   const isRtl = lang === 'ar';
   const isDark = theme === 'dark';
 
-  const [plans, setPlans] = useState([]);
+  const [allPlans, setAllPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  const [billingCycle, setBillingCycle] = useState('monthly'); // 'monthly' | 'yearly'
   
   // Payment Modal State
   const [selectedPlan, setSelectedPlan] = useState(null);
@@ -25,8 +49,7 @@ export default function Pricing() {
   useEffect(() => {
     api.getSubscriptionPlans()
       .then(data => {
-        // Sort by price
-        setPlans(data.sort((a, b) => a.price_usd - b.price_usd));
+        setAllPlans(data);
         setLoading(false);
       })
       .catch(err => {
@@ -47,11 +70,9 @@ export default function Pricing() {
       const data = await api.subscribeToPlan(plan.id);
       
       if (plan.price_usd === 0) {
-        // Free plan activated instantly
         alert(isRtl ? "تم تفعيل الباقة المجانية بنجاح! مرحباً بك." : "Subscription Activated Successfully! Welcome aboard.");
         navigate('/dashboard');
       } else {
-        // Show payment modal with crypto details
         setSelectedPlan(plan);
         setPaymentInfo(data.payment_details);
       }
@@ -67,6 +88,25 @@ export default function Pricing() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  // Features mapping
+  const featuresList = [
+    { id: 'crypto', labelAr: 'تتبع صفقات العملات الرقمية', labelEn: 'Crypto Portfolio Tracking', free: true, pro: true },
+    { id: 'dashboard', labelAr: 'الداشبورد العام والتحليلات', labelEn: 'Overview Dashboard & Analytics', free: true, pro: true },
+    { id: 'gold', labelAr: 'مركز إدارة وتداول الذهب', labelEn: 'Gold Hub (Karats & Grams)', free: false, pro: true },
+    { id: 'strategies', labelAr: 'مصنع الاستراتيجيات (قصيرة/طويلة)', labelEn: 'Strategy Factory (ST & LT)', free: false, pro: true },
+    { id: 'alerts', labelAr: 'تنبيهات العجز النقدي المتقدمة', labelEn: 'Advanced Cash Deficit Alerts', free: false, pro: true },
+    { id: 'support', labelAr: 'أولوية الدعم الفني الفوري (VIP)', labelEn: 'Priority VIP Support', free: false, pro: true },
+  ];
+
+  // Filter plans based on billing cycle toggle
+  // We assume FREE plan has price 0, and PRO has monthly (<=30) and yearly (>30)
+  const displayedPlans = allPlans.filter(p => {
+    if (p.price_usd === 0) return true; 
+    if (billingCycle === 'monthly' && p.billing_cycle_days <= 30) return true;
+    if (billingCycle === 'yearly' && p.billing_cycle_days > 30) return true;
+    return false;
+  }).sort((a, b) => a.price_usd - b.price_usd);
 
   if (loading) {
     return (
@@ -97,7 +137,7 @@ export default function Pricing() {
     <div dir={isRtl ? 'rtl' : 'ltr'} className="py-8 sm:py-16 px-4 sm:px-6 max-w-7xl mx-auto space-y-16 selection:bg-cyan-500/30 font-sans">
       
       {/* Header Banner */}
-      <div className="max-w-4xl mx-auto text-center space-y-4">
+      <div className="max-w-4xl mx-auto text-center space-y-6">
         <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs sm:text-sm font-bold backdrop-blur-md ${
           isDark ? 'bg-cyan-500/10 text-cyan-300 border-cyan-500/30' : 'bg-cyan-50 text-cyan-700 border-cyan-200'
         }`}>
@@ -106,79 +146,118 @@ export default function Pricing() {
         </div>
 
         <h1 className={`text-4xl sm:text-6xl font-black tracking-tight leading-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
-          {isRtl ? 'اختر الباقة المناسبة لحجم استثماراتك' : 'Choose Your Trading Plan'}
+          {isRtl ? 'استثمر بذكاء، اختر الباقة المناسبة' : 'Choose Your Trading Plan'}
         </h1>
 
         <p className={`text-base sm:text-xl max-w-2xl mx-auto leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
           {isRtl 
-            ? 'احصل على الخصائص الكاملة لتتبع صفقاتك والذهب والعملات الرقمية مع دفع آمن وسريع عبر العملات المشفرة.' 
+            ? 'احصل على الخصائص الكاملة لتتبع صفقاتك والذهب والعملات الرقمية مع دفع آمن وسريع عبر العملات المشفرة (USDT).' 
             : 'Unlock the full potential of your portfolio tracking. Pay securely with USDT. No hidden fees.'}
         </p>
+
+        {/* Billing Toggle */}
+        <div className="flex justify-center items-center mt-8">
+          <div className={`relative flex items-center p-1.5 rounded-full border ${isDark ? 'bg-slate-900 border-white/10' : 'bg-slate-100 border-slate-200'}`}>
+            <button
+              onClick={() => setBillingCycle('monthly')}
+              className={`relative z-10 px-6 py-2.5 text-sm font-bold rounded-full transition-all duration-300 ${
+                billingCycle === 'monthly' 
+                  ? (isDark ? 'text-white bg-slate-700 shadow-md' : 'text-slate-900 bg-white shadow-md')
+                  : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900')
+              }`}
+            >
+              {isRtl ? 'دفع شهري' : 'Monthly'}
+            </button>
+            <button
+              onClick={() => setBillingCycle('yearly')}
+              className={`relative z-10 px-6 py-2.5 text-sm font-bold rounded-full transition-all duration-300 flex items-center gap-2 ${
+                billingCycle === 'yearly' 
+                  ? (isDark ? 'text-white bg-slate-700 shadow-md' : 'text-slate-900 bg-white shadow-md')
+                  : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900')
+              }`}
+            >
+              <span>{isRtl ? 'دفع سنوي' : 'Yearly'}</span>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-500 text-[10px] uppercase border border-emerald-500/30">
+                {isRtl ? 'وفر 20%' : 'Save 20%'}
+              </span>
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Pricing Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {plans.map((plan) => {
+      <div className={`grid grid-cols-1 ${displayedPlans.length === 2 ? 'md:grid-cols-2 max-w-4xl' : 'md:grid-cols-3 max-w-6xl'} gap-8 mx-auto items-center`}>
+        {displayedPlans.map((plan) => {
           const isFree = plan.price_usd === 0;
-          const isPro = plan.plan_code === 'PRO_MONTHLY' || plan.plan_code === 'PRO_YEARLY';
+          const isPro = plan.plan_code.includes('PRO');
           
           return (
             <div 
               key={plan.id} 
-              className={`relative rounded-3xl p-8 flex flex-col backdrop-blur-xl border transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl ${
+              className={`relative rounded-3xl p-8 flex flex-col backdrop-blur-xl border transition-all duration-300 hover:shadow-2xl ${
                 isPro 
-                  ? 'bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-950 border-cyan-500/40 shadow-xl shadow-cyan-500/10 text-white' 
+                  ? `transform md:scale-105 z-10 bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-950 border-cyan-500/50 shadow-2xl shadow-cyan-500/20 text-white ${isDark ? '' : 'md:scale-105'}` 
                   : isDark 
                   ? 'bg-slate-900/60 border-white/10 hover:border-slate-400/40 text-white' 
                   : 'bg-white border-slate-200 shadow-md hover:border-cyan-300 text-slate-900'
               }`}
             >
               {isPro && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-500 to-indigo-600 text-white px-4 py-1 rounded-full text-xs font-black tracking-wider uppercase shadow-lg border border-white/20">
-                  {isRtl ? 'الباقة الأكثر شعبية ⭐' : 'Most Popular ⭐'}
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-500 to-indigo-600 text-white px-5 py-1.5 rounded-full text-xs font-black tracking-wider uppercase shadow-lg border border-white/20 whitespace-nowrap">
+                  {isRtl ? 'الأكثر طلباً 🌟' : 'Most Popular 🌟'}
                 </div>
               )}
               
-              <div className="space-y-2 mb-6">
+              <div className="space-y-2 mb-6 text-center">
                 <h3 className={`text-2xl font-black ${isPro ? 'text-white' : isDark ? 'text-white' : 'text-slate-900'}`}>{plan.name}</h3>
-                <p className={`text-xs ${isPro ? 'text-slate-300' : isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                <p className={`text-sm ${isPro ? 'text-slate-300' : isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                   {isFree 
-                    ? (isRtl ? 'لتجربة المنصة والاستكشاف المجاني' : 'Ideal for exploring platform features') 
-                    : (isRtl ? 'للمتداولين والمستثمرين الجادين' : 'For serious traders and investors')}
+                    ? (isRtl ? 'الخطوة الأولى لاكتشاف المنصة' : 'First step to explore platform') 
+                    : (isRtl ? 'الأدوات الكاملة للمتداول الجاد' : 'Full toolkit for serious traders')}
                 </p>
               </div>
 
-              <div className="mb-8 flex items-baseline gap-1">
+              <div className="mb-8 flex items-baseline justify-center gap-1">
                 <span className={`text-5xl font-black font-mono ${isPro ? 'text-white' : isDark ? 'text-white' : 'text-slate-900'}`}>${plan.price_usd}</span>
                 <span className={`text-sm font-semibold ${isPro ? 'text-slate-300' : isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                  / {plan.billing_cycle_days === 30 ? (isRtl ? 'شهر' : 'month') : plan.billing_cycle_days === 365 ? (isRtl ? 'سنة' : 'year') : (isRtl ? 'دورة' : 'cycle')}
+                  / {plan.billing_cycle_days === 30 ? (isRtl ? 'شهر' : 'month') : plan.billing_cycle_days >= 360 ? (isRtl ? 'سنة' : 'year') : (isRtl ? 'دورة' : 'cycle')}
                 </span>
               </div>
               
-              {/* Features List */}
-              <ul className="mb-8 flex-1 space-y-3.5 text-sm">
-                <li className={`flex items-center gap-3 font-semibold ${isPro ? 'text-slate-200' : isDark ? 'text-slate-200' : 'text-slate-700'}`}>
-                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
-                  <span>{isRtl ? 'تتبع صفقات العملات الرقمية' : 'Crypto Portfolio Tracking'}</span>
-                </li>
-                <li className={`flex items-center gap-3 font-semibold ${isPro ? 'text-slate-200' : isDark ? 'text-slate-200' : 'text-slate-700'}`}>
-                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
-                  <span>{isRtl ? 'مركز إدارة وتداول الذهب (العيارات والجرامات)' : 'Gold Hub (Karats & Grams)'}</span>
-                </li>
-                <li className={`flex items-center gap-3 font-semibold ${isPro ? 'text-slate-200' : isDark ? 'text-slate-200' : 'text-slate-700'}`}>
-                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
-                  <span>{isRtl ? 'تنبيهات العجز النقدي وإدارته' : 'Cash Deficit Alert Engine'}</span>
-                </li>
-                <li className={`flex items-center gap-3 font-semibold ${isPro ? 'text-slate-200' : isDark ? 'text-slate-200' : 'text-slate-700'}`}>
-                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
-                  <span>{isRtl ? 'مصنع الاستراتيجيات (قصيرة/طويلة المدى)' : 'Strategy Factory (ST & LT)'}</span>
-                </li>
-                {!isFree && (
-                  <li className={`flex items-center gap-3 font-semibold ${isPro ? 'text-slate-200' : isDark ? 'text-slate-200' : 'text-slate-700'}`}>
-                    <CheckCircle2 className="w-5 h-5 text-cyan-500 shrink-0" />
-                    <span>{isRtl ? 'دعم فني سريع ومتميز' : 'Priority Technical Support'}</span>
-                  </li>
-                )}
+              {/* Dynamic Features List */}
+              <ul className="mb-8 flex-1 space-y-4 text-sm">
+                {featuresList.map((feat) => {
+                  const hasFeature = isFree ? feat.free : feat.pro;
+                  const label = isRtl ? feat.labelAr : feat.labelEn;
+                  
+                  if (hasFeature === false) {
+                    // Feature Locked
+                    return (
+                      <li key={feat.id} className={`flex items-center gap-3 font-semibold ${isPro ? 'text-white/40' : isDark ? 'text-slate-600' : 'text-slate-400'}`}>
+                        <Lock className="w-5 h-5 shrink-0 opacity-50" />
+                        <span className="line-through decoration-slate-500/50">{label}</span>
+                      </li>
+                    );
+                  }
+
+                  if (typeof hasFeature === 'string') {
+                    // Feature with specific text (e.g., limit)
+                    return (
+                      <li key={feat.id} className={`flex items-center gap-3 font-semibold ${isPro ? 'text-slate-200' : isDark ? 'text-slate-200' : 'text-slate-700'}`}>
+                        <CheckCircle2 className={`w-5 h-5 shrink-0 ${isPro ? 'text-cyan-400' : 'text-emerald-500'}`} />
+                        <span>{label} <span className="text-xs px-2 py-0.5 rounded bg-white/10 font-bold ml-1">{hasFeature}</span></span>
+                      </li>
+                    );
+                  }
+
+                  // Standard Feature included
+                  return (
+                    <li key={feat.id} className={`flex items-center gap-3 font-semibold ${isPro ? 'text-slate-200' : isDark ? 'text-slate-200' : 'text-slate-700'}`}>
+                      <CheckCircle2 className={`w-5 h-5 shrink-0 ${isPro ? 'text-cyan-400' : 'text-emerald-500'}`} />
+                      <span>{label}</span>
+                    </li>
+                  );
+                })}
               </ul>
               
               <button 
@@ -196,14 +275,45 @@ export default function Pricing() {
                   {isProcessing 
                     ? (isRtl ? 'جاري المعالجة...' : 'Processing...') 
                     : (isFree 
-                      ? (isRtl ? 'ابدأ تجاربك المجانية' : 'Start Free Trial') 
-                      : (isRtl ? 'اشترك الآن' : 'Subscribe Now'))}
+                      ? (isRtl ? 'ابدأ مجاناً الآن' : 'Start Free Now') 
+                      : (isRtl ? 'اشترك ورقي حسابك' : 'Upgrade & Subscribe'))}
                 </span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className={`w-4 h-4 ${isRtl ? 'rotate-180' : ''}`} />
               </button>
             </div>
           );
         })}
+      </div>
+
+      {/* FAQ Section */}
+      <div className={`max-w-3xl mx-auto rounded-3xl p-6 md:p-10 ${isDark ? 'bg-slate-900/50 border border-white/5' : 'bg-slate-50 border border-slate-200'}`}>
+        <h3 className={`text-2xl font-black mb-8 text-center ${isDark ? 'text-white' : 'text-slate-900'}`}>
+          {isRtl ? 'الأسئلة الشائعة (FAQ)' : 'Frequently Asked Questions'}
+        </h3>
+        
+        <div className="space-y-2">
+          <FAQItem 
+            isRtl={isRtl} isDark={isDark}
+            question={isRtl ? 'كيف يتم الدفع وتفعيل الاشتراك؟' : 'How does payment and activation work?'}
+            answer={isRtl 
+              ? 'يتم الدفع بأمان وسرية عبر العملات الرقمية المستقرة (USDT) على شبكات TRC20 أو BEP20. بمجرد تحويلك للمبلغ للعنوان المخصص، سيتم التحقق عبر البلوكشين وتفعيل باقتك آلياً.'
+              : 'Payments are made securely via USDT crypto on TRC20 or BEP20. Once transferred to the assigned address, blockchain verifies it and activates your plan automatically.'}
+          />
+          <FAQItem 
+            isRtl={isRtl} isDark={isDark}
+            question={isRtl ? 'هل يمكنني الترقية من الباقة المجانية لاحقاً؟' : 'Can I upgrade from free plan later?'}
+            answer={isRtl 
+              ? 'بالتأكيد! يمكنك البدء بالباقة المجانية لتجربة الداشبورد وإدارة صفقاتك الأساسية، وبمجرد احتياجك لمركز الذهب أو استراتيجيات أعمق، يمكنك الترقية بضغطة زر.'
+              : 'Absolutely! Start free to test the dashboard, and whenever you need the Gold Hub or advanced strategies, you can upgrade with one click.'}
+          />
+          <FAQItem 
+            isRtl={isRtl} isDark={isDark}
+            question={isRtl ? 'هل بيانات صفقاتي آمنة ومحفوظة؟' : 'Is my trade data secure?'}
+            answer={isRtl 
+              ? 'نعم، نحن نستخدم تشفير عالي الجودة للبيانات في قاعدة البيانات (Bcrypt & JWT)، والمنصة مصممة للاستخدام كأداة تعقب محفظة (Portfolio Tracker) ولا تمتلك صلاحية سحب أو تحويل أي أموال من منصاتك.'
+              : 'Yes, we use high-grade database encryption. The platform acts as a tracker only and has no withdrawal permissions from your exchange accounts.'}
+          />
+        </div>
       </div>
 
       {/* Payment Modal */}

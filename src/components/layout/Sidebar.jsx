@@ -66,7 +66,7 @@ export default function Sidebar() {
   const navGroups = [
     {
       id: 'trades',
-      title: lang === 'ar' ? 'الصفقات' : 'Trades',
+      title: lang === 'ar' ? 'مركز التداول' : 'Trading Hub',
       items: [
         { id: 'trade-entry', label: t('navTradeEntry'), icon: PlusCircle, highlight: true, onClick: () => setActiveScreen('trade-entry') },
         { id: 'coin-portfolio', label: t('navCoinPortfolio'), icon: Coins, onClick: () => setActiveScreen('coin-portfolio') },

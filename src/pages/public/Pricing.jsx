@@ -91,10 +91,10 @@ export default function Pricing() {
 
   // Features mapping
   const featuresList = [
-    { id: 'crypto', labelAr: 'تتبع صفقات العملات الرقمية', labelEn: 'Crypto Portfolio Tracking', free: true, pro: true },
+    { id: 'crypto', labelAr: 'تتبع وإدخال الصفقات', labelEn: 'Trade Entry & Tracking', free: 'حد أقصى 10 صفقات', pro: 'غير محدود' },
     { id: 'dashboard', labelAr: 'الداشبورد العام والتحليلات', labelEn: 'Overview Dashboard & Analytics', free: true, pro: true },
+    { id: 'strategies', labelAr: 'بناء الاستراتيجيات المخصصة', labelEn: 'Custom Strategy Builder', free: 'حد أقصى 2 استراتيجية', pro: 'غير محدود' },
     { id: 'gold', labelAr: 'مركز إدارة وتداول الذهب', labelEn: 'Gold Hub (Karats & Grams)', free: false, pro: true },
-    { id: 'strategies', labelAr: 'مصنع الاستراتيجيات (قصيرة/طويلة)', labelEn: 'Strategy Factory (ST & LT)', free: false, pro: true },
     { id: 'alerts', labelAr: 'تنبيهات العجز النقدي المتقدمة', labelEn: 'Advanced Cash Deficit Alerts', free: false, pro: true },
     { id: 'support', labelAr: 'أولوية الدعم الفني الفوري (VIP)', labelEn: 'Priority VIP Support', free: false, pro: true },
   ];

@@ -15,75 +15,12 @@ import {
   Legend
 } from 'recharts';
 
-function GoldGramsWidget({ goldPriceOz }) {
-  const [currency, setCurrency] = useState('USD');
-  if (!goldPriceOz) return null;
-  
-  // 1 Troy Ounce = 31.1034768 grams
-  const exchangeRate = currency === 'SAR' ? 3.75 : 1;
-  const currencySymbol = currency === 'SAR' ? 'ر.س' : '$';
 
-  const gram24k = (goldPriceOz / 31.1034768) * exchangeRate;
-  const gram21k = gram24k * (21 / 24);
-  const goldCoin8g21k = gram21k * 8; // الجنيه الذهب 8 جرام عيار 21
-
-  return (
-    <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-amber-500/30 bg-amber-500/5 space-y-3 relative overflow-hidden">
-      <div className="flex items-center justify-between mb-1">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
-            <Coins className="w-4 h-4" />
-          </div>
-          <span className="text-xs text-amber-500/80 font-bold">أسعار الذهب (جرام)</span>
-        </div>
-        {/* Currency Toggle */}
-        <div className="flex bg-black/20 rounded-lg p-0.5 border border-amber-500/20">
-          <button 
-            onClick={() => setCurrency('USD')}
-            className={`px-2 py-0.5 text-[10px] rounded font-bold transition-all ${currency === 'USD' ? 'bg-amber-500 text-black' : 'text-amber-500/60 hover:text-amber-400'}`}
-          >
-            USD
-          </button>
-          <button 
-            onClick={() => setCurrency('SAR')}
-            className={`px-2 py-0.5 text-[10px] rounded font-bold transition-all ${currency === 'SAR' ? 'bg-amber-500 text-black' : 'text-amber-500/60 hover:text-amber-400'}`}
-          >
-            SAR
-          </button>
-        </div>
-      </div>
-      <div className="space-y-1">
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-gray-300">عيار 24</span>
-          <span className="text-sm font-bold font-mono text-white" dir="ltr">{currencySymbol}{gram24k.toFixed(2)}</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-gray-300">عيار 21</span>
-          <span className="text-sm font-bold font-mono text-white" dir="ltr">{currencySymbol}{gram21k.toFixed(2)}</span>
-        </div>
-        <div className="flex items-center justify-between border-t border-amber-500/20 pt-1 mt-1">
-          <span className="text-[11px] text-amber-300/80 font-bold">الجنيه (8ج عيار 21)</span>
-          <span className="text-sm font-bold font-mono text-amber-400" dir="ltr">{currencySymbol}{goldCoin8g21k.toFixed(2)}</span>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function OverviewDashboardPage() {
   const { overviewMetrics, coinPortfolios, theme, t } = useApp();
   const [allocationMode, setAllocationMode] = useState('coin'); // 'coin' | 'exchange' | 'category'
-  const [goldPrice, setGoldPrice] = useState(null);
 
-  useEffect(() => {
-    // Fetch commodities to get Gold price for the dashboard
-    api.getCommoditiesOverview().then(res => {
-      if (res.success && res.data) {
-        const gold = res.data.find(c => c.name === 'Gold');
-        if (gold) setGoldPrice(gold.current_price);
-      }
-    }).catch(console.error);
-  }, []);
 
   const isLight = theme === 'light';
 
@@ -148,9 +85,7 @@ export default function OverviewDashboardPage() {
       </div>
 
       {/* Top Summary Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-        {/* Card 0: Gold Grams */}
-        <GoldGramsWidget goldPriceOz={goldPrice} />
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
 
         {/* Card 1: Total Portfolio Value */}
         <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-white/10 space-y-3 relative overflow-hidden">

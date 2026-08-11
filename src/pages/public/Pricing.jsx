@@ -98,16 +98,18 @@ export default function Pricing() {
       
       {/* Header Banner */}
       <div className="max-w-4xl mx-auto text-center space-y-4">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 text-xs sm:text-sm font-bold backdrop-blur-md">
-          <Sparkles className="w-4 h-4 text-cyan-400 animate-pulse" />
+        <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs sm:text-sm font-bold backdrop-blur-md ${
+          isDark ? 'bg-cyan-500/10 text-cyan-300 border-cyan-500/30' : 'bg-cyan-50 text-cyan-700 border-cyan-200'
+        }`}>
+          <Sparkles className="w-4 h-4 text-cyan-500 animate-pulse" />
           <span>{isRtl ? 'خطط وباقات واضحة بدون رسوم خفية' : 'Transparent Pricing & No Hidden Fees'}</span>
         </div>
 
-        <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight leading-tight">
+        <h1 className={`text-4xl sm:text-6xl font-black tracking-tight leading-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
           {isRtl ? 'اختر الباقة المناسبة لحجم استثماراتك' : 'Choose Your Trading Plan'}
         </h1>
 
-        <p className="text-slate-300 text-base sm:text-xl max-w-2xl mx-auto leading-relaxed">
+        <p className={`text-base sm:text-xl max-w-2xl mx-auto leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
           {isRtl 
             ? 'احصل على الخصائص الكاملة لتتبع صفقاتك والذهب والعملات الرقمية مع دفع آمن وسريع عبر العملات المشفرة.' 
             : 'Unlock the full potential of your portfolio tracking. Pay securely with USDT. No hidden fees.'}
@@ -125,8 +127,10 @@ export default function Pricing() {
               key={plan.id} 
               className={`relative rounded-3xl p-8 flex flex-col backdrop-blur-xl border transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl ${
                 isPro 
-                  ? 'bg-gradient-to-b from-slate-900/90 via-indigo-950/60 to-slate-950 border-cyan-500/40 shadow-xl shadow-cyan-500/10' 
-                  : 'bg-slate-900/60 border-white/10 hover:border-slate-400/40'
+                  ? 'bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-950 border-cyan-500/40 shadow-xl shadow-cyan-500/10 text-white' 
+                  : isDark 
+                  ? 'bg-slate-900/60 border-white/10 hover:border-slate-400/40 text-white' 
+                  : 'bg-white border-slate-200 shadow-md hover:border-cyan-300 text-slate-900'
               }`}
             >
               {isPro && (
@@ -136,8 +140,8 @@ export default function Pricing() {
               )}
               
               <div className="space-y-2 mb-6">
-                <h3 className="text-2xl font-black text-white">{plan.name}</h3>
-                <p className="text-slate-400 text-xs">
+                <h3 className={`text-2xl font-black ${isPro ? 'text-white' : isDark ? 'text-white' : 'text-slate-900'}`}>{plan.name}</h3>
+                <p className={`text-xs ${isPro ? 'text-slate-300' : isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                   {isFree 
                     ? (isRtl ? 'لتجربة المنصة والاستكشاف المجاني' : 'Ideal for exploring platform features') 
                     : (isRtl ? 'للمتداولين والمستثمرين الجادين' : 'For serious traders and investors')}
@@ -145,33 +149,33 @@ export default function Pricing() {
               </div>
 
               <div className="mb-8 flex items-baseline gap-1">
-                <span className="text-5xl font-black font-mono text-white">${plan.price_usd}</span>
-                <span className="text-slate-400 text-sm font-semibold">
+                <span className={`text-5xl font-black font-mono ${isPro ? 'text-white' : isDark ? 'text-white' : 'text-slate-900'}`}>${plan.price_usd}</span>
+                <span className={`text-sm font-semibold ${isPro ? 'text-slate-300' : isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                   / {plan.billing_cycle_days === 30 ? (isRtl ? 'شهر' : 'month') : plan.billing_cycle_days === 365 ? (isRtl ? 'سنة' : 'year') : (isRtl ? 'دورة' : 'cycle')}
                 </span>
               </div>
               
               {/* Features List */}
               <ul className="mb-8 flex-1 space-y-3.5 text-sm">
-                <li className="flex items-center text-slate-200 gap-3 font-semibold">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                <li className={`flex items-center gap-3 font-semibold ${isPro ? 'text-slate-200' : isDark ? 'text-slate-200' : 'text-slate-700'}`}>
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
                   <span>{isRtl ? 'تتبع صفقات العملات الرقمية' : 'Crypto Portfolio Tracking'}</span>
                 </li>
-                <li className="flex items-center text-slate-200 gap-3 font-semibold">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                <li className={`flex items-center gap-3 font-semibold ${isPro ? 'text-slate-200' : isDark ? 'text-slate-200' : 'text-slate-700'}`}>
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
                   <span>{isRtl ? 'مركز إدارة وتداول الذهب (العيارات والجرامات)' : 'Gold Hub (Karats & Grams)'}</span>
                 </li>
-                <li className="flex items-center text-slate-200 gap-3 font-semibold">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                <li className={`flex items-center gap-3 font-semibold ${isPro ? 'text-slate-200' : isDark ? 'text-slate-200' : 'text-slate-700'}`}>
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
                   <span>{isRtl ? 'تنبيهات العجز النقدي وإدارته' : 'Cash Deficit Alert Engine'}</span>
                 </li>
-                <li className="flex items-center text-slate-200 gap-3 font-semibold">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                <li className={`flex items-center gap-3 font-semibold ${isPro ? 'text-slate-200' : isDark ? 'text-slate-200' : 'text-slate-700'}`}>
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
                   <span>{isRtl ? 'مصنع الاستراتيجيات (قصيرة/طويلة المدى)' : 'Strategy Factory (ST & LT)'}</span>
                 </li>
                 {!isFree && (
-                  <li className="flex items-center text-slate-200 gap-3 font-semibold">
-                    <CheckCircle2 className="w-5 h-5 text-cyan-400 shrink-0" />
+                  <li className={`flex items-center gap-3 font-semibold ${isPro ? 'text-slate-200' : isDark ? 'text-slate-200' : 'text-slate-700'}`}>
+                    <CheckCircle2 className="w-5 h-5 text-cyan-500 shrink-0" />
                     <span>{isRtl ? 'دعم فني سريع ومتميز' : 'Priority Technical Support'}</span>
                   </li>
                 )}
@@ -183,7 +187,9 @@ export default function Pricing() {
                 className={`w-full py-4 rounded-2xl font-black text-base transition-all duration-200 border shadow-lg active:scale-95 flex items-center justify-center gap-2 ${
                   isPro 
                     ? 'bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 text-white border-white/20 hover:opacity-95 shadow-cyan-500/20' 
-                    : 'bg-slate-800 hover:bg-slate-700 text-white border-white/10'
+                    : isDark 
+                    ? 'bg-slate-800 hover:bg-slate-700 text-white border-white/10' 
+                    : 'bg-slate-900 hover:bg-slate-800 text-white border-slate-700'
                 }`}
               >
                 <span>

@@ -1,6 +1,9 @@
 import requests
 import logging
+import urllib3
 from datetime import datetime
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +27,8 @@ def fetch_coingecko_prices():
     try:
         response = requests.get(
             "https://api.binance.com/api/v3/ticker/24hr",
-            timeout=8
+            timeout=8,
+            verify=False
         )
         if response.status_code == 200:
             data = response.json()
@@ -72,7 +76,8 @@ def fetch_coingecko_prices():
         response = requests.get(
             "https://api.coincap.io/v2/assets",
             params={"limit": 200},
-            timeout=8
+            timeout=8,
+            verify=False
         )
         if response.status_code == 200:
             res_json = response.json()

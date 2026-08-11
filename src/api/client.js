@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:8001`;
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://light-tracker-backend-pp0d.onrender.com";
 
 async function request(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;

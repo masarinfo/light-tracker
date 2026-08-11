@@ -28,7 +28,8 @@ export default function Sidebar() {
   const { activeScreen, setActiveScreen, setSelectedStrategyId, strategies, t, lang, isSidebarCollapsed, toggleSidebar } = useApp();
   const { user } = useAuth();
   
-  const [expandedGroups, setExpandedGroups] = useState({});
+  // Make "trades" (Trading Hub) open by default
+  const [expandedGroups, setExpandedGroups] = useState({ trades: true });
 
   const toggleGroup = (key) => {
     setExpandedGroups(prev => ({ ...prev, [key]: !prev[key] }));
@@ -38,12 +39,6 @@ export default function Sidebar() {
     setSelectedStrategyId(stratId);
     setActiveScreen(`strategy-${stratId}`);
   };
-
-  // Top Standalone Items
-  const standaloneItems = [
-    { id: 'overview', label: t('navOverview'), icon: BarChart3, onClick: () => setActiveScreen('overview') },
-    { id: 'market-prices', label: t('navMarketPrices'), icon: Globe, onClick: () => setActiveScreen('market-prices') },
-  ];
 
   // Reports Group Items (Strategy Comparison + Dynamic Strategy Dashboards + Short/Long Term)
   const reportsItems = [
@@ -68,6 +63,8 @@ export default function Sidebar() {
       id: 'trades',
       title: lang === 'ar' ? 'مركز التداول' : 'Trading Hub',
       items: [
+        { id: 'overview', label: t('navOverview'), icon: BarChart3, onClick: () => setActiveScreen('overview') },
+        { id: 'market-prices', label: t('navMarketPrices'), icon: Globe, onClick: () => setActiveScreen('market-prices') },
         { id: 'trade-entry', label: t('navTradeEntry'), icon: PlusCircle, highlight: true, onClick: () => setActiveScreen('trade-entry') },
         { id: 'coin-portfolio', label: t('navCoinPortfolio'), icon: Coins, onClick: () => setActiveScreen('coin-portfolio') },
         { id: 'trade-history', label: lang === 'ar' ? 'سجل الصفقات' : 'Trade History', icon: History, onClick: () => setActiveScreen('trade-history') },
@@ -162,34 +159,6 @@ export default function Sidebar() {
 
       {/* Navigation Items */}
       <nav className="p-3 space-y-4 overflow-y-auto flex-1 custom-scrollbar">
-        
-        {/* Standalone Items */}
-        <div className="space-y-1">
-          {standaloneItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeScreen === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={item.onClick}
-                title={isSidebarCollapsed ? item.label : undefined}
-                className={`w-full flex items-center ${
-                  isSidebarCollapsed ? 'justify-center p-3' : 'justify-between px-3 py-2.5'
-                } rounded-xl text-xs font-medium transition-all duration-200 ${
-                  isActive
-                    ? 'bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 text-cyan-300 border border-cyan-500/30 shadow-lg shadow-cyan-500/10 font-bold'
-                    : 'text-gray-300 hover:bg-white/5 hover:text-white'
-                }`}
-              >
-                <div className={`flex items-center gap-3 min-w-0 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
-                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-cyan-400' : 'text-gray-400'}`} />
-                  {!isSidebarCollapsed && <span className="truncate">{item.label}</span>}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-
         {navGroups.map((group) => (
           <div key={group.id} className="space-y-1">
             {!isSidebarCollapsed ? (

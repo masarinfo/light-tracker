@@ -90,16 +90,6 @@ export default function Header() {
       {/* Right Section: Live Ticker, Portfolio, Quick Toggles & User Profile */}
       <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
         
-        {/* Live Market Price Badge with Timer (Desktop/Tablet) */}
-        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/60 border border-white/10 text-cyan-300 text-xs font-mono">
-          <Radio className={`w-3.5 h-3.5 text-cyan-400 shrink-0 ${isFetchingPrices ? 'animate-spin' : 'animate-pulse'}`} />
-          <span className="truncate">{priceSource}</span>
-          <div className="flex items-center gap-1 border-l border-cyan-500/30 pl-2 ml-1">
-            <Timer className="w-3 h-3 text-cyan-500" />
-            <span className="text-[10px] text-cyan-400">{countdown}s</span>
-          </div>
-        </div>
-
         {/* Portfolio Value Summary Badge */}
         <div 
           className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl border text-xs font-bold transition-all shadow-xs ${

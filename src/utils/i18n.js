@@ -9,7 +9,7 @@ export const translations = {
     appVersion: "v2.5 PRO • المحرك الذكي",
     subTitle: "Spot Trading & Portfolio Intelligence Platform",
     spotOnlyBadge: "تداول السبوت 100% (Spot Only)",
-    livePricesConnected: "Binance REST API حية",
+    livePricesConnected: "CoinGecko API حية",
     livePricesUpdating: "جاري جلب الأسعار...",
     
     // Theme Toggle
@@ -127,7 +127,7 @@ export const translations = {
     // Coin Portfolio Screen
     coinPortfolioTitle: "واجهة إدارة ومراقبة العملات (Coin Portfolio)",
     coinPortfolioDesc: "مركز تحليلي تراكمي لحساب متوسط التكلفة، الأرباح المحققة، الأرباح غير المحققة والعمولات.",
-    autoUpdatedBinance: "محدث أوتوماتيكياً عبر Binance REST API",
+    autoUpdatedBinance: "محدث أوتوماتيكياً عبر CoinGecko API",
     symbol: "اسم العملة",
     exchange: "المنصة",
     strategy: "الاستراتيجية",
@@ -230,7 +230,7 @@ export const translations = {
 
     // Market Prices Page
     marketPricesTitle: "متابعة أسعار السوق (Market Overview)",
-    marketPricesDesc: "مراقبة حية لأسعار العملات الرقمية، التغيرات اليومية، أحجام التداول والقيمة السوقية مباشرة عبر Binance API.",
+    marketPricesDesc: "مراقبة حية لأسعار العملات الرقمية، التغيرات اليومية، أحجام التداول والقيمة السوقية مباشرة عبر CoinGecko API.",
     searchCoin: "ابحث عن عملة...",
     colCoin: "العملة",
     colPrice: "السعر الحالي",
@@ -243,7 +243,7 @@ export const translations = {
     appVersion: "v2.5 PRO • Intelligent Engine",
     subTitle: "Spot Trading & Portfolio Intelligence Platform",
     spotOnlyBadge: "Spot Only (100% Pure Spot)",
-    livePricesConnected: "Binance REST API Live",
+    livePricesConnected: "CoinGecko API Live",
     livePricesUpdating: "Fetching live prices...",
     
     // Theme Toggle
@@ -361,7 +361,7 @@ export const translations = {
     // Coin Portfolio Screen
     coinPortfolioTitle: "Coin Portfolio & Asset Management",
     coinPortfolioDesc: "Analytical hub for average purchase cost, realized PnL, unrealized PnL, and fees.",
-    autoUpdatedBinance: "Live updated via Binance REST API",
+    autoUpdatedBinance: "Live updated via CoinGecko API",
     symbol: "Coin Symbol",
     exchange: "Exchange",
     strategy: "Strategy",
@@ -464,7 +464,7 @@ export const translations = {
 
     // Market Prices Page
     marketPricesTitle: "Market Overview",
-    marketPricesDesc: "Live monitoring of cryptocurrency prices, daily changes, volumes, and market cap directly via Binance API.",
+    marketPricesDesc: "Live monitoring of cryptocurrency prices, daily changes, volumes, and market cap directly via CoinGecko API.",
     searchCoin: "Search for a coin...",
     colCoin: "Coin",
     colPrice: "Current Price",

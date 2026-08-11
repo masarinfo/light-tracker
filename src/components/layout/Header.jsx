@@ -53,8 +53,8 @@ export default function Header() {
     <header 
       className={`h-16 md:h-20 border-b backdrop-blur-xl px-3 sm:px-6 flex items-center justify-between sticky top-0 z-30 shrink-0 transition-all duration-300 ${
         isDark 
-          ? 'bg-slate-950/80 border-white/10 shadow-lg shadow-cyan-950/10' 
-          : 'bg-white/85 border-slate-200 shadow-sm text-slate-900'
+          ? 'bg-slate-950/85 border-white/10 shadow-lg shadow-cyan-950/10' 
+          : 'bg-white/90 border-slate-200/80 shadow-md shadow-slate-200/40 text-slate-900'
       }`}
       dir={isRtl ? 'rtl' : 'ltr'}
     >
@@ -65,7 +65,7 @@ export default function Header() {
           className={`p-2.5 rounded-xl border transition-all duration-200 shrink-0 shadow-xs active:scale-95 ${
             isDark 
               ? 'bg-slate-900/80 border-white/10 text-cyan-400 hover:bg-cyan-500/10 hover:border-cyan-500/40' 
-              : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 hover:text-slate-900'
+              : 'bg-slate-100/90 border-slate-200 text-slate-700 hover:bg-cyan-500/10 hover:border-cyan-500/30 hover:text-cyan-600'
           }`}
           title={isSidebarCollapsed ? 'Expand Sidebar / إظهار القائمة' : 'Collapse Sidebar / إخفاء القائمة'}
         >
@@ -94,15 +94,19 @@ export default function Header() {
         <div 
           className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl border text-xs font-bold transition-all shadow-xs ${
             overviewMetrics.hasNegativeCash 
-              ? 'bg-amber-500/10 border-amber-500/30 text-amber-300' 
-              : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+              ? isDark ? 'bg-amber-500/10 border-amber-500/30 text-amber-300' : 'bg-amber-50 border-amber-300 text-amber-800'
+              : isDark ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-emerald-50 border-emerald-300 text-emerald-800'
           }`}
           title={overviewMetrics.hasNegativeCash ? `⚠️ Unlogged Deposit: $${overviewMetrics.unloggedDepositAmount.toLocaleString()}` : ''}
         >
-          <Wallet className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${overviewMetrics.hasNegativeCash ? 'text-amber-400' : 'text-emerald-400'}`} />
+          <Wallet className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${
+            overviewMetrics.hasNegativeCash ? (isDark ? 'text-amber-400' : 'text-amber-600') : (isDark ? 'text-emerald-400' : 'text-emerald-600')
+          }`} />
           <div className="flex items-center gap-1">
-            <span className="text-slate-400 hidden xl:inline">{t('portfolioSummaryLabel')}</span>
-            <span className={`font-mono text-xs sm:text-sm font-black ${overviewMetrics.hasNegativeCash ? 'text-amber-400' : 'text-emerald-400'}`} dir="ltr">
+            <span className={isDark ? 'text-slate-400 hidden xl:inline' : 'text-slate-600 hidden xl:inline'}>{t('portfolioSummaryLabel')}</span>
+            <span className={`font-mono text-xs sm:text-sm font-black ${
+              overviewMetrics.hasNegativeCash ? (isDark ? 'text-amber-400' : 'text-amber-700') : (isDark ? 'text-emerald-400' : 'text-emerald-700')
+            }`} dir="ltr">
               {showBalance 
                 ? `$${overviewMetrics.totalPortfolioValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                 : '••••••••'}
@@ -111,7 +115,9 @@ export default function Header() {
           <button 
             onClick={() => setShowBalance(!showBalance)}
             className={`p-1 rounded-lg transition-colors ${
-              overviewMetrics.hasNegativeCash ? 'hover:bg-amber-500/20 text-amber-400' : 'hover:bg-emerald-500/20 text-emerald-400'
+              overviewMetrics.hasNegativeCash 
+                ? isDark ? 'hover:bg-amber-500/20 text-amber-400' : 'hover:bg-amber-100 text-amber-700'
+                : isDark ? 'hover:bg-emerald-500/20 text-emerald-400' : 'hover:bg-emerald-100 text-emerald-700'
             }`}
             title="Toggle Balance Visibility"
           >
@@ -120,11 +126,11 @@ export default function Header() {
         </div>
 
         {/* Controls Capsule (Theme & Language) */}
-        <div className={`flex items-center p-1 rounded-xl border ${isDark ? 'bg-slate-900/60 border-white/10' : 'bg-slate-100 border-slate-200'}`}>
+        <div className={`flex items-center p-1 rounded-xl border ${isDark ? 'bg-slate-900/60 border-white/10' : 'bg-slate-100 border-slate-200/90 shadow-2xs'}`}>
           <button
             onClick={toggleTheme}
             className={`p-1.5 rounded-lg transition-all ${
-              isDark ? 'text-amber-400 hover:bg-white/10' : 'text-slate-700 hover:bg-slate-200'
+              isDark ? 'text-amber-400 hover:bg-white/10' : 'text-amber-600 hover:bg-slate-200/80'
             }`}
             title={isDark ? 'Light Mode' : 'Dark Mode'}
           >
@@ -136,12 +142,12 @@ export default function Header() {
           <button
             onClick={toggleLanguage}
             className={`px-2 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
-              isDark ? 'text-slate-300 hover:bg-white/10 hover:text-white' : 'text-slate-700 hover:bg-slate-200'
+              isDark ? 'text-slate-300 hover:bg-white/10 hover:text-white' : 'text-slate-700 hover:bg-slate-200/80 hover:text-slate-900'
             }`}
             title="Switch Language / تغيير اللغة"
           >
-            <Globe className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="font-sans uppercase text-[11px]">{lang === 'ar' ? 'EN' : 'عربي'}</span>
+            <Globe className="w-3.5 h-3.5 text-cyan-500" />
+            <span className="font-sans uppercase text-[11px] font-extrabold">{lang === 'ar' ? 'EN' : 'عربي'}</span>
           </button>
         </div>
 

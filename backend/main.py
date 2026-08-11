@@ -47,12 +47,12 @@ app.include_router(affiliate_router.router)
 @app.get("/live-prices", tags=["prices"])
 def live_prices():
     """
-    Returns the cached Binance API / Live Market prices gathered by the background worker.
+    Returns the cached API / Live Market prices gathered by the background worker.
     """
     prices = get_cached_prices()
     return {
         "success": True,
-        "source": "Backend (Binance API)",
+        "source": "Backend (CoinGecko API)",
         "prices": prices
     }
 

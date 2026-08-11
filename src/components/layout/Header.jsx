@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Globe, Radio, Wallet, PanelLeftClose, PanelLeftOpen, Sun, Moon, Eye, EyeOff, Timer, User, LogOut } from 'lucide-react';
+import { Globe, Radio, Wallet, PanelLeftClose, PanelLeftOpen, Sun, Moon, Eye, EyeOff, Timer, User, LogOut, Sparkles } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Header() {
@@ -9,6 +9,9 @@ export default function Header() {
 
   const [showBalance, setShowBalance] = useState(() => localStorage.getItem('show_balance') !== 'false');
   const [countdown, setCountdown] = useState(30);
+
+  const isDark = theme === 'dark';
+  const isRtl = lang === 'ar';
 
   useEffect(() => {
     localStorage.setItem('show_balance', showBalance);
@@ -31,70 +34,94 @@ export default function Header() {
     if (activeScreen === 'strategy-factory') return t('strategyFactoryTitle');
     if (activeScreen === 'coin-portfolio') return t('coinPortfolioTitle');
     if (activeScreen === 'trade-entry') return t('tradeEntryTitle');
+    if (activeScreen === 'market-prices') return t('marketPricesTitle');
     if (activeScreen === 'short-term') return t('shortTermTitle');
     if (activeScreen === 'long-term') return t('longTermTitle');
     if (activeScreen === 'strategy-comparison') return t('comparisonTitle');
     if (activeScreen.startsWith('strategy-')) return t('navDynamicStrategy');
     if (activeScreen === 'security-preview') return t('securityPreviewTitle');
+    if (activeScreen === 'wallet') return isRtl ? 'المحفظة والتحويلات' : 'Wallet';
+    if (activeScreen === 'billing') return isRtl ? 'الاشتراك والفواتير' : 'Billing';
+    if (activeScreen === 'affiliate') return isRtl ? 'التسويق بالعمولة' : 'Affiliate';
+    if (activeScreen === 'coupons-management') return isRtl ? 'إدارة الكوبونات' : 'Coupons';
+    if (activeScreen === 'users-management') return isRtl ? 'إدارة المستخدمين' : 'Users Management';
+    if (activeScreen === 'system-logs') return isRtl ? 'سجل النظام' : 'System Logs';
     return t('appTitle');
   };
 
   return (
-    <header className="h-16 glass-panel border-b border-white/10 px-3 md:px-6 flex items-center justify-between sticky top-0 z-20 shrink-0">
-      {/* Title & Menu Toggle Button */}
-      <div className="flex items-center gap-2 md:gap-4 truncate min-w-0 flex-1">
+    <header 
+      className={`h-16 md:h-20 border-b backdrop-blur-xl px-3 sm:px-6 flex items-center justify-between sticky top-0 z-30 shrink-0 transition-all duration-300 ${
+        isDark 
+          ? 'bg-slate-950/80 border-white/10 shadow-lg shadow-cyan-950/10' 
+          : 'bg-white/85 border-slate-200 shadow-sm text-slate-900'
+      }`}
+      dir={isRtl ? 'rtl' : 'ltr'}
+    >
+      {/* Left Section: Sidebar Toggle & Page Title */}
+      <div className="flex items-center gap-2 sm:gap-4 truncate min-w-0 flex-1">
         <button
           onClick={toggleSidebar}
-          className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-cyan-500/40 text-cyan-400 transition-all duration-200 shrink-0"
+          className={`p-2.5 rounded-xl border transition-all duration-200 shrink-0 shadow-xs active:scale-95 ${
+            isDark 
+              ? 'bg-slate-900/80 border-white/10 text-cyan-400 hover:bg-cyan-500/10 hover:border-cyan-500/40' 
+              : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 hover:text-slate-900'
+          }`}
           title={isSidebarCollapsed ? 'Expand Sidebar / إظهار القائمة' : 'Collapse Sidebar / إخفاء القائمة'}
         >
           {isSidebarCollapsed ? (
-            <PanelLeftOpen className="w-5 h-5" />
+            <PanelLeftOpen className="w-4 h-4 sm:w-5 sm:h-5" />
           ) : (
-            <PanelLeftClose className="w-5 h-5" />
+            <PanelLeftClose className="w-4 h-4 sm:w-5 sm:h-5" />
           )}
         </button>
 
-        <h2 className="text-base font-bold tracking-wide truncate flex items-center gap-2">
-          {getScreenTitle()}
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">V4.0</span>
-        </h2>
+        <div className="flex items-center gap-2 truncate min-w-0">
+          <h2 className={`text-sm sm:text-base font-extrabold tracking-tight truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
+            {getScreenTitle()}
+          </h2>
+          <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 text-cyan-400 border border-cyan-500/30 shrink-0">
+            <Sparkles className="w-3 h-3 text-cyan-400" />
+            V4.0
+          </span>
+        </div>
       </div>
 
-      {/* Right Controls */}
-      <div className="flex items-center gap-1.5 md:gap-3 shrink-0">
-        {/* Live Market Price Badge with Timer */}
-        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-mono">
+      {/* Right Section: Live Ticker, Portfolio, Quick Toggles & User Profile */}
+      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+        
+        {/* Live Market Price Badge with Timer (Desktop/Tablet) */}
+        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/60 border border-white/10 text-cyan-300 text-xs font-mono">
           <Radio className={`w-3.5 h-3.5 text-cyan-400 shrink-0 ${isFetchingPrices ? 'animate-spin' : 'animate-pulse'}`} />
-          <span>{priceSource}</span>
+          <span className="truncate">{priceSource}</span>
           <div className="flex items-center gap-1 border-l border-cyan-500/30 pl-2 ml-1">
             <Timer className="w-3 h-3 text-cyan-500" />
-            <span className="text-[10px] text-cyan-500">{countdown}s</span>
+            <span className="text-[10px] text-cyan-400">{countdown}s</span>
           </div>
         </div>
 
         {/* Portfolio Value Summary Badge */}
         <div 
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs transition-all ${
+          className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl border text-xs font-bold transition-all shadow-xs ${
             overviewMetrics.hasNegativeCash 
               ? 'bg-amber-500/10 border-amber-500/30 text-amber-300' 
               : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
           }`}
-          title={overviewMetrics.hasNegativeCash ? `⚠️ ${t('unloggedDeposit') || 'Missing Deposit'}: $${overviewMetrics.unloggedDepositAmount.toLocaleString()}` : ''}
+          title={overviewMetrics.hasNegativeCash ? `⚠️ Unlogged Deposit: $${overviewMetrics.unloggedDepositAmount.toLocaleString()}` : ''}
         >
-          <Wallet className={`w-4 h-4 shrink-0 ${overviewMetrics.hasNegativeCash ? 'text-amber-400' : 'text-emerald-400'}`} />
-          <div className="flex items-center gap-1 font-bold">
-            <span className="text-gray-400 hidden md:inline">{t('portfolioSummaryLabel')}</span>
-            <span className={`font-mono ${overviewMetrics.hasNegativeCash ? 'text-amber-400' : 'text-emerald-400'}`} dir="ltr">
+          <Wallet className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${overviewMetrics.hasNegativeCash ? 'text-amber-400' : 'text-emerald-400'}`} />
+          <div className="flex items-center gap-1">
+            <span className="text-slate-400 hidden xl:inline">{t('portfolioSummaryLabel')}</span>
+            <span className={`font-mono text-xs sm:text-sm font-black ${overviewMetrics.hasNegativeCash ? 'text-amber-400' : 'text-emerald-400'}`} dir="ltr">
               {showBalance 
                 ? `$${overviewMetrics.totalPortfolioValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                : '********'}
+                : '••••••••'}
             </span>
           </div>
           <button 
             onClick={() => setShowBalance(!showBalance)}
-            className={`ml-1 p-1 rounded-md transition-colors ${
-              overviewMetrics.hasNegativeCash ? 'hover:bg-amber-500/20 text-amber-500' : 'hover:bg-emerald-500/20 text-emerald-500'
+            className={`p-1 rounded-lg transition-colors ${
+              overviewMetrics.hasNegativeCash ? 'hover:bg-amber-500/20 text-amber-400' : 'hover:bg-emerald-500/20 text-emerald-400'
             }`}
             title="Toggle Balance Visibility"
           >
@@ -102,50 +129,50 @@ export default function Header() {
           </button>
         </div>
 
-        {/* Light / Dark Mode Switcher */}
-        <button
-          onClick={toggleTheme}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-amber-500/40 text-amber-400 text-xs font-semibold transition-all duration-200"
-          title={theme === 'dark' ? t('themeLight') : t('themeDark')}
-        >
-          {theme === 'dark' ? (
-            <>
-              <Sun className="w-4 h-4 text-amber-400 shrink-0" />
-              <span className="font-sans hidden sm:inline">{t('themeLight')}</span>
-            </>
-          ) : (
-            <>
-              <Moon className="w-4 h-4 text-indigo-400 shrink-0" />
-              <span className="font-sans hidden sm:inline">{t('themeDark')}</span>
-            </>
-          )}
-        </button>
+        {/* Controls Capsule (Theme & Language) */}
+        <div className={`flex items-center p-1 rounded-xl border ${isDark ? 'bg-slate-900/60 border-white/10' : 'bg-slate-100 border-slate-200'}`}>
+          <button
+            onClick={toggleTheme}
+            className={`p-1.5 rounded-lg transition-all ${
+              isDark ? 'text-amber-400 hover:bg-white/10' : 'text-slate-700 hover:bg-slate-200'
+            }`}
+            title={isDark ? 'Light Mode' : 'Dark Mode'}
+          >
+            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
 
-        {/* Language Switcher */}
-        <button
-          onClick={toggleLanguage}
-          className="flex items-center gap-2 px-2 md:px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-cyan-500/40 text-gray-200 text-xs font-semibold transition-all duration-200"
-          title="Switch Language / تغيير اللغة"
-        >
-          <Globe className="w-4 h-4 text-cyan-400 shrink-0" />
-          <span className="font-sans hidden sm:inline">{lang === 'ar' ? 'English (EN)' : 'العربية (AR)'}</span>
-        </button>
+          <div className={`h-4 w-px mx-1 ${isDark ? 'bg-white/10' : 'bg-slate-300'}`}></div>
 
-        {/* User Profile & Logout */}
-        <div className="flex items-center gap-1.5 md:gap-2 border-l border-white/10 pl-2 md:pl-3 ml-0.5 md:ml-1">
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-semibold">
-            <User className="w-4 h-4 text-purple-400 shrink-0" />
-            <span className="font-sans hidden sm:inline">{user?.username}</span>
+          <button
+            onClick={toggleLanguage}
+            className={`px-2 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
+              isDark ? 'text-slate-300 hover:bg-white/10 hover:text-white' : 'text-slate-700 hover:bg-slate-200'
+            }`}
+            title="Switch Language / تغيير اللغة"
+          >
+            <Globe className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="font-sans uppercase text-[11px]">{lang === 'ar' ? 'EN' : 'عربي'}</span>
+          </button>
+        </div>
+
+        {/* User Profile & Logout Section */}
+        <div className="flex items-center gap-1.5 border-r dark:border-white/10 border-slate-200 pr-1.5 sm:pr-2">
+          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-bold">
+            <User className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+            <span className="font-sans truncate max-w-[100px]">{user?.username}</span>
           </div>
+          
           <button
             onClick={logout}
-            className="p-1.5 rounded-xl bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400 transition-all duration-200 flex items-center justify-center"
+            className="p-2 rounded-xl bg-rose-500/10 border border-rose-500/30 hover:bg-rose-500/20 text-rose-400 transition-all duration-200 active:scale-95 shrink-0"
             title="Logout / تسجيل الخروج"
           >
             <LogOut className="w-4 h-4" />
           </button>
         </div>
+
       </div>
     </header>
   );
 }
+

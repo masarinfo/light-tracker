@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { XCircle, Target, TrendingUp, TrendingDown, DollarSign, CheckCircle2 } from 'lucide-react';
+import { XCircle, Target, TrendingUp, TrendingDown, DollarSign, CheckCircle2, Copy, Check } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 export default function CloseTradeModal({ trade, onClose, onSave }) {
@@ -8,6 +8,13 @@ export default function CloseTradeModal({ trade, onClose, onSave }) {
   const [closingTrade, setClosingTrade] = useState(null);
   const [customCloseQtyStr, setCustomCloseQtyStr] = useState('');
   const [customClosePriceStr, setCustomClosePriceStr] = useState('');
+  const [copiedTarget, setCopiedTarget] = useState(null);
+
+  const copyToClipboard = (text, targetId) => {
+    navigator.clipboard.writeText(text);
+    setCopiedTarget(targetId);
+    setTimeout(() => setCopiedTarget(null), 1500);
+  };
 
   useEffect(() => {
     if (trade) {
@@ -215,7 +222,16 @@ export default function CloseTradeModal({ trade, onClose, onSave }) {
                       <span className={`font-bold ${isTp ? 'text-emerald-400' : isManual ? 'text-purple-400' : 'text-rose-400'}`}>
                         {tgt.type} (S{tgt.stage})
                       </span>
-                      <span className="text-gray-300">السعر: ${fmt(price, 2)}</span>
+                      <span className="text-gray-300 flex items-center gap-1.5">
+                        السعر: ${fmt(price, 6)}
+                        <button 
+                          type="button" 
+                          onClick={() => copyToClipboard(price.toString(), `tgt${idx}`)}
+                          className="text-gray-500 hover:text-white transition-colors ml-1"
+                        >
+                          {copiedTarget === `tgt${idx}` ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        </button>
+                      </span>
                       <span className="text-gray-300">الكمية: {fmt(qty, 4)}</span>
                       <span className={`font-bold ${expectedIsProfit ? 'text-emerald-400' : 'text-rose-400'}`}>
                         الربح: {expectedIsProfit ? '+' : ''}${fmt(expectedProfit, 2)}

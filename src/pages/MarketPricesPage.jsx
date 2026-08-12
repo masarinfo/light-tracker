@@ -103,17 +103,17 @@ export default function MarketPricesPage() {
     setLoading(true);
     setError(null);
     try {
-      const [resCoins, resComm] = await Promise.all([
+      const [resCoins, commData] = await Promise.all([
         api.getMarketOverview(),
         api.getCommoditiesOverview()
       ]);
       
-      if (!resCoins.success || !resComm.success) {
+      if (!resCoins.success) {
         throw new Error('Failed to fetch from backend API');
       }
       
       setCoins(resCoins.data || []);
-      setCommodities(resComm.data || []);
+      setCommodities(Array.isArray(commData) ? commData : (commData.data || []));
     } catch (err) {
       console.error(err);
       setError(err.message);

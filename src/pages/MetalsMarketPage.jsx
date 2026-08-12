@@ -24,9 +24,8 @@ export default function MetalsMarketPage() {
     setLoading(true);
     setError(null);
     try {
-      const resComm = await api.getCommoditiesOverview();
-      if (!resComm.success) throw new Error('Failed to fetch from backend API');
-      setCommodities(resComm.data || []);
+      const commData = await api.getCommoditiesOverview();
+      setCommodities(Array.isArray(commData) ? commData : (commData.data || []));
     } catch (err) {
       console.error(err);
       setError(err.message);

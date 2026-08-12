@@ -14,9 +14,14 @@ export default function MetalsTradesPage() {
   
   const [tradeToClose, setTradeToClose] = useState(null);
 
-  const handleSaveCloseModal = (finalTrade) => {
-    updateTrade(finalTrade);
-    setTradeToClose(null);
+  const handleSaveCloseModal = async (finalTrade) => {
+    try {
+      await updateTrade(finalTrade);
+      setTradeToClose(null);
+    } catch (error) {
+      console.error("Failed to update trade", error);
+      alert(isRtl ? 'فشل حفظ التعديلات' : 'Failed to save changes');
+    }
   };
 
   const metalsTrades = trades.filter(t => t.market_type === 'metals');

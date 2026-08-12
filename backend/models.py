@@ -339,7 +339,7 @@ class TradeTarget(Base):
     
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     trade_id = Column(Integer, ForeignKey("trades.id", ondelete="CASCADE"), nullable=False)
-    type = Column(String(5), nullable=False) # TP or SL
+    type = Column(String(20), nullable=False) # TP, SL, MANUAL
     stage = Column(Integer, nullable=False)
     target_price = Column(Float, nullable=False)
     quantity_to_sell = Column(Float, nullable=False)

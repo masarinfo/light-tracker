@@ -48,6 +48,7 @@ import FAQ from './pages/public/FAQ';
 import AboutUs from './pages/public/AboutUs';
 import ContactUs from './pages/public/ContactUs';
 import Blog from './pages/public/Blog';
+import BlogPost from './pages/public/BlogPost';
 
 import { ErrorBoundary } from './components/ErrorBoundary';
 
@@ -157,6 +158,7 @@ export default function App() {
             <Route path="/about" element={<PublicLayout><AboutUs /></PublicLayout>} />
             <Route path="/contact" element={<PublicLayout><ContactUs /></PublicLayout>} />
             <Route path="/blog" element={<PublicLayout><Blog /></PublicLayout>} />
+            <Route path="/blog/:id" element={<PublicLayout><BlogPost /></PublicLayout>} />
             <Route path="/dashboard/*" element={<PrivateLayout />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>

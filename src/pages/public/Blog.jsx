@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
+import { Link } from 'react-router-dom';
 import { BookOpen, ArrowRight, ArrowLeft } from 'lucide-react';
 
 export default function Blog() {
@@ -70,10 +71,10 @@ export default function Blog() {
               <p className="text-sm text-gray-400 line-clamp-3 mb-6">
                 {isRtl ? article.excerptAr : article.excerptEn}
               </p>
-              <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+              <Link to={`/blog/${article.id}`} className="flex items-center gap-2 text-emerald-400 font-bold text-sm hover:text-emerald-300 transition-colors w-fit">
                 <span>{isRtl ? 'اقرأ المزيد' : 'Read More'}</span>
                 {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
-              </div>
+              </Link>
             </div>
           </div>
         ))}

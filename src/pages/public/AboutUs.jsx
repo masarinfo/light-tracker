@@ -13,6 +13,41 @@ export default function AboutUs() {
       roleAr: 'المؤسس',
       roleEn: 'Founder',
       image: ''
+    },
+    {
+      nameAr: 'أحمد صالح',
+      nameEn: 'Ahmed Saleh',
+      roleAr: 'المدير التقني (CTO)',
+      roleEn: 'Chief Technology Officer',
+      image: ''
+    },
+    {
+      nameAr: 'نورة الخالد',
+      nameEn: 'Noura Al-Khaled',
+      roleAr: 'مديرة تجربة المستخدم (UX)',
+      roleEn: 'UX Director',
+      image: ''
+    },
+    {
+      nameAr: 'عمر سعيد',
+      nameEn: 'Omar Saeed',
+      roleAr: 'كبير المطورين',
+      roleEn: 'Lead Developer',
+      image: ''
+    },
+    {
+      nameAr: 'سارة عبدالرحمن',
+      nameEn: 'Sarah Abdulrahman',
+      roleAr: 'مديرة التسويق',
+      roleEn: 'Marketing Director',
+      image: ''
+    },
+    {
+      nameAr: 'فيصل العتيبي',
+      nameEn: 'Faisal Al-Otaibi',
+      roleAr: 'رئيس قسم الدعم الفني',
+      roleEn: 'Head of Support',
+      image: ''
     }
   ];
 

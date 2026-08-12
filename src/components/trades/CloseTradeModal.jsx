@@ -277,15 +277,27 @@ export default function CloseTradeModal({ trade, onClose, onSave }) {
           <form onSubmit={handleCustomClose} className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
             <div>
               <label className="block text-gray-400 text-xs mb-1 font-sans">الكمية المراد بيعها</label>
-              <input
-                type="text"
-                inputMode="decimal"
-                dir="ltr"
-                value={customCloseQtyStr}
-                onChange={(e) => setCustomCloseQtyStr(formatInputWithCommas(e.target.value))}
-                placeholder="مثال: 5.5"
-                className="w-full p-2.5 rounded-xl glass-input font-mono text-sm text-white"
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  dir="ltr"
+                  value={customCloseQtyStr}
+                  onChange={(e) => setCustomCloseQtyStr(formatInputWithCommas(e.target.value))}
+                  placeholder="مثال: 5.5"
+                  className="w-full p-2.5 rounded-xl glass-input font-mono text-sm text-white pr-14"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const stats = getTradeCurrentStats(closingTrade);
+                    setCustomCloseQtyStr(stats.currentQuantity.toString());
+                  }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-bold text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 px-2 py-1 rounded transition-colors"
+                >
+                  الكل
+                </button>
+              </div>
             </div>
             <div>
               <label className="block text-gray-400 text-xs mb-1 font-sans">سعر البيع ($)</label>

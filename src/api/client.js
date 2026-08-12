@@ -1,4 +1,5 @@
 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+window.__CACHE_BUST_V2__ = true;
 const API_BASE_URL = isLocal 
   ? "http://localhost:8000" 
   : (import.meta.env.VITE_API_URL || "https://light-tracker-backend-pp0d.onrender.com");

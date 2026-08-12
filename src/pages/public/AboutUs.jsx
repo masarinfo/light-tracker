@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { Quote, Target, Lightbulb, Users, CheckCircle2, TrendingUp, Sparkles } from 'lucide-react';
+import { Quote, Target, Lightbulb, Users, User, CheckCircle2, TrendingUp, Sparkles } from 'lucide-react';
 
 export default function AboutUs() {
   const { lang } = useApp();
@@ -8,25 +8,11 @@ export default function AboutUs() {
 
   const team = [
     {
-      nameAr: 'محمد الهاشمي',
-      nameEn: 'Mohammed Al-Hashmi',
-      roleAr: 'المؤسس والمدير التنفيذي',
-      roleEn: 'Founder & CEO',
-      image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop'
-    },
-    {
-      nameAr: 'أحمد سالم',
-      nameEn: 'Ahmed Salem',
-      roleAr: 'كبير المهندسين التقنيين',
-      roleEn: 'CTO',
-      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=400&auto=format&fit=crop'
-    },
-    {
-      nameAr: 'سارة خالد',
-      nameEn: 'Sarah Khaled',
-      roleAr: 'مديرة تجربة المستخدم',
-      roleEn: 'UX Director',
-      image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400&auto=format&fit=crop'
+      nameAr: 'محمد أمين',
+      nameEn: 'Mohammed Amin',
+      roleAr: 'المؤسس',
+      roleEn: 'Founder',
+      image: ''
     }
   ];
 
@@ -207,8 +193,12 @@ export default function AboutUs() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             {team.map((member, idx) => (
               <div key={idx} className="group">
-                <div className="relative w-48 h-48 mx-auto mb-6 rounded-3xl overflow-hidden border-2 border-white/10 group-hover:border-cyan-500/50 transition-colors">
-                  <img src={member.image} alt="Team Member" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <div className="relative w-48 h-48 mx-auto mb-6 rounded-3xl overflow-hidden border-2 border-white/10 group-hover:border-cyan-500/50 transition-colors bg-white/5 flex items-center justify-center">
+                  {member.image ? (
+                    <img src={member.image} alt="Team Member" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                  ) : (
+                    <User className="w-20 h-20 text-gray-500 group-hover:text-cyan-500 transition-colors duration-500" />
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </div>
                 <h4 className="text-xl font-bold text-white mb-1">{isRtl ? member.nameAr : member.nameEn}</h4>

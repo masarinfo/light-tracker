@@ -17,6 +17,7 @@ export default function PublicHeader() {
     { path: '/', label: isRtl ? 'الرئيسية' : 'Home' },
     { path: '/market', label: isRtl ? 'السوق المباشر' : 'Live Market' },
     { path: '/pricing', label: isRtl ? 'الباقات والأسعار' : 'Pricing' },
+    { path: '/about', label: isRtl ? 'من نحن' : 'About Us' },
   ];
 
   return (

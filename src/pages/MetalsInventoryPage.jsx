@@ -287,7 +287,7 @@ export default function MetalsInventoryPage() {
               <tr className="bg-white/5 text-gray-400 text-xs uppercase tracking-wider">
                 <th className={`p-4 font-bold ${isRtl ? 'text-right' : 'text-left'}`}>{isRtl ? 'العيار' : 'Karat'}</th>
                 <th className={`p-4 font-bold ${isRtl ? 'text-right' : 'text-left'}`}>{isRtl ? 'الوزن الفعلي' : 'Actual Weight'} ({tableUnitLabel})</th>
-                <th className={`p-4 font-bold ${isRtl ? 'text-right' : 'text-left'}`}>{isRtl ? 'الوزن الصافي' : 'Net Pure Weight'} ({tableUnitLabel})</th>
+                <th className={`p-4 font-bold ${isRtl ? 'text-right' : 'text-left'}`}>{isRtl ? (activeTab === 'XAU' ? 'الوزن الصافي (عيار 24)' : 'الوزن الصافي (عيار 999)') : (activeTab === 'XAU' ? 'Net Weight (24K)' : 'Net Weight (999)')} ({tableUnitLabel})</th>
                 <th className={`p-4 font-bold ${isRtl ? 'text-right' : 'text-left'}`}>{isRtl ? 'إجمالي التكلفة' : 'Total Cost'}</th>
                 <th className={`p-4 font-bold ${isRtl ? 'text-right' : 'text-left'}`}>{isRtl ? 'سعر التعادل' : 'Break-Even'}/{tableUnitLabel}</th>
                 <th className={`p-4 font-bold ${isRtl ? 'text-right' : 'text-left'}`}>{isRtl ? 'القيمة الحالية' : 'Current Value'}</th>

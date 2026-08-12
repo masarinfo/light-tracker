@@ -125,8 +125,8 @@ export default function MetalTradeEntryPage() {
 
   const presetWeights = [
     { label: '1g', value: '1' },
-    { label: '5g', value: '5' },
-    { label: '10g', value: '10' },
+    { label: '4g', value: '4' },
+    { label: '8g', value: '8' },
     { label: 'Ounce', value: '31.103' },
   ];
 

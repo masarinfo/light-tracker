@@ -5,7 +5,7 @@ import CloseTradeModal from '../components/trades/CloseTradeModal';
 import { History, TrendingUp, TrendingDown, Clock, Search, ArrowRight, ArrowLeft } from 'lucide-react';
 
 export default function MetalsTradesPage() {
-  const { trades, lang, livePrices } = useApp();
+  const { trades, lang, livePrices, updateTrade } = useApp();
   const isRtl = lang === 'ar';
   
   const [filterType, setFilterType] = useState('ALL'); // ALL, XAU, XAG
@@ -13,6 +13,11 @@ export default function MetalsTradesPage() {
   const [search, setSearch] = useState('');
   
   const [tradeToClose, setTradeToClose] = useState(null);
+
+  const handleSaveCloseModal = (finalTrade) => {
+    updateTrade(finalTrade);
+    setTradeToClose(null);
+  };
 
   const metalsTrades = trades.filter(t => t.market_type === 'metals');
   
@@ -213,6 +218,7 @@ export default function MetalsTradesPage() {
         <CloseTradeModal
           trade={tradeToClose}
           onClose={() => setTradeToClose(null)}
+          onSave={handleSaveCloseModal}
           livePrice={getLivePrice(tradeToClose.symbol)}
         />
       )}

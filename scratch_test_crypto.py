@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import os
+
+code = """import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { calculateTradePurchase, generateTradeTargets, formatCryptoPrice, parseCommasToNumber, formatInputWithCommas } from '../utils/mathEngine';
 import CloseTradeModal from '../components/trades/CloseTradeModal';
@@ -504,3 +506,9 @@ export default function TradesHistoryPage() {
     </div>
   );
 }
+"""
+
+with open("/Users/mohammed/Desktop/AI IDE/light_Tracker_V4/src/pages/TradesHistoryPage.jsx", "w", encoding="utf-8") as f:
+    f.write(code)
+
+print("Saved TradesHistoryPage.jsx")

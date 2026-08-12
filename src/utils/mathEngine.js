@@ -379,3 +379,20 @@ export function convertArabicNumerals(str) {
     return arabicNumbers.indexOf(w);
   }).replace(/٫/g, '.'); // Convert Arabic decimal comma to dot
 }
+
+export function formatInputWithCommas(val) {
+  if (val === undefined || val === null || val === '') return '';
+  const normalized = convertArabicNumerals(val);
+  const clean = normalized.replace(/,/g, '');
+  if (isNaN(clean) && clean !== '.') return normalized;
+  const parts = clean.split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return parts.join('.');
+}
+
+export function parseCommasToNumber(val) {
+  if (!val) return 0;
+  const normalized = convertArabicNumerals(val);
+  const clean = normalized.replace(/,/g, '');
+  return parseFloat(clean) || 0;
+}

@@ -1,24 +1,24 @@
-import React, { useState } from 'react';
+import os
+
+code = """import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { calculateTradePurchase, generateTradeTargets, formatCryptoPrice, parseCommasToNumber, formatInputWithCommas } from '../utils/mathEngine';
+import { formatCryptoPrice, parseCommasToNumber, formatInputWithCommas } from '../utils/mathEngine';
 import CloseTradeModal from '../components/trades/CloseTradeModal';
 import { History, TrendingUp, TrendingDown, Clock, Search, ArrowRight, ArrowLeft, Filter, Wallet, DollarSign, Activity, Edit, XCircle, Trash2, CheckCircle2 } from 'lucide-react';
 
-export default function TradesHistoryPage() {
+export default function MetalsTradesPage() {
   const { trades, lang, livePrices, updateTrade, deleteTrade, strategies, exchanges, t, fetchData } = useApp();
   const isRtl = lang === 'ar';
   
-  const [selectedCoin, setSelectedCoin] = useState('ALL');
-  const [selectedExchange, setSelectedExchange] = useState('ALL');
-  const [selectedStrategy, setSelectedStrategy] = useState('ALL');
-  const [selectedStatus, setSelectedStatus] = useState('ALL');
+  const [filterType, setFilterType] = useState('ALL'); // ALL, XAU, XAG
+  const [tab, setTab] = useState('OPEN'); // OPEN, CLOSED
   const [search, setSearch] = useState('');
   const [dateRange, setDateRange] = useState('ALL'); // ALL, TODAY, WEEK, MONTH, YEAR
   const [viewMode, setViewMode] = useState('SIMPLE'); // SIMPLE, PRO
   
-  const [showCloseModal, setShowCloseModal] = useState(false);
-  const [closingTrade, setClosingTrade] = useState(null);
+  const [tradeToClose, setTradeToClose] = useState(null);
 
+  // Edit Modal State
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingTrade, setEditingTrade] = useState(null);
   const [editSymbol, setEditSymbol] = useState('');
@@ -28,22 +28,20 @@ export default function TradesHistoryPage() {
   const [editAmountUsdStr, setEditAmountUsdStr] = useState('');
   const [editQuantityStr, setEditQuantityStr] = useState('');
   const [editStatus, setEditStatus] = useState('OPEN');
+  const [editKarat, setEditKarat] = useState('');
 
-  const cryptoTrades = trades.filter(t => t.market_type !== 'metals');
-  
-  const coinsList = Array.from(new Set(cryptoTrades.map((item) => item.symbol)));
-  const exchangesList = Array.from(new Set(cryptoTrades.map((item) => item.exchange_name)));
-  const strategiesList = Array.from(new Set(cryptoTrades.map((item) => item.strategy_name)));
+  const metalsTrades = trades.filter(t => t.market_type === 'metals');
 
   const getLivePrice = (symbol) => {
-    return livePrices[symbol] || 0;
+    if (symbol === 'XAU') return livePrices['GC=F'] ? livePrices['GC=F'] / 31.1034768 : 0;
+    if (symbol === 'XAG') return livePrices['SI=F'] ? livePrices['SI=F'] / 31.1034768 : 0;
+    return 0;
   };
 
-  const filteredTrades = cryptoTrades.filter(t => {
-    if (selectedStatus !== 'ALL' && t.status !== selectedStatus) return false;
-    if (selectedCoin !== 'ALL' && t.symbol !== selectedCoin) return false;
-    if (selectedExchange !== 'ALL' && t.exchange_name !== selectedExchange) return false;
-    if (selectedStrategy !== 'ALL' && t.strategy_name !== selectedStrategy) return false;
+  const filteredTrades = metalsTrades.filter(t => {
+    if (tab === 'OPEN' && t.status === 'CLOSED') return false;
+    if (tab === 'CLOSED' && t.status !== 'CLOSED') return false;
+    if (filterType !== 'ALL' && t.symbol !== filterType) return false;
     
     if (search) {
       const q = search.toLowerCase();
@@ -97,7 +95,7 @@ export default function TradesHistoryPage() {
     remainingQty = Math.max(0, remainingQty);
     totalRealizedPnL += realizedProfit;
 
-    if (trade.status !== 'CLOSED' && remainingQty > 0 && livePrice > 0) {
+    if (trade.status !== 'CLOSED' && remainingQty > 0) {
         const proportion = remainingQty / trade.quantity;
         const remainingInvested = (trade.amount_usd + trade.calculated_fee) * proportion;
         totalInvested += remainingInvested;
@@ -115,6 +113,7 @@ export default function TradesHistoryPage() {
     setEditAmountUsdStr(formatInputWithCommas(trade.amount_usd));
     setEditQuantityStr(formatInputWithCommas(trade.quantity));
     setEditStatus(trade.status || 'OPEN');
+    setEditKarat(trade.metal_karat || '');
     setShowEditModal(true);
   };
 
@@ -124,17 +123,10 @@ export default function TradesHistoryPage() {
 
     const entryPrice = parseCommasToNumber(editEntryPriceStr);
     const amountUsd = parseCommasToNumber(editAmountUsdStr);
-    const manualQuantity = parseCommasToNumber(editQuantityStr);
+    const quantity = parseCommasToNumber(editQuantityStr);
     
-    const stratObj = strategies.find((s) => String(s.id) === String(editStrategyId)) || strategies[0];
-    const exObj = exchanges.find((ex) => String(ex.id) === String(editExchangeId)) || exchanges[0];
-
-    const purchaseInfo = calculateTradePurchase({ amountUsd, entryPrice, feePct: exObj?.maker_fee_pct || 0.1 });
-    const finalQuantity = manualQuantity > 0 ? manualQuantity : purchaseInfo.quantity;
-    
-    const { tpTargets, slTargets } = generateTradeTargets({
-      entryPrice, amountUsd, quantity: finalQuantity, tpRules: stratObj?.tp_rules || [], slRules: stratObj?.sl_rules || []
-    });
+    const stratObj = strategies.find((s) => String(s.id) === String(editStrategyId));
+    const exObj = exchanges.find((ex) => String(ex.id) === String(editExchangeId));
 
     const updatedTrade = {
       ...editingTrade,
@@ -143,10 +135,9 @@ export default function TradesHistoryPage() {
       exchange_id: exObj ? exObj.id : editingTrade.exchange_id,
       entry_price: entryPrice,
       amount_usd: amountUsd,
-      quantity: finalQuantity,
-      calculated_fee: purchaseInfo.feeUsd,
+      quantity: quantity,
       status: editStatus,
-      targets: editingTrade.targets && editingTrade.targets.length > 0 ? editingTrade.targets : [...tpTargets, ...slTargets]
+      metal_karat: parseInt(editKarat) || null
     };
 
     try {
@@ -168,16 +159,10 @@ export default function TradesHistoryPage() {
     }
   };
 
-  const handleOpenCloseModal = (trade) => {
-    setClosingTrade(trade);
-    setShowCloseModal(true);
-  };
-
   const handleSaveCloseModal = async (finalTrade) => {
     try {
       await updateTrade(finalTrade);
-      setShowCloseModal(false);
-      setClosingTrade(null);
+      setTradeToClose(null);
     } catch (error) {
       console.error("Failed to update trade", error);
       alert(isRtl ? 'فشل حفظ التعديلات' : 'Failed to save changes');
@@ -188,16 +173,16 @@ export default function TradesHistoryPage() {
     <div className="p-4 md:p-6 space-y-4 md:space-y-6 max-w-7xl mx-auto">
       <div className="glass-panel p-4 md:p-6 rounded-2xl border border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-white flex items-center gap-3">
-            <History className="w-8 h-8 text-purple-400" />
-            <span>{isRtl ? 'سجل صفقات العملات الرقمية' : 'Crypto Trades History'}</span>
+          <h1 className="text-2xl font-black text-amber-400 tracking-tight flex items-center gap-3">
+            <History className="w-8 h-8" />
+            {isRtl ? 'سجل الصفقات للمعادن' : 'Metals Trades History'}
           </h1>
           <p className="text-sm text-gray-400 mt-1 font-medium">
-            {isRtl ? 'إدارة صفقات الكريبتو الخاصة بك مع إحصائيات دقيقة للأرباح والخسائر.' : 'Manage your crypto trades with accurate PnL statistics.'}
+            {isRtl ? 'إدارة صفقات الذهب والفضة مع إحصائيات دقيقة للأرباح والخسائر.' : 'Manage your gold and silver trades with accurate PnL statistics.'}
           </p>
         </div>
         <div className="flex bg-black/20 p-1 rounded-xl border border-white/5 w-full md:w-auto">
-          <button onClick={() => setViewMode('SIMPLE')} className={`flex-1 md:flex-none px-6 py-2 text-xs font-bold rounded-lg transition-all ${viewMode === 'SIMPLE' ? 'bg-purple-500 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}>
+          <button onClick={() => setViewMode('SIMPLE')} className={`flex-1 md:flex-none px-6 py-2 text-xs font-bold rounded-lg transition-all ${viewMode === 'SIMPLE' ? 'bg-amber-500 text-black shadow-lg' : 'text-gray-400 hover:text-white'}`}>
             {isRtl ? 'مبسط' : 'Simple'}
           </button>
           <button onClick={() => setViewMode('PRO')} className={`flex-1 md:flex-none px-6 py-2 text-xs font-bold rounded-lg transition-all ${viewMode === 'PRO' ? 'bg-cyan-500 text-black shadow-lg' : 'text-gray-400 hover:text-white'}`}>
@@ -208,10 +193,10 @@ export default function TradesHistoryPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="glass-panel p-5 rounded-2xl border border-white/5 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-all"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl group-hover:bg-amber-500/20 transition-all"></div>
           <div className="flex justify-between items-start mb-2 relative z-10">
             <div className="text-gray-400 font-semibold text-sm">{isRtl ? 'إجمالي المستثمر الفعال' : 'Active Invested'}</div>
-            <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400"><Wallet className="w-5 h-5" /></div>
+            <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400"><Wallet className="w-5 h-5" /></div>
           </div>
           <div className="text-2xl font-black text-white relative z-10" dir="ltr">${formatCryptoPrice(totalInvested)}</div>
         </div>
@@ -241,33 +226,22 @@ export default function TradesHistoryPage() {
 
       <div className="glass-panel p-4 rounded-2xl border border-white/10 grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-wrap items-center gap-4 text-xs">
         <div className="flex items-center gap-2 font-bold text-gray-300 shrink-0 sm:col-span-2 md:col-span-1">
-          <Filter className="w-4 h-4 text-purple-400 shrink-0" />
+          <Filter className="w-4 h-4 text-amber-400 shrink-0" />
           <span>{isRtl ? 'تصفية الصفقات:' : 'Filter Trades:'}</span>
         </div>
 
-        <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)} className="w-full md:w-auto p-2.5 rounded-xl glass-input text-white font-semibold min-w-[130px]">
-          <option value="ALL" className="bg-gray-900">{isRtl ? 'كل الحالات' : 'All Status'}</option>
+        <select value={tab} onChange={(e) => setTab(e.target.value)} className="w-full md:w-auto p-2.5 rounded-xl glass-input text-white font-semibold">
           <option value="OPEN" className="bg-gray-900">{isRtl ? 'مفتوحة' : 'Open'}</option>
-          <option value="PARTIALLY_CLOSED" className="bg-gray-900">{isRtl ? 'مغلقة جزئياً' : 'Partially Closed'}</option>
           <option value="CLOSED" className="bg-gray-900">{isRtl ? 'مغلقة' : 'Closed'}</option>
         </select>
 
-        <select value={selectedCoin} onChange={(e) => setSelectedCoin(e.target.value)} className="w-full md:w-auto p-2.5 rounded-xl glass-input text-white font-semibold min-w-[130px]">
-          <option value="ALL" className="bg-gray-900">{isRtl ? 'الكل' : 'All Coins'}</option>
-          {coinsList.map((symbol) => (<option key={symbol} value={symbol} className="bg-gray-900">{symbol}</option>))}
+        <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="w-full md:w-auto p-2.5 rounded-xl glass-input text-white font-semibold">
+          <option value="ALL" className="bg-gray-900">{isRtl ? 'كل المعادن' : 'All Metals'}</option>
+          <option value="XAU" className="bg-gray-900">{isRtl ? 'الذهب' : 'Gold'}</option>
+          <option value="XAG" className="bg-gray-900">{isRtl ? 'الفضة' : 'Silver'}</option>
         </select>
 
-        <select value={selectedExchange} onChange={(e) => setSelectedExchange(e.target.value)} className="w-full md:w-auto p-2.5 rounded-xl glass-input text-white font-semibold min-w-[140px]">
-          <option value="ALL" className="bg-gray-900">{isRtl ? 'كل المنصات' : 'All Exchanges'}</option>
-          {exchangesList.map((exName) => (<option key={exName} value={exName} className="bg-gray-900">{exName}</option>))}
-        </select>
-
-        <select value={selectedStrategy} onChange={(e) => setSelectedStrategy(e.target.value)} className="w-full md:w-auto p-2.5 rounded-xl glass-input text-white font-semibold min-w-[150px]">
-          <option value="ALL" className="bg-gray-900">{isRtl ? 'كل الاستراتيجيات' : 'All Strategies'}</option>
-          {strategiesList.map((stName) => (<option key={stName} value={stName} className="bg-gray-900">{stName}</option>))}
-        </select>
-
-        <select value={dateRange} onChange={(e) => setDateRange(e.target.value)} className="w-full md:w-auto p-2.5 rounded-xl glass-input text-white font-bold min-w-[150px]">
+        <select value={dateRange} onChange={(e) => setDateRange(e.target.value)} className="w-full md:w-auto p-2.5 rounded-xl glass-input text-white font-bold">
           <option value="ALL" className="bg-gray-900">{isRtl ? 'كل الأوقات (All Time)' : 'All Time'}</option>
           <option value="TODAY" className="bg-gray-900">{isRtl ? 'اليوم' : 'Today'}</option>
           <option value="WEEK" className="bg-gray-900">{isRtl ? 'آخر 7 أيام' : 'Last 7 Days'}</option>
@@ -286,11 +260,12 @@ export default function TradesHistoryPage() {
           <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
               <tr className="bg-white/5 border-b border-white/5">
-                <th className={`p-4 text-xs font-bold text-gray-400 uppercase tracking-wider ${isRtl ? 'text-right' : ''}`}>{isRtl ? 'العملة' : 'Coin'}</th>
+                <th className={`p-4 text-xs font-bold text-gray-400 uppercase tracking-wider ${isRtl ? 'text-right' : ''}`}>{isRtl ? 'المعدن' : 'Metal'}</th>
                 <th className={`p-4 text-xs font-bold text-gray-400 uppercase tracking-wider ${isRtl ? 'text-right' : ''}`}>{isRtl ? 'الحالة' : 'Status'}</th>
                 {viewMode === 'PRO' && <th className={`p-4 text-xs font-bold text-gray-400 uppercase tracking-wider ${isRtl ? 'text-right' : ''}`}>{isRtl ? 'الاستراتيجية' : 'Strategy'}</th>}
                 <th className={`p-4 text-xs font-bold text-gray-400 uppercase tracking-wider ${isRtl ? 'text-right' : ''}`}>{isRtl ? 'إجمالي الكمية' : 'Total Qty'}</th>
                 <th className={`p-4 text-xs font-bold text-gray-400 uppercase tracking-wider ${isRtl ? 'text-right' : ''}`}>{isRtl ? 'الكمية المتبقية' : 'Remaining'}</th>
+                {viewMode === 'PRO' && <th className={`p-4 text-xs font-bold text-gray-400 uppercase tracking-wider ${isRtl ? 'text-right' : ''}`}>{isRtl ? 'العيار' : 'Karat'}</th>}
                 <th className={`p-4 text-xs font-bold text-gray-400 uppercase tracking-wider ${isRtl ? 'text-right' : ''}`}>{isRtl ? 'سعر الدخول' : 'Entry Price'}</th>
                 <th className={`p-4 text-xs font-bold text-gray-400 uppercase tracking-wider ${isRtl ? 'text-right' : ''}`}>{isRtl ? 'الربح المحقق' : 'Realized PnL'}</th>
                 <th className={`p-4 text-xs font-bold text-gray-400 uppercase tracking-wider ${isRtl ? 'text-right' : ''}`}>{isRtl ? 'الربح العائم' : 'Unrealized PnL'}</th>
@@ -308,6 +283,7 @@ export default function TradesHistoryPage() {
               ) : (
                 filteredTrades.map((trade) => {
                   const livePrice = getLivePrice(trade.symbol);
+                  const isGold = trade.symbol === 'XAU';
                   
                   let remainingQty = trade.quantity;
                   let realizedProfit = 0;
@@ -328,14 +304,22 @@ export default function TradesHistoryPage() {
                   const proportion = remainingQty / trade.quantity;
                   const remainingInvested = (trade.amount_usd + trade.calculated_fee) * proportion;
                   const currentValue = remainingQty * livePrice;
-                  const unrealizedPnL = (remainingQty > 0 && livePrice > 0) ? (currentValue - remainingInvested) : 0;
+                  const unrealizedPnL = remainingQty > 0 ? (currentValue - remainingInvested) : 0;
                   const isPositiveUnrealized = unrealizedPnL >= 0;
                   const isPositiveRealized = realizedProfit >= 0;
 
                   return (
                     <tr key={trade.id} className="hover:bg-white/5 transition-colors group">
-                      <td className={`p-4 font-bold text-white font-sans ${isRtl ? 'text-right' : ''}`}>
-                        {trade.symbol}
+                      <td className={`p-4 ${isRtl ? 'text-right' : ''}`}>
+                        <div className="flex items-center gap-3">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${isGold ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-gray-400/20 text-gray-300 border border-gray-400/30'}`}>
+                            {isGold ? '🥇' : '🥈'}
+                          </div>
+                          <div>
+                            <div className="font-bold text-white text-sm">{isGold ? (isRtl ? 'ذهب' : 'Gold') : (isRtl ? 'فضة' : 'Silver')}</div>
+                            {viewMode === 'SIMPLE' && <div className="text-[10px] text-gray-500 font-mono">{trade.strategy?.name || 'Manual'}</div>}
+                          </div>
+                        </div>
                       </td>
                       <td className={`p-4 font-sans ${isRtl ? 'text-right' : ''}`}>
                         <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${trade.status === 'OPEN' ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400' : trade.status === 'PARTIALLY_CLOSED' ? 'bg-amber-500/10 border border-amber-500/30 text-amber-300' : 'bg-gray-500/10 border border-gray-500/30 text-gray-400'}`}>
@@ -348,11 +332,16 @@ export default function TradesHistoryPage() {
                         </td>
                       )}
                       <td className={`p-4 font-mono text-gray-400 ${isRtl ? 'text-right' : ''}`}>
-                        {formatCryptoPrice(trade.quantity)}
+                        {formatCryptoPrice(trade.quantity)} g
                       </td>
                       <td className={`p-4 font-mono font-bold text-white ${isRtl ? 'text-right' : ''}`}>
-                        {formatCryptoPrice(remainingQty)}
+                        {formatCryptoPrice(remainingQty)} g
                       </td>
+                      {viewMode === 'PRO' && (
+                        <td className={`p-4 text-xs font-bold text-gray-300 ${isRtl ? 'text-right' : ''}`}>
+                          {trade.metal_karat || (isGold ? '24' : '999')}
+                        </td>
+                      )}
                       <td className={`p-4 font-mono text-white ${isRtl ? 'text-right' : ''}`}>
                         ${formatCryptoPrice(trade.entry_price)}
                       </td>
@@ -391,7 +380,7 @@ export default function TradesHistoryPage() {
                           </button>
                           {trade.status !== 'CLOSED' && (
                             <button
-                              onClick={() => handleOpenCloseModal(trade)}
+                              onClick={() => setTradeToClose(trade)}
                               className="flex items-center justify-center p-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-400 hover:text-amber-300 transition-all shadow-sm"
                               title="إغلاق الصفقة"
                             >
@@ -409,16 +398,8 @@ export default function TradesHistoryPage() {
         </div>
       </div>
 
-      {showCloseModal && closingTrade && (
-        <CloseTradeModal
-          trade={closingTrade}
-          onClose={() => {
-            setShowCloseModal(false);
-            setClosingTrade(null);
-          }}
-          onSave={handleSaveCloseModal}
-          livePrice={getLivePrice(closingTrade.symbol)}
-        />
+      {tradeToClose && (
+        <CloseTradeModal trade={tradeToClose} onClose={() => setTradeToClose(null)} onSave={handleSaveCloseModal} livePrice={getLivePrice(tradeToClose.symbol)} />
       )}
 
       {showEditModal && (
@@ -434,22 +415,17 @@ export default function TradesHistoryPage() {
               </button>
             </div>
             <form onSubmit={handleSaveEditedTrade} className="space-y-4 text-xs">
-              <div>
-                <label className="block text-gray-300 mb-1 font-semibold">{t('symbol')}</label>
-                <input type="text" dir="ltr" value={editSymbol} onChange={(e) => setEditSymbol(e.target.value.toUpperCase())} required className="w-full p-3 rounded-xl glass-input uppercase font-mono font-bold text-cyan-300 text-sm" />
-              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-gray-300 mb-1 font-semibold">{t('strategy')}</label>
-                  <select value={editStrategyId} onChange={(e) => setEditStrategyId(e.target.value)} className="w-full p-3 rounded-xl glass-input text-white font-bold">
-                    {strategies.map((st) => (<option key={st.id} value={st.id} className="bg-gray-900">{st.name}</option>))}
+                  <label className="block text-gray-300 mb-1 font-semibold">{t('symbol')}</label>
+                  <select value={editSymbol} onChange={(e) => setEditSymbol(e.target.value)} className="w-full p-3 rounded-xl glass-input font-bold text-cyan-300">
+                    <option value="XAU" className="bg-gray-900">ذهب (XAU)</option>
+                    <option value="XAG" className="bg-gray-900">فضة (XAG)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-gray-300 mb-1 font-semibold">{t('exchange')}</label>
-                  <select value={editExchangeId} onChange={(e) => setEditExchangeId(e.target.value)} className="w-full p-3 rounded-xl glass-input text-white font-bold">
-                    {exchanges.map((ex) => (<option key={ex.id} value={ex.id} className="bg-gray-900">{ex.name}</option>))}
-                  </select>
+                  <label className="block text-gray-300 mb-1 font-semibold">{isRtl ? 'العيار' : 'Karat'}</label>
+                  <input type="text" dir="ltr" value={editKarat} onChange={(e) => setEditKarat(e.target.value)} className="w-full p-3 rounded-xl glass-input font-bold text-white" />
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -463,7 +439,7 @@ export default function TradesHistoryPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-gray-300 mb-1 font-semibold">تعديل الكمية يدوياً (الكمية الفعلية)</label>
+                <label className="block text-gray-300 mb-1 font-semibold">{isRtl ? 'تعديل الكمية الأساسية (الوزن الكلي بالجرام)' : 'Edit Total Quantity (Weight in g)'}</label>
                 <input type="text" inputMode="decimal" dir="ltr" value={editQuantityStr} onChange={(e) => setEditQuantityStr(formatInputWithCommas(e.target.value))} required className="w-full p-3 rounded-xl glass-input font-mono font-bold text-cyan-300 text-sm" />
               </div>
               <div>
@@ -483,7 +459,7 @@ export default function TradesHistoryPage() {
                     </button>
                   )}
                   {editingTrade && editingTrade.status !== 'CLOSED' && (
-                    <button type="button" onClick={() => { setShowEditModal(false); handleOpenCloseModal(editingTrade); }} className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 border border-amber-500/20 transition-all font-semibold">
+                    <button type="button" onClick={() => { setShowEditModal(false); setTradeToClose(editingTrade); }} className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 border border-amber-500/20 transition-all font-semibold">
                       <XCircle className="w-4 h-4" />
                       <span className="hidden sm:inline">إغلاق الصفقة</span>
                     </button>
@@ -504,3 +480,9 @@ export default function TradesHistoryPage() {
     </div>
   );
 }
+"""
+
+with open("/Users/mohammed/Desktop/AI IDE/light_Tracker_V4/src/pages/MetalsTradesPage.jsx", "w", encoding="utf-8") as f:
+    f.write(code)
+
+print("Saved MetalsTradesPage.jsx")

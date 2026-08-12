@@ -376,7 +376,7 @@ export default function TradesHistoryPage() {
                         <td className={`p-4 ${isRtl ? 'text-right' : ''}`}>
                           <div className="flex items-center gap-1 text-gray-400 text-[10px]">
                             <Clock className="w-3 h-3" />
-                            {new Date(trade.created_at).toLocaleDateString(isRtl ? 'ar-SA' : 'en-US')}
+                            {new Date(trade.created_at).toLocaleDateString('en-GB')}
                           </div>
                         </td>
                       )}

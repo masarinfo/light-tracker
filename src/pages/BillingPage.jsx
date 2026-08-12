@@ -55,13 +55,13 @@ export default function BillingPage() {
             <div className="bg-slate-950/50 rounded-xl p-4 border border-slate-800/50">
               <p className="text-sm text-slate-500 mb-1">تاريخ البدء</p>
               <p className="text-lg font-medium text-slate-200">
-                {new Date(activeSub.current_period_start).toLocaleDateString('ar-SA')}
+                {new Date(activeSub.current_period_start).toLocaleDateString('en-GB')}
               </p>
             </div>
             <div className="bg-slate-950/50 rounded-xl p-4 border border-slate-800/50">
               <p className="text-sm text-slate-500 mb-1">تاريخ الانتهاء</p>
               <p className="text-lg font-medium text-slate-200">
-                {new Date(activeSub.current_period_end).toLocaleDateString('ar-SA')}
+                {new Date(activeSub.current_period_end).toLocaleDateString('en-GB')}
               </p>
             </div>
           </div>

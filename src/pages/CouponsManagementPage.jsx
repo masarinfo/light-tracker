@@ -141,7 +141,7 @@ export default function CouponsManagementPage() {
                   <td className="p-3 md:p-4 font-bold">
                     {c.discount_type === 'PERCENTAGE' ? `${c.discount_value}%` : `$${c.discount_value}`}
                   </td>
-                  <td className="p-3 md:p-4 text-slate-400">{new Date(c.created_at).toLocaleDateString('ar-SA')}</td>
+                  <td className="p-3 md:p-4 text-slate-400">{new Date(c.created_at).toLocaleDateString('en-GB')}</td>
                   <td className="p-3 md:p-4">
                     <button
                       onClick={() => handleDelete(c.id)}

@@ -33,6 +33,27 @@ def run_migrations():
 
 run_migrations()
 
+def seed_admin_user():
+    from database import SessionLocal
+    from models import User
+    import auth
+    db = SessionLocal()
+    try:
+        if not db.query(User).filter(User.username == 'admin').first():
+            db.add(User(
+                username='admin',
+                password_hash=auth.get_password_hash('admin123'),
+                primary_role='SUPERADMIN',
+                status='ACTIVE'
+            ))
+            db.commit()
+    except Exception:
+        pass
+    finally:
+        db.close()
+
+seed_admin_user()
+
 app = FastAPI(title="Spot Trading Tracker Backend")
 
 # Setup CORS for the React Frontend (default Vite port 5173)

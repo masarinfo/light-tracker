@@ -40,6 +40,15 @@ import PublicMarketPage from './pages/public/PublicMarketPage';
 import Pricing from './pages/public/Pricing';
 
 import PublicHeader from './components/layout/PublicHeader';
+
+import Footer from './components/layout/Footer';
+import PrivacyPolicy from './pages/public/PrivacyPolicy';
+import Terms from './pages/public/Terms';
+import FAQ from './pages/public/FAQ';
+import AboutUs from './pages/public/AboutUs';
+import ContactUs from './pages/public/ContactUs';
+import Blog from './pages/public/Blog';
+
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 function PublicLayout({ children }) {
@@ -47,11 +56,13 @@ function PublicLayout({ children }) {
   const isRtl = lang === 'ar';
 
   return (
-    <div dir={isRtl ? 'rtl' : 'ltr'} className="min-h-screen font-sans selection:bg-cyan-500/30 transition-colors duration-300 bg-[var(--bg-main)] text-[var(--text-primary)]">
+    <div dir={isRtl ? 'rtl' : 'ltr'} className="min-h-screen font-sans flex flex-col selection:bg-cyan-500/30 transition-colors duration-300 bg-[var(--bg-main)] text-[var(--text-primary)]">
       <PublicHeader />
-      <div className="pt-24 pb-12">
+      <main className="flex-1 pt-24 pb-12">
         {children}
-      </div>
+      </main>
+      
+      <Footer />
       
       {/* Build Version / Timestamp */}
       <div className="fixed bottom-2 left-0 right-0 text-center pointer-events-none z-50">
@@ -140,6 +151,12 @@ export default function App() {
             <Route path="/login" element={<PublicLayout><LoginPage /></PublicLayout>} />
             <Route path="/register" element={<PublicLayout><RegisterPage /></PublicLayout>} />
             <Route path="/pricing" element={<PublicLayout><Pricing /></PublicLayout>} />
+            <Route path="/privacy" element={<PublicLayout><PrivacyPolicy /></PublicLayout>} />
+            <Route path="/terms" element={<PublicLayout><Terms /></PublicLayout>} />
+            <Route path="/faq" element={<PublicLayout><FAQ /></PublicLayout>} />
+            <Route path="/about" element={<PublicLayout><AboutUs /></PublicLayout>} />
+            <Route path="/contact" element={<PublicLayout><ContactUs /></PublicLayout>} />
+            <Route path="/blog" element={<PublicLayout><Blog /></PublicLayout>} />
             <Route path="/dashboard/*" element={<PrivateLayout />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>

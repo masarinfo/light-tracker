@@ -2,7 +2,7 @@ const isLocal = window.location.hostname === 'localhost' || window.location.host
 window.__CACHE_BUST_V2__ = true;
 const API_BASE_URL = isLocal 
   ? "http://localhost:8000" 
-  : (import.meta.env.VITE_API_URL || "https://light-tracker-backend-pp0d.onrender.com");
+  : "https://light-tracker-backend-pp0d.onrender.com";
 
 async function request(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;

@@ -1,4 +1,6 @@
-import React from 'react';
+import os
+
+about_us_content = """import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { Quote, Target, Lightbulb, Users, CheckCircle2, TrendingUp, Sparkles } from 'lucide-react';
 
@@ -222,3 +224,9 @@ export default function AboutUs() {
     </div>
   );
 }
+"""
+
+with open("/Users/mohammed/Desktop/AI IDE/light_Tracker_V4/src/pages/public/AboutUs.jsx", "w", encoding="utf-8") as f:
+    f.write(about_us_content)
+
+print("Rewrote AboutUs.jsx")

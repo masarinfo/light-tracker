@@ -420,17 +420,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 7. Footer */}
-      <footer className={`py-8 border-t text-center text-xs sm:text-sm font-sans space-y-4 ${
-        isDark ? 'border-white/10 text-slate-400' : 'border-slate-200 text-slate-600'
-      }`}>
-        <p>© 2026 Light Tracker V4.0 Enterprise. جميع الحقوق محفوظة.</p>
-        <div className="flex items-center justify-center gap-6">
-          <Link to="/market" className="hover:text-cyan-500 transition-colors">السوق المباشر</Link>
-          <Link to="/pricing" className="hover:text-cyan-500 transition-colors">الأسعار والباقات</Link>
-          <Link to="/login" className="hover:text-cyan-500 transition-colors">تسجيل الدخول</Link>
-        </div>
-      </footer>
 
     </div>
   );

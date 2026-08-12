@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://light-tracker-backend-pp0d.onrender.com";
+const API_BASE_URL = "http://localhost:8000";
 
 async function request(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
@@ -99,7 +99,7 @@ export const api = {
   }),
   deleteCoupon: (id) => request(`/admin/coupons/${id}`, { method: 'DELETE' }),
 
-  getCommoditiesOverview: () => request('/commodities-overview'),
+  getCommoditiesOverview: () => request('/commodities-overview').then(res => res.data || res),
 
   // --- Auth APIs ---
   register: (data) => request(`/auth/register`, { method: 'POST', body: JSON.stringify(data) }),

@@ -10,6 +10,7 @@ export function AppProvider({ children }) {
   const [lang, setLang] = useState(() => localStorage.getItem('app_lang') || 'ar');
   const [theme, setTheme] = useState(() => localStorage.getItem('app_theme') || 'dark');
   const [activeScreen, setActiveScreen] = useState('overview');
+  const [currentHub, setCurrentHub] = useState('crypto'); // 'crypto' or 'metals'
   const [selectedStrategyId, setSelectedStrategyId] = useState(null);
   
   // Collapsible Sidebar State
@@ -40,18 +41,28 @@ export function AppProvider({ children }) {
           stData,
           trData,
           pricesData,
+          commoditiesData,
           transactionsData
         ] = await Promise.all([
           api.getExchanges(),
           api.getStrategies(),
           api.getTrades(),
           api.getLivePrices().catch(() => ({})),
+          api.getCommoditiesOverview().catch(() => []),
           api.getWalletTransactions().catch((err) => { console.error("Wallet Fetch Error:", err); return []; })
         ]);
 
         setExchanges(exData);
         setStrategies(stData);
-        setLivePrices(pricesData.prices || {});
+        
+        // Merge crypto and commodities prices
+        const basePrices = pricesData.prices || {};
+        const commoditiesPrices = {};
+        if (Array.isArray(commoditiesData)) {
+          commoditiesData.forEach(c => { commoditiesPrices[c.id] = c.current_price; });
+        }
+        setLivePrices({ ...basePrices, ...commoditiesPrices });
+        
         setWalletTransactions(transactionsData);
         
         // Enrich trades with strategy and exchange info for mathEngine
@@ -100,13 +111,20 @@ export function AppProvider({ children }) {
     const updatePrices = async () => {
       setIsFetchingPrices(true);
       try {
-        const res = await api.getLivePrices();
-        if (isMounted) {
-          if (res.success && res.prices) {
-            setLivePrices((prev) => ({ ...prev, ...res.prices }));
-          }
-          setPriceSource(res.source);
+        const [pricesData, commoditiesData] = await Promise.all([
+          api.getLivePrices().catch(() => ({})),
+          api.getCommoditiesOverview().catch(() => [])
+        ]);
+        
+        const basePrices = pricesData.prices || {};
+        const commoditiesPrices = {};
+        if (Array.isArray(commoditiesData)) {
+          commoditiesData.forEach(c => { commoditiesPrices[c.id] = c.current_price; });
         }
+        
+        setLivePrices(prev => ({ ...prev, ...basePrices, ...commoditiesPrices }));
+        setIsFetchingPrices(false);
+        setPriceSource(pricesData.source || 'Connecting...');
       } catch (err) {
         if (isMounted) {
           setPriceSource("Offline");
@@ -286,6 +304,8 @@ export function AppProvider({ children }) {
         livePrices,
         priceSource,
         isFetchingPrices,
+        currentHub,
+        setCurrentHub,
         coinPortfolios,
         overviewMetrics,
         fetchData,

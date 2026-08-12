@@ -371,3 +371,11 @@ export function calculateShortTermMetrics(trades = []) {
     avgLossUsd
   };
 }
+
+export function convertArabicNumerals(str) {
+  if (!str) return str;
+  const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+  return String(str).replace(/[٠-٩]/g, function(w) {
+    return arabicNumbers.indexOf(w);
+  }).replace(/٫/g, '.'); // Convert Arabic decimal comma to dot
+}

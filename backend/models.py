@@ -214,6 +214,7 @@ class Exchange(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     name = Column(String(50), nullable=False)
+    market_type = Column(String(10), default="crypto") # "crypto" or "metals"
     maker_fee_pct = Column(Float, nullable=False, default=0.1)
     taker_fee_pct = Column(Float, nullable=False, default=0.1)
     use_discount_token = Column(Boolean, default=False)
@@ -252,6 +253,7 @@ class Strategy(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     name = Column(String(50), nullable=False)
+    market_type = Column(String(10), default="crypto") # "crypto" or "metals"
     category = Column(String(20), default="Short-Term") # Short-Term or Long-Term
     default_exchange_id = Column(Integer, ForeignKey("exchanges.id"), nullable=True)
     default_order_type = Column(String(20), default="Limit")
@@ -312,6 +314,7 @@ class Trade(Base):
     
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    market_type = Column(String(10), default="crypto") # "crypto" or "metals"
     symbol = Column(String(20), index=True, nullable=False)
     strategy_id = Column(Integer, ForeignKey("strategies.id"), nullable=False)
     exchange_id = Column(Integer, ForeignKey("exchanges.id"), nullable=False)
@@ -319,6 +322,8 @@ class Trade(Base):
     entry_price = Column(Float, nullable=False)
     amount_usd = Column(Float, nullable=False)
     quantity = Column(Float, nullable=False)
+    metal_karat = Column(Integer, nullable=True) # E.g., 24, 21, 999
+    purchase_currency = Column(String(5), nullable=True) # E.g., "SAR", "USD"
     calculated_fee = Column(Float, nullable=False)
     status = Column(String(20), default="OPEN") # OPEN, PARTIALLY_CLOSED, CLOSED
     created_at = Column(DateTime(timezone=True), server_default=func.now())

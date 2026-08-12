@@ -34,6 +34,9 @@ def create_trade(
         amount_usd=trade.amount_usd,
         quantity=trade.quantity,
         calculated_fee=trade.calculated_fee,
+        market_type=trade.market_type,
+        metal_karat=trade.metal_karat,
+        purchase_currency=trade.purchase_currency,
         status=trade.status
     )
     db.add(db_trade)

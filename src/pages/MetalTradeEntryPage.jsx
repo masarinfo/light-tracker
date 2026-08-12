@@ -1,0 +1,380 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { useApp } from '../context/AppContext';
+import { api } from '../api/client';
+import { PlusCircle, Activity, Info, Coins, ShieldCheck, Calculator, Globe } from 'lucide-react';
+import { formatCryptoPrice, convertArabicNumerals, generateTradeTargets } from '../utils/mathEngine';
+
+export default function MetalTradeEntryPage() {
+  const { strategies, exchanges, addTrade, livePrices, t, lang, setActiveScreen } = useApp();
+  const isRtl = lang === 'ar';
+
+  const [metalType, setMetalType] = useState('XAU'); // XAU (Gold) or XAG (Silver)
+  
+  const [karat, setKarat] = useState('24');
+  const [weight, setWeight] = useState('');
+  const [totalPrice, setTotalPrice] = useState('');
+  
+  const [strategyId, setStrategyId] = useState('');
+  const [exchangeId, setExchangeId] = useState('');
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Set defaults when metal type changes
+  useEffect(() => {
+    if (metalType === 'XAU') {
+      setKarat('24');
+    } else {
+      setKarat('999');
+    }
+  }, [metalType]);
+
+  // Set default strategy/exchange
+  useEffect(() => {
+    const defaultExchange = exchanges.find(e => e.market_type === 'metals') || exchanges[0];
+    if (defaultExchange && !exchangeId) setExchangeId(defaultExchange.id.toString());
+
+    const defaultStrategy = strategies.find(s => s.market_type === 'metals') || strategies[0];
+    if (defaultStrategy && !strategyId) setStrategyId(defaultStrategy.id.toString());
+  }, [exchanges, strategies, metalType]);
+
+  const metalsExchanges = exchanges.filter(e => e.market_type === 'metals' || !e.market_type || e.market_type === 'crypto'); // Fallback if none exist
+  const metalsStrategies = strategies.filter(s => s.market_type === 'metals' || !s.market_type || s.market_type === 'crypto');
+
+  // Live Price Calculation
+  const TROY_OUNCE_TO_GRAM = 31.1034768;
+  const liveOzPrice = metalType === 'XAU' ? (livePrices['GC=F'] || 2500) : (livePrices['SI=F'] || 28);
+  const livePureGramPrice = liveOzPrice / TROY_OUNCE_TO_GRAM;
+  
+  // Calculate specific karat gram price
+  const getKaratMultiplier = (k) => {
+    if (metalType === 'XAU') {
+      return parseInt(k) / 24;
+    } else {
+      return parseInt(k) / 999;
+    }
+  };
+  
+  const liveKaratGramPrice = livePureGramPrice * getKaratMultiplier(karat);
+
+  const handleUseLivePrice = () => {
+    const w = parseFloat(weight);
+    if (!isNaN(w) && w > 0) {
+      setTotalPrice((w * liveKaratGramPrice).toFixed(2));
+    }
+  };
+
+  const handleWeightChange = (val) => {
+    const parsedVal = convertArabicNumerals(val);
+    setWeight(parsedVal);
+  };
+
+  const handleKaratClick = (k) => {
+    setKarat(k);
+  };
+
+  const handlePriceChange = (val) => {
+    setTotalPrice(convertArabicNumerals(val));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const w = parseFloat(weight);
+      const total = parseFloat(totalPrice);
+      
+      if (isNaN(w) || w <= 0) throw new Error(isRtl ? 'الوزن غير صحيح' : 'Invalid weight');
+      if (isNaN(total) || total <= 0) throw new Error(isRtl ? 'السعر غير صحيح' : 'Invalid total price');
+      if (!strategyId) throw new Error(isRtl ? 'الرجاء اختيار استراتيجية' : 'Please select a strategy');
+      if (!exchangeId) throw new Error(isRtl ? 'الرجاء اختيار مخزن/منصة' : 'Please select an exchange/vault');
+
+      const pricePerGram = total / w;
+
+      const selectedStrategy = strategies.find(s => s.id === parseInt(strategyId));
+      if (!selectedStrategy) throw new Error(isRtl ? 'الاستراتيجية غير موجودة' : 'Strategy not found');
+
+      const tradeData = {
+        symbol: metalType,
+        strategy_id: parseInt(strategyId),
+        exchange_id: parseInt(exchangeId),
+        order_type: 'Market',
+        entry_price: pricePerGram,
+        amount_usd: total,
+        quantity: w,
+        metal_karat: parseInt(karat),
+        market_type: 'metals',
+        calculated_fee: 0,
+        targets: []
+      };
+
+      await addTrade(tradeData);
+      setActiveScreen('metals-inventory');
+    } catch (err) {
+      setError(err.message || (isRtl ? 'حدث خطأ غير متوقع' : 'An unexpected error occurred'));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const goldKarats = ['24', '22', '21', '18'];
+  const silverKarats = ['999', '925', '800'];
+  const activeKarats = metalType === 'XAU' ? goldKarats : silverKarats;
+
+  const presetWeights = [
+    { label: '1g', value: '1' },
+    { label: '5g', value: '5' },
+    { label: '10g', value: '10' },
+    { label: 'Ounce', value: '31.103' },
+  ];
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto space-y-6">
+      {/* Header Banner */}
+      <div className={`glass-panel p-6 rounded-2xl border flex flex-col md:flex-row items-center justify-between gap-4 shadow-lg ${
+        metalType === 'XAU' 
+        ? 'border-amber-500/20 bg-gradient-to-r from-amber-500/10 to-orange-500/10 shadow-amber-500/10'
+        : 'border-gray-400/20 bg-gradient-to-r from-gray-400/10 to-slate-400/10 shadow-gray-500/10'
+      }`}>
+        <div>
+          <h1 className={`text-2xl font-black tracking-tight flex items-center gap-3 ${metalType === 'XAU' ? 'text-amber-400' : 'text-gray-200'}`}>
+            <PlusCircle className="w-8 h-8" />
+            {isRtl ? 'إدخال صفقة معدن جديدة' : 'New Metal Trade'}
+          </h1>
+          <p className={`text-sm mt-1 font-medium ${metalType === 'XAU' ? 'text-amber-200/60' : 'text-gray-400'}`}>
+            {isRtl ? 'إضافة ذهب أو فضة إلى مخزونك' : 'Add gold or silver to your inventory'}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Main Form */}
+        <div className="lg:col-span-2 glass-panel rounded-2xl border border-white/10 p-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            
+            {/* Metal Toggle */}
+            <div className="flex bg-black/20 p-1.5 rounded-xl border border-white/5 relative z-10">
+              <button
+                type="button"
+                onClick={() => setMetalType('XAU')}
+                className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
+                  metalType === 'XAU' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-black shadow-lg shadow-amber-500/20' : 'text-gray-400 hover:text-amber-400'
+                }`}
+              >
+                <span>🥇</span> {isRtl ? 'ذهب' : 'Gold'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setMetalType('XAG')}
+                className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
+                  metalType === 'XAG' ? 'bg-gradient-to-r from-gray-300 to-slate-400 text-black shadow-lg shadow-gray-500/20' : 'text-gray-400 hover:text-gray-200'
+                }`}
+              >
+                <span>🥈</span> {isRtl ? 'فضة' : 'Silver'}
+              </button>
+            </div>
+
+            {error && (
+              <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium">
+                {error}
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Karat Selection (Buttons) */}
+            <div>
+              <label className="block text-xs font-bold text-gray-400 mb-2">{isRtl ? 'العيار (النقاء)' : 'Karat / Purity'}</label>
+              <div className="grid grid-cols-4 gap-2">
+                {activeKarats.map(k => (
+                  <button
+                    key={k}
+                    type="button"
+                    onClick={() => handleKaratClick(k)}
+                    className={`py-2 rounded-lg text-sm font-bold transition-all border ${
+                      karat === k 
+                      ? (metalType === 'XAU' ? 'bg-amber-500/20 border-amber-500/50 text-amber-400' : 'bg-gray-400/20 border-gray-400/50 text-gray-200')
+                      : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
+                    }`}
+                  >
+                    {k}{metalType === 'XAU' ? 'K' : ''}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Weight Input */}
+            <div>
+              <label className="block text-xs font-bold text-gray-400 mb-2">{isRtl ? 'الوزن (بالجرام)' : 'Weight (Grams)'}</label>
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-2 mb-1">
+                  {presetWeights.map(pw => (
+                    <button
+                      key={pw.label}
+                      type="button"
+                      onClick={() => handleWeightChange(pw.value)}
+                      className="flex-1 py-1.5 rounded bg-white/5 border border-white/10 text-xs font-bold text-gray-300 hover:bg-white/10 hover:border-white/20 transition-all"
+                    >
+                      {pw.label}
+                    </button>
+                  ))}
+                </div>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={weight}
+                  onChange={(e) => handleWeightChange(e.target.value)}
+                  placeholder="e.g. 10.5"
+                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500/50"
+                  required
+                />
+              </div>
+            </div>
+            </div>
+
+            {/* Price Input */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between px-1">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                  {isRtl ? 'إجمالي التكلفة (USD)' : 'Total Cost (USD)'}
+                </label>
+                <button
+                  type="button"
+                  onClick={handleUseLivePrice}
+                  className="text-xs font-bold text-amber-500 hover:text-amber-400 transition-colors flex items-center gap-1 bg-amber-500/10 px-2 py-1 rounded"
+                >
+                  <Calculator className="w-3 h-3" />
+                  {isRtl ? 'حساب بالسعر العالمي' : 'Use Spot Price'}
+                </button>
+              </div>
+              <div className="relative">
+                <div className={`absolute top-1/2 -translate-y-1/2 text-gray-500 font-bold ${isRtl ? 'right-4' : 'left-4'}`}>$</div>
+                <input
+                type="text"
+                inputMode="decimal"
+                value={totalPrice}
+                onChange={(e) => handlePriceChange(e.target.value)}
+                placeholder="0.00"
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 pl-12 text-white focus:outline-none focus:border-amber-500/50"
+                required
+              />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider px-1">
+                  {isRtl ? 'الاستراتيجية' : 'Strategy'}
+                </label>
+                <select
+                  value={strategyId}
+                  onChange={(e) => setStrategyId(e.target.value)}
+                  className="input-field w-full"
+                  required
+                >
+                  <option value="">{isRtl ? 'اختر الاستراتيجية...' : 'Select Strategy...'}</option>
+                  {metalsStrategies.map(s => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider px-1">
+                  {isRtl ? 'المخزن / المنصة' : 'Vault / Exchange'}
+                </label>
+                <select
+                  value={exchangeId}
+                  onChange={(e) => setExchangeId(e.target.value)}
+                  className="input-field w-full"
+                  required
+                >
+                  <option value="">{isRtl ? 'اختر المخزن...' : 'Select Vault...'}</option>
+                  {metalsExchanges.map(e => (
+                    <option key={e.id} value={e.id}>{e.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`w-full py-4 rounded-xl text-black font-black text-lg transition-all flex items-center justify-center gap-2 shadow-lg ${
+                metalType === 'XAU' 
+                ? 'bg-amber-500 hover:bg-amber-400 shadow-amber-500/20' 
+                : 'bg-gray-300 hover:bg-white shadow-gray-500/20'
+              } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:-translate-y-1'}`}
+            >
+              {isSubmitting ? (
+                <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+              ) : (
+                <PlusCircle className="w-5 h-5" />
+              )}
+              {isRtl ? 'حفظ الصفقة' : 'Save Trade'}
+            </button>
+          </form>
+        </div>
+
+        {/* Live Preview Sidebar */}
+        <div className="space-y-6">
+          <div className="glass-panel p-6 rounded-2xl border border-white/10 space-y-6">
+            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+              <Activity className={`w-5 h-5 ${metalType === 'XAU' ? 'text-amber-500' : 'text-gray-300'}`} />
+              {isRtl ? 'ملخص الصفقة' : 'Trade Summary'}
+            </h3>
+            
+            <div className="space-y-4">
+              <div className="flex justify-between items-center pb-3 border-b border-white/5">
+                <span className="text-gray-400 text-sm">{isRtl ? 'المعدن' : 'Metal'}</span>
+                <span className={`font-bold ${metalType === 'XAU' ? 'text-amber-400' : 'text-gray-300'}`}>
+                  {metalType === 'XAU' ? (isRtl ? 'ذهب' : 'Gold') : (isRtl ? 'فضة' : 'Silver')}
+                </span>
+              </div>
+              <div className="flex justify-between items-center pb-3 border-b border-white/5">
+                <span className="text-gray-400 text-sm">{isRtl ? 'العيار' : 'Karat'}</span>
+                <span className="font-bold text-white">{karat}</span>
+              </div>
+              <div className="flex justify-between items-center pb-3 border-b border-white/5">
+                <span className="text-gray-400 text-sm">{isRtl ? 'سعر الجرام الواحد' : 'Price per Gram'}</span>
+                <span className="font-mono text-white">
+                  ${(parseFloat(totalPrice) / parseFloat(weight) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
+              <div className="flex justify-between items-center pt-2">
+                <span className="text-gray-400 text-sm">{isRtl ? 'الإجمالي' : 'Total'}</span>
+                <span className={`text-xl font-mono font-bold ${metalType === 'XAU' ? 'text-amber-400' : 'text-gray-200'}`}>
+                  ${parseFloat(totalPrice || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Global Spot Info */}
+          <div className="glass-panel p-5 rounded-2xl border border-white/10">
+             <div className="flex items-center gap-2 mb-3">
+               <Globe className={`w-4 h-4 ${metalType === 'XAU' ? 'text-amber-500' : 'text-gray-400'}`} />
+               <span className="text-sm font-bold text-gray-300">{isRtl ? 'السعر العالمي المباشر' : 'Live Spot Price'}</span>
+             </div>
+             <div className="flex justify-between items-end">
+               <div>
+                 <div className="text-[10px] text-gray-500 mb-1">{isRtl ? `للجرام (عيار ${karat})` : `Per Gram (${karat}K)`}</div>
+                 <div className="text-lg font-mono font-bold text-white">
+                   ${liveKaratGramPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                 </div>
+               </div>
+               <div className="text-right">
+                 <div className="text-[10px] text-gray-500 mb-1">{isRtl ? 'للأونصة' : 'Per Ounce'}</div>
+                 <div className="text-sm font-mono text-gray-400">
+                   ${liveOzPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                 </div>
+               </div>
+             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

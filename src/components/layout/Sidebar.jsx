@@ -27,15 +27,19 @@ import {
   Briefcase,
   PieChart,
   Settings,
-  Shield
+  Shield,
+  Database,
+  ArrowRight,
+  ArrowLeft
 } from 'lucide-react';
 
 export default function Sidebar() {
-  const { activeScreen, setActiveScreen, setSelectedStrategyId, strategies, t, lang, isSidebarCollapsed, toggleSidebar } = useApp();
+  const { activeScreen, setActiveScreen, setSelectedStrategyId, strategies, t, lang, isSidebarCollapsed, toggleSidebar, currentHub, setCurrentHub } = useApp();
   const { user } = useAuth();
+  const isRtl = lang === 'ar';
   
   // Make "trades" (Trading Hub) open by default
-  const [expandedGroups, setExpandedGroups] = useState({ trades: true });
+  const [expandedGroups, setExpandedGroups] = useState({ trades: true, 'gold-hub': true });
 
   const toggleGroup = (key) => {
     setExpandedGroups(prev => ({ ...prev, [key]: !prev[key] }));
@@ -54,14 +58,17 @@ export default function Sidebar() {
   ];
   
   strategies.forEach(strat => {
-    reportsItems.push({
-      id: `strategy-${strat.id}`,
-      label: strat.name,
-      icon: Target,
-      isStrategy: true,
-      category: strat.category,
-      onClick: () => handleStrategyClick(strat.id)
-    });
+    // Only show strategy if it matches the current hub, or if strategy doesn't have market_type yet
+    if ((strat.market_type || 'crypto') === currentHub) {
+      reportsItems.push({
+        id: `strategy-${strat.id}`,
+        label: strat.name,
+        icon: Target,
+        isStrategy: true,
+        category: strat.category,
+        onClick: () => handleStrategyClick(strat.id)
+      });
+    }
   });
 
   const navGroups = [
@@ -77,6 +84,7 @@ export default function Sidebar() {
         { id: 'trade-history', label: lang === 'ar' ? 'سجل الصفقات' : 'Trade History', icon: History, onClick: () => setActiveScreen('trade-history') },
       ]
     },
+
     {
       id: 'portfolios',
       title: lang === 'ar' ? 'المحافظ والاستراتيجيات' : 'Portfolios & Strategies',
@@ -119,7 +127,36 @@ export default function Sidebar() {
     });
   }
 
-  const isRtl = lang === 'ar';
+  const goldNavGroups = [
+    {
+      id: 'gold-hub',
+      title: lang === 'ar' ? 'مركز الذهب 🥇' : 'Gold Hub 🥇',
+      icon: Gem,
+      items: [
+        { id: 'metals-inventory', label: lang === 'ar' ? 'مخزن الذهب' : 'Gold Inventory', icon: Database, onClick: () => setActiveScreen('metals-inventory') },
+        { id: 'metals-market', label: lang === 'ar' ? 'سوق الذهب' : 'Gold Market', icon: Globe, onClick: () => setActiveScreen('metals-market') },
+        { id: 'metals-trades', label: lang === 'ar' ? 'الصفقات المفتوحة والسجل' : 'Trades & History', icon: History, onClick: () => setActiveScreen('metals-trades') },
+        { id: 'metal-trade-entry', label: lang === 'ar' ? 'إدخال صفقة' : 'Trade Entry', icon: PlusCircle, highlight: true, onClick: () => setActiveScreen('metal-trade-entry') },
+      ]
+    },
+    {
+      id: 'portfolios',
+      title: lang === 'ar' ? 'المحافظ والاستراتيجيات' : 'Portfolios & Strategies',
+      icon: Briefcase,
+      items: [
+        { id: 'exchange-setup', label: t('navExchangeSetup'), icon: Building2, onClick: () => setActiveScreen('exchange-setup') },
+        { id: 'strategy-factory', label: t('navStrategyFactory'), icon: Factory, onClick: () => setActiveScreen('strategy-factory') },
+      ]
+    },
+    {
+      id: 'reports',
+      title: lang === 'ar' ? 'تقارير الاستراتيجيات' : 'Strategy Reports',
+      icon: PieChart,
+      items: reportsItems
+    }
+  ];
+
+  const activeGroups = currentHub === 'metals' ? goldNavGroups : navGroups;
 
   return (
     <>
@@ -145,16 +182,20 @@ export default function Sidebar() {
         <div className={`p-4 border-b border-white/10 flex flex-col gap-2 shrink-0 ${isSidebarCollapsed ? 'items-center' : ''}`}>
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-500 to-purple-600 flex items-center justify-center shrink-0 shadow-lg shadow-cyan-500/20">
-                <Coins className="w-6 h-6 text-white" />
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-lg ${
+                currentHub === 'metals' 
+                ? 'bg-gradient-to-tr from-amber-500 via-orange-500 to-yellow-600 shadow-amber-500/20'
+                : 'bg-gradient-to-tr from-cyan-500 via-indigo-500 to-purple-600 shadow-cyan-500/20'
+              }`}>
+                {currentHub === 'metals' ? <Gem className="w-6 h-6 text-white" /> : <Coins className="w-6 h-6 text-white" />}
               </div>
               {!isSidebarCollapsed && (
                 <div className="min-w-0 flex-1">
                   <h1 className="text-sm font-bold text-white tracking-wide leading-tight truncate">
-                    {t('appTitle')}
+                    {currentHub === 'metals' ? (lang === 'ar' ? 'مركز الذهب' : 'Gold Hub') : t('appTitle')}
                   </h1>
-                  <p className="text-[11px] text-cyan-400 font-mono tracking-wider mt-0.5 truncate">
-                    {t('appVersion')}
+                  <p className={`text-[11px] font-mono tracking-wider mt-0.5 truncate ${currentHub === 'metals' ? 'text-amber-400' : 'text-cyan-400'}`}>
+                    {currentHub === 'metals' ? (lang === 'ar' ? 'إدارة الثروات المعدنية' : 'Precious Metals') : t('appVersion')}
                   </p>
                 </div>
               )}
@@ -174,18 +215,50 @@ export default function Sidebar() {
 
           {/* Strict Spot Only Banner */}
           {!isSidebarCollapsed ? (
-            <div className="mt-2 px-3 py-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center gap-2 text-cyan-300 text-xs font-semibold">
-              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping shrink-0"></span>
-              <span className="truncate">{t('spotOnlyBadge')}</span>
+            <div className={`mt-2 px-3 py-1.5 rounded-lg border flex items-center justify-center gap-2 text-xs font-semibold ${
+              currentHub === 'metals' 
+              ? 'bg-amber-500/10 border-amber-500/20 text-amber-300'
+              : 'bg-cyan-500/10 border-cyan-500/20 text-cyan-300'
+            }`}>
+              <span className={`w-2 h-2 rounded-full animate-ping shrink-0 ${currentHub === 'metals' ? 'bg-amber-400' : 'bg-cyan-400'}`}></span>
+              <span className="truncate">{currentHub === 'metals' ? (lang === 'ar' ? 'شراء مادي حقيقي' : 'Physical Spot') : t('spotOnlyBadge')}</span>
             </div>
           ) : (
-            <div className="mt-1 w-2 h-2 rounded-full bg-cyan-400 animate-ping" title={t('spotOnlyBadge')}></div>
+            <div className={`mt-1 w-2 h-2 rounded-full animate-ping ${currentHub === 'metals' ? 'bg-amber-400' : 'bg-cyan-400'}`} title={t('spotOnlyBadge')}></div>
           )}
+
+          {/* Hub Toggle Header */}
+          <div className="mt-4 flex bg-black/40 p-1 rounded-xl shrink-0">
+            <button
+              onClick={() => setCurrentHub('crypto')}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 px-1 rounded-lg text-xs font-bold transition-all ${
+                currentHub === 'crypto' 
+                ? 'bg-cyan-500/20 text-cyan-300 shadow-sm' 
+                : 'text-gray-500 hover:text-gray-300'
+              }`}
+              title={lang === 'ar' ? 'مركز الكريبتو' : 'Crypto Hub'}
+            >
+              <Coins className="w-4 h-4" />
+              {!isSidebarCollapsed && (lang === 'ar' ? 'كريبتو' : 'Crypto')}
+            </button>
+            <button
+              onClick={() => setCurrentHub('metals')}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 px-1 rounded-lg text-xs font-bold transition-all ${
+                currentHub === 'metals' 
+                ? 'bg-amber-500/20 text-amber-300 shadow-sm' 
+                : 'text-gray-500 hover:text-gray-300'
+              }`}
+              title={lang === 'ar' ? 'مركز الذهب' : 'Gold Hub'}
+            >
+              <Gem className="w-4 h-4" />
+              {!isSidebarCollapsed && (lang === 'ar' ? 'ذهب' : 'Gold')}
+            </button>
+          </div>
         </div>
 
         {/* Navigation Items */}
         <nav className="p-3 space-y-4 overflow-y-auto flex-1 custom-scrollbar">
-          {navGroups.map((group) => {
+          {activeGroups.map((group) => {
             const GroupIcon = group.icon;
             return (
               <div key={group.id} className="space-y-1">
@@ -195,7 +268,7 @@ export default function Sidebar() {
                     className="w-full px-3 py-2 flex items-center justify-between text-xs font-bold text-gray-300 uppercase tracking-wider hover:text-white transition-colors hover:bg-white/5 rounded-lg"
                   >
                     <div className="flex items-center gap-2.5">
-                      <GroupIcon className="w-4 h-4 text-cyan-500" />
+                      <GroupIcon className={`w-4 h-4 ${currentHub === 'metals' ? 'text-amber-500' : 'text-cyan-500'}`} />
                       <span>{group.title}</span>
                     </div>
                     <ChevronRight 
@@ -217,7 +290,6 @@ export default function Sidebar() {
                         key={item.id}
                         onClick={() => {
                           item.onClick();
-                          // On mobile, auto-collapse sidebar when a link is clicked
                           if (window.innerWidth < 768 && !isSidebarCollapsed) {
                             toggleSidebar();
                           }
@@ -228,15 +300,15 @@ export default function Sidebar() {
                         } rounded-xl text-xs font-medium transition-all duration-200 ${
                           isActive
                             ? item.isStrategy 
-                                ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-bold'
-                                : 'bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 text-cyan-300 border border-cyan-500/30 shadow-lg shadow-cyan-500/10 font-bold'
+                                ? (currentHub === 'metals' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold' : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-bold')
+                                : (currentHub === 'metals' ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 border border-amber-500/30 shadow-lg shadow-amber-500/10 font-bold' : 'bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 text-cyan-300 border border-cyan-500/30 shadow-lg shadow-cyan-500/10 font-bold')
                             : item.highlight
                             ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20 font-semibold'
                             : 'text-gray-300 hover:bg-white/5 hover:text-white'
                         }`}
                       >
                         <div className={`flex items-center gap-3 min-w-0 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
-                          <Icon className={`w-4 h-4 shrink-0 ${isActive ? (item.isStrategy ? 'text-indigo-400' : 'text-cyan-400') : item.highlight ? 'text-emerald-400' : 'text-gray-400'}`} />
+                          <Icon className={`w-4 h-4 shrink-0 ${isActive ? (item.isStrategy ? (currentHub === 'metals' ? 'text-amber-400' : 'text-indigo-400') : (currentHub === 'metals' ? 'text-amber-400' : 'text-cyan-400')) : item.highlight ? 'text-emerald-400' : 'text-gray-400'}`} />
                           {!isSidebarCollapsed && <span className="truncate">{item.label}</span>}
                         </div>
                         

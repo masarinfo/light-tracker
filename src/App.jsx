@@ -26,6 +26,13 @@ import BillingPage from './pages/BillingPage';
 import AffiliateDashboard from './pages/AffiliateDashboard';
 import CouponsManagementPage from './pages/CouponsManagementPage';
 
+// Gold Hub
+import MetalsMarketPage from './pages/MetalsMarketPage';
+import MetalsInventoryPage from './pages/MetalsInventoryPage';
+import MetalsTradesPage from './pages/MetalsTradesPage';
+import MetalTradeEntryPage from './pages/MetalTradeEntryPage';
+import GoldCalculatorModal from './components/GoldCalculatorModal';
+
 import LandingPage from './pages/public/LandingPage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
@@ -33,6 +40,7 @@ import PublicMarketPage from './pages/public/PublicMarketPage';
 import Pricing from './pages/public/Pricing';
 
 import PublicHeader from './components/layout/PublicHeader';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 function PublicLayout({ children }) {
   const { lang } = useApp();
@@ -78,6 +86,13 @@ function PrivateAppWrapper() {
     if (activeScreen === 'strategy-comparison') return <StrategyComparisonPage />;
     if (activeScreen.startsWith('strategy-')) return <StrategyDashboardPage />;
     if (activeScreen === 'security-preview') return <SecurityPreviewPage />;
+    
+    // Gold Hub
+    if (activeScreen === 'metals-market') return <MetalsMarketPage />;
+    if (activeScreen === 'metals-inventory') return <MetalsInventoryPage />;
+    if (activeScreen === 'metals-trades') return <MetalsTradesPage />;
+    if (activeScreen === 'metal-trade-entry') return <MetalTradeEntryPage />;
+    
     return <OverviewDashboardPage />;
   };
 
@@ -86,11 +101,16 @@ function PrivateAppWrapper() {
   return (
     <div dir={isRtl ? 'rtl' : 'ltr'} className="min-h-screen flex bg-[var(--bg-main)] text-[var(--text-primary)] transition-colors duration-300">
       <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 relative">
         <Header />
         <main className="flex-1 overflow-y-auto">
-          {renderScreen()}
+          <ErrorBoundary>
+            {renderScreen()}
+          </ErrorBoundary>
         </main>
+        
+        {/* Floating Components */}
+        <GoldCalculatorModal />
       </div>
     </div>
   );
@@ -102,7 +122,11 @@ function PrivateLayout() {
   if (isLoading) return <div className="flex h-screen items-center justify-center text-white bg-slate-900">جاري التحميل...</div>;
   if (!user) return <Navigate to="/login" replace />;
 
-  return <PrivateAppWrapper />;
+  return (
+    <ErrorBoundary>
+      <PrivateAppWrapper />
+    </ErrorBoundary>
+  );
 }
 
 export default function App() {

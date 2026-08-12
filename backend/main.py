@@ -15,6 +15,24 @@ logging.basicConfig(level=logging.INFO)
 # Create Database tables (empty DB as requested)
 models.Base.metadata.create_all(bind=engine)
 
+def run_migrations():
+    from database import engine
+    from sqlalchemy import text
+    with engine.begin() as conn:
+        for query in [
+            "ALTER TABLE strategies ADD COLUMN market_type VARCHAR DEFAULT 'crypto'",
+            "ALTER TABLE exchanges ADD COLUMN market_type VARCHAR DEFAULT 'crypto'",
+            "ALTER TABLE trades ADD COLUMN market_type VARCHAR DEFAULT 'crypto'",
+            "ALTER TABLE trades ADD COLUMN metal_karat INTEGER",
+            "ALTER TABLE trades ADD COLUMN purchase_currency VARCHAR DEFAULT 'USD'"
+        ]:
+            try:
+                conn.execute(text(query))
+            except Exception:
+                pass # Column likely already exists
+
+run_migrations()
+
 app = FastAPI(title="Spot Trading Tracker Backend")
 
 # Setup CORS for the React Frontend (default Vite port 5173)

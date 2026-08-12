@@ -19,6 +19,7 @@ class CouponCreate(BaseModel):
 
 class ExchangeBase(BaseModel):
     name: str
+    market_type: str = "crypto"
     maker_fee_pct: float = 0.1
     taker_fee_pct: float = 0.1
     use_discount_token: bool = False
@@ -49,6 +50,7 @@ class ExchangeResponse(ExchangeBase):
 
 class StrategyBase(BaseModel):
     name: str
+    market_type: str = "crypto"
     category: str = "Short-Term"
     default_exchange_id: Optional[int] = None
     default_order_type: str = "Limit"
@@ -83,6 +85,7 @@ class TradeTargetResponse(BaseModel):
         from_attributes = True
 
 class TradeBase(BaseModel):
+    market_type: str = "crypto"
     symbol: str
     strategy_id: int
     exchange_id: int
@@ -90,6 +93,8 @@ class TradeBase(BaseModel):
     entry_price: float
     amount_usd: float
     quantity: float
+    metal_karat: Optional[int] = None
+    purchase_currency: Optional[str] = None
     calculated_fee: float
     status: str = "OPEN"
 

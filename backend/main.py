@@ -18,18 +18,22 @@ models.Base.metadata.create_all(bind=engine)
 def run_migrations():
     from database import engine
     from sqlalchemy import text
-    with engine.begin() as conn:
-        for query in [
-            "ALTER TABLE strategies ADD COLUMN market_type VARCHAR DEFAULT 'crypto'",
-            "ALTER TABLE exchanges ADD COLUMN market_type VARCHAR DEFAULT 'crypto'",
-            "ALTER TABLE trades ADD COLUMN market_type VARCHAR DEFAULT 'crypto'",
-            "ALTER TABLE trades ADD COLUMN metal_karat INTEGER",
-            "ALTER TABLE trades ADD COLUMN purchase_currency VARCHAR DEFAULT 'USD'"
-        ]:
-            try:
-                conn.execute(text(query))
-            except Exception:
-                pass # Column likely already exists
+    import logging
+    try:
+        with engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
+            for query in [
+                "ALTER TABLE strategies ADD COLUMN market_type VARCHAR DEFAULT 'crypto'",
+                "ALTER TABLE exchanges ADD COLUMN market_type VARCHAR DEFAULT 'crypto'",
+                "ALTER TABLE trades ADD COLUMN market_type VARCHAR DEFAULT 'crypto'",
+                "ALTER TABLE trades ADD COLUMN metal_karat INTEGER",
+                "ALTER TABLE trades ADD COLUMN purchase_currency VARCHAR DEFAULT 'USD'"
+            ]:
+                try:
+                    conn.execute(text(query))
+                except Exception as e:
+                    logging.info(f"Migration skip (likely exists): {str(e)}")
+    except Exception as e:
+        logging.error(f"Migration setup failed: {str(e)}")
 
 run_migrations()
 

@@ -309,14 +309,22 @@ export default function CloseTradeModal({ trade, onClose, onSave, livePrice }) {
                   </button>
                 </div>
                 {closingTrade.market_type === 'metals' && (
-                  <select 
-                    value={unit}
-                    onChange={(e) => setUnit(e.target.value)}
-                    className="p-2.5 rounded-xl glass-input text-xs font-bold text-gray-300 outline-none w-20"
-                  >
-                    <option value="g">جرام</option>
-                    <option value="oz">أونصة</option>
-                  </select>
+                  <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 shrink-0 h-[42px] items-center">
+                    <button
+                      type="button"
+                      onClick={() => setUnit('g')}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${unit === 'g' ? 'bg-amber-500 text-black shadow-sm' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                    >
+                      جرام
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setUnit('oz')}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${unit === 'oz' ? 'bg-amber-500 text-black shadow-sm' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                    >
+                      أونصة
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

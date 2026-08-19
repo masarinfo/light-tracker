@@ -3,12 +3,13 @@ import { XCircle, Target, TrendingUp, TrendingDown, DollarSign, CheckCircle2, Co
 import { useApp } from '../../context/AppContext';
 import { formatCryptoPrice } from '../../utils/mathEngine';
 
-export default function CloseTradeModal({ trade, onClose, onSave }) {
+export default function CloseTradeModal({ trade, onClose, onSave, livePrice }) {
   const { exchanges } = useApp();
   
   const [closingTrade, setClosingTrade] = useState(null);
   const [customCloseQtyStr, setCustomCloseQtyStr] = useState('');
   const [customClosePriceStr, setCustomClosePriceStr] = useState('');
+  const [unit, setUnit] = useState('g');
   const [copiedTarget, setCopiedTarget] = useState(null);
 
   const copyToClipboard = (text, targetId) => {
@@ -114,10 +115,14 @@ export default function CloseTradeModal({ trade, onClose, onSave }) {
 
   const handleCustomClose = (e) => {
     e.preventDefault();
-    const qty = parseCommasToNumber(customCloseQtyStr);
+    let qty = parseCommasToNumber(customCloseQtyStr);
     const price = parseCommasToNumber(customClosePriceStr);
     
     if (qty <= 0 || price <= 0) return;
+
+    if (closingTrade.market_type === 'metals' && unit === 'oz') {
+      qty = qty * 31.1034768; // Convert oz to grams
+    }
 
     const exObj = exchanges.find((ex) => String(ex.id) === String(closingTrade.exchange_id)) || exchanges[0];
     const feePct = exObj?.taker_fee_pct || 0.1;
@@ -277,30 +282,57 @@ export default function CloseTradeModal({ trade, onClose, onSave }) {
           <form onSubmit={handleCustomClose} className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
             <div>
               <label className="block text-gray-400 text-xs mb-1 font-sans">الكمية المراد بيعها</label>
-              <div className="relative">
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  dir="ltr"
-                  value={customCloseQtyStr}
-                  onChange={(e) => setCustomCloseQtyStr(formatInputWithCommas(e.target.value))}
-                  placeholder="مثال: 5.5"
-                  className="w-full p-2.5 rounded-xl glass-input font-mono text-sm text-white pr-14"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    const stats = getTradeCurrentStats(closingTrade);
-                    setCustomCloseQtyStr(stats.currentQuantity.toString());
-                  }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-bold text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 px-2 py-1 rounded transition-colors"
-                >
-                  الكل
-                </button>
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    dir="ltr"
+                    value={customCloseQtyStr}
+                    onChange={(e) => setCustomCloseQtyStr(formatInputWithCommas(e.target.value))}
+                    placeholder="مثال: 5.5"
+                    className="w-full p-2.5 rounded-xl glass-input font-mono text-sm text-white pr-14"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const stats = getTradeCurrentStats(closingTrade);
+                      if (closingTrade.market_type === 'metals' && unit === 'oz') {
+                         setCustomCloseQtyStr((stats.currentQuantity / 31.1034768).toString());
+                      } else {
+                         setCustomCloseQtyStr(stats.currentQuantity.toString());
+                      }
+                    }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-bold text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 px-2 py-1 rounded transition-colors"
+                  >
+                    الكل
+                  </button>
+                </div>
+                {closingTrade.market_type === 'metals' && (
+                  <select 
+                    value={unit}
+                    onChange={(e) => setUnit(e.target.value)}
+                    className="p-2.5 rounded-xl glass-input text-xs font-bold text-gray-300 outline-none w-20"
+                  >
+                    <option value="g">جرام</option>
+                    <option value="oz">أونصة</option>
+                  </select>
+                )}
               </div>
             </div>
             <div>
-              <label className="block text-gray-400 text-xs mb-1 font-sans">سعر البيع ($)</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-gray-400 text-xs font-sans">سعر البيع ($)</label>
+                {livePrice && (
+                  <button
+                    type="button"
+                    onClick={() => setCustomClosePriceStr(livePrice.toString())}
+                    className="text-[10px] text-cyan-400 hover:text-cyan-300 font-bold bg-cyan-500/10 hover:bg-cyan-500/20 px-1.5 py-0.5 rounded transition-colors"
+                  >
+                    سعر السوق
+                  </button>
+                )}
+              </div>
               <input
                 type="text"
                 inputMode="decimal"

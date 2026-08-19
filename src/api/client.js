@@ -126,4 +126,5 @@ export const api = {
     return response.json();
   },
   getMe: () => request(`/auth/me`),
+  updateProfile: (data) => request(`/auth/me`, { method: 'PUT', body: JSON.stringify(data) }),
 };

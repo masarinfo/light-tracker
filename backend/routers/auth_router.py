@@ -64,3 +64,27 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 @router.get("/me", response_model=schemas.UserResponse)
 def read_users_me(current_user: models.User = Depends(auth.get_current_user)):
     return current_user
+
+@router.put("/me", response_model=schemas.UserResponse)
+def update_profile(
+    profile_data: schemas.UserUpdate, 
+    current_user: models.User = Depends(auth.get_current_user), 
+    db: Session = Depends(database.get_db)
+):
+    if profile_data.new_password:
+        if not profile_data.current_password:
+            raise HTTPException(status_code=400, detail="Current password is required to set a new password")
+        if not auth.verify_password(profile_data.current_password, current_user.password_hash):
+            raise HTTPException(status_code=400, detail="Incorrect current password")
+        current_user.password_hash = auth.get_password_hash(profile_data.new_password)
+    
+    if profile_data.email is not None:
+        current_user.email = profile_data.email
+        
+    if profile_data.phone is not None:
+        current_user.phone = profile_data.phone
+        
+    db.commit()
+    db.refresh(current_user)
+    log_action(db, current_user.id, "UPDATE_PROFILE", "User updated profile")
+    return current_user

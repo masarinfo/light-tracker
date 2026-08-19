@@ -25,6 +25,7 @@ import WalletPage from './pages/WalletPage';
 import BillingPage from './pages/BillingPage';
 import AffiliateDashboard from './pages/AffiliateDashboard';
 import CouponsManagementPage from './pages/CouponsManagementPage';
+import ProfilePage from './pages/ProfilePage';
 
 // Gold Hub
 import MetalsMarketPage from './pages/MetalsMarketPage';
@@ -98,6 +99,7 @@ function PrivateAppWrapper() {
     if (activeScreen === 'strategy-comparison') return <StrategyComparisonPage />;
     if (activeScreen.startsWith('strategy-')) return <StrategyDashboardPage />;
     if (activeScreen === 'security-preview') return <SecurityPreviewPage />;
+    if (activeScreen === 'profile') return <ProfilePage />;
     
     // Gold Hub
     if (activeScreen === 'metals-market') return <MetalsMarketPage />;

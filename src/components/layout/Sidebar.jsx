@@ -30,7 +30,8 @@ import {
   Shield,
   Database,
   ArrowRight,
-  ArrowLeft
+  ArrowLeft,
+  User
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -106,6 +107,7 @@ export default function Sidebar() {
       title: lang === 'ar' ? 'الإعدادات والأمان' : 'Settings & Security',
       icon: Settings,
       items: [
+        { id: 'profile', label: lang === 'ar' ? 'الملف الشخصي' : 'Profile', icon: User, onClick: () => setActiveScreen('profile') },
         { id: 'security-preview', label: t('navSecurityPreview'), icon: ShieldCheck, onClick: () => setActiveScreen('security-preview') },
         { id: 'billing', label: lang === 'ar' ? 'الاشتراك والفواتير' : 'Billing', icon: CreditCard, onClick: () => setActiveScreen('billing') },
         { id: 'affiliate', label: lang === 'ar' ? 'التسويق بالعمولة' : 'Affiliate', icon: Megaphone, onClick: () => setActiveScreen('affiliate') },

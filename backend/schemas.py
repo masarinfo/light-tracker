@@ -167,6 +167,12 @@ class UserCreate(BaseModel):
     phone: Optional[str] = None
     referral_code: Optional[str] = None # Used to track if they came from an affiliate
 
+class UserUpdate(BaseModel):
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    current_password: Optional[str] = None
+    new_password: Optional[str] = None
+
 class UserResponse(BaseModel):
     id: int
     username: str

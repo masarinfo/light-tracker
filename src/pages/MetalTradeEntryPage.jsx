@@ -20,11 +20,9 @@ export default function MetalTradeEntryPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   
-  // Advanced Fields State
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [unitPrice, setUnitPrice] = useState('');
   const [ozQuantity, setOzQuantity] = useState('');
-  const [isSovereign, setIsSovereign] = useState(false);
   const [unitPriceType, setUnitPriceType] = useState('g'); // 'g' or 'oz'
 
   const TROY_OUNCE_TO_GRAM = 31.1034768;
@@ -36,7 +34,6 @@ export default function MetalTradeEntryPage() {
     } else {
       setKarat('999');
     }
-    setIsSovereign(false);
   }, [metalType]);
 
   // Set default strategy/exchange
@@ -77,7 +74,6 @@ export default function MetalTradeEntryPage() {
   const handleWeightChange = (val) => {
     const parsedVal = convertArabicNumerals(val);
     setWeight(parsedVal);
-    setIsSovereign(false);
     const w = parseFloat(parsedVal);
     if (!isNaN(w) && w > 0) {
       setOzQuantity((w / TROY_OUNCE_TO_GRAM).toFixed(4));
@@ -88,7 +84,6 @@ export default function MetalTradeEntryPage() {
 
   const handleKaratClick = (k) => {
     setKarat(k);
-    setIsSovereign(false);
   };
 
   const handlePriceChange = (val) => {
@@ -122,17 +117,9 @@ export default function MetalTradeEntryPage() {
     if (!isNaN(oz) && oz > 0) {
       const g = (oz * TROY_OUNCE_TO_GRAM).toFixed(4);
       setWeight(g);
-      setIsSovereign(false);
     } else {
       setWeight('');
     }
-  };
-
-  const handleSovereignClick = () => {
-    setKarat('21');
-    setWeight('8');
-    setIsSovereign(true);
-    setOzQuantity((8 / TROY_OUNCE_TO_GRAM).toFixed(4));
   };
 
   const handleSubmit = async (e) => {
@@ -217,21 +204,19 @@ export default function MetalTradeEntryPage() {
             <div className="flex bg-black/20 p-1.5 rounded-xl border border-white/5 relative z-10">
               <button
                 type="button"
-                onClick={() => { if (!isSovereign) setMetalType('XAU'); }}
+                onClick={() => setMetalType('XAU')}
                 className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
                   metalType === 'XAU' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-black shadow-lg shadow-amber-500/20' : 'text-gray-400 hover:text-amber-400'
-                } ${isSovereign ? 'opacity-50 cursor-not-allowed' : ''}`}
-                disabled={isSovereign}
+                }`}
               >
                 <span>🥇</span> {isRtl ? 'ذهب' : 'Gold'}
               </button>
               <button
                 type="button"
-                onClick={() => { if (!isSovereign) setMetalType('XAG'); }}
+                onClick={() => setMetalType('XAG')}
                 className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
                   metalType === 'XAG' ? 'bg-gradient-to-r from-gray-300 to-slate-400 text-black shadow-lg shadow-gray-500/20' : 'text-gray-400 hover:text-gray-200'
-                } ${isSovereign ? 'opacity-50 cursor-not-allowed' : ''}`}
-                disabled={isSovereign}
+                }`}
               >
                 <span>🥈</span> {isRtl ? 'فضة' : 'Silver'}
               </button>
@@ -247,14 +232,14 @@ export default function MetalTradeEntryPage() {
               {/* Karat Selection (Buttons) */}
             <div>
               <label className="block text-xs font-bold text-gray-400 mb-2">{isRtl ? 'العيار (النقاء)' : 'Karat / Purity'}</label>
-              <div className="grid grid-cols-5 gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 {activeKarats.map(k => (
                   <button
                     key={k}
                     type="button"
                     onClick={() => handleKaratClick(k)}
                     className={`py-2 rounded-lg text-sm font-bold transition-all border ${
-                      karat === k && !isSovereign
+                      karat === k
                       ? (metalType === 'XAU' ? 'bg-amber-500/20 border-amber-500/50 text-amber-400' : 'bg-gray-400/20 border-gray-400/50 text-gray-200')
                       : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
                     }`}
@@ -262,19 +247,6 @@ export default function MetalTradeEntryPage() {
                     {k}{metalType === 'XAU' ? 'K' : ''}
                   </button>
                 ))}
-                {metalType === 'XAU' && (
-                  <button
-                    type="button"
-                    onClick={handleSovereignClick}
-                    className={`py-2 rounded-lg text-[10px] sm:text-xs font-bold transition-all border ${
-                      isSovereign 
-                      ? 'bg-amber-500/20 border-amber-500/50 text-amber-400' 
-                      : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
-                    }`}
-                  >
-                    جنيه 21
-                  </button>
-                )}
               </div>
             </div>
 
@@ -300,8 +272,7 @@ export default function MetalTradeEntryPage() {
                   value={weight}
                   onChange={(e) => handleWeightChange(e.target.value)}
                   placeholder="e.g. 10.5"
-                  className={`w-full border rounded-xl px-4 py-3 text-white focus:outline-none ${isSovereign ? 'bg-amber-500/10 border-amber-500/30 text-amber-200' : 'bg-black/40 border-white/10 focus:border-amber-500/50'}`}
-                  readOnly={isSovereign}
+                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500/50"
                   required
                 />
               </div>

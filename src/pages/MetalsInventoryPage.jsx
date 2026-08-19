@@ -92,15 +92,18 @@ export default function MetalsInventoryPage() {
   const isPositive = pnl >= 0;
 
   // Top Cards formatting helpers
-  const topUnitMultiplier = topDisplayUnit === 'oz' ? (1 / TROY_OUNCE_TO_GRAM) : 1;
-  const topUnitLabel = topDisplayUnit === 'oz' ? (isRtl ? 'أونصة' : 'oz') : 'g';
+  const topUnitMultiplier = (topDisplayUnit === 'oz' && topDisplayKarat !== 'sovereign') ? (1 / TROY_OUNCE_TO_GRAM) : 1;
+  const topUnitLabel = topDisplayKarat === 'sovereign' ? (isRtl ? 'جنيه' : 'Sovereigns') : (topDisplayUnit === 'oz' ? (isRtl ? 'أونصة' : 'oz') : 'g');
   
-  const topEquivalentGrams = (activeTab === 'XAU' && topDisplayKarat === '21') 
+  const topEquivalentGrams = (activeTab === 'XAU' && (topDisplayKarat === '21' || topDisplayKarat === 'sovereign')) 
     ? totalPureGrams * (24 / 21) 
     : totalPureGrams;
 
-  const topDisplayTotalPure = topEquivalentGrams * topUnitMultiplier;
-  const topDisplayBreakEven = topEquivalentGrams > 0 ? totalInvested / topDisplayTotalPure : 0;
+  const topDisplayTotalPure = topDisplayKarat === 'sovereign'
+    ? (topEquivalentGrams / 8)
+    : (topEquivalentGrams * topUnitMultiplier);
+
+  const topDisplayBreakEven = topDisplayTotalPure > 0 ? totalInvested / topDisplayTotalPure : 0;
 
   // Table formatting helpers
   const tableUnitMultiplier = tableDisplayUnit === 'oz' ? (1 / TROY_OUNCE_TO_GRAM) : 1;
@@ -180,12 +183,23 @@ export default function MetalsInventoryPage() {
               >
                 {isRtl ? 'عيار 21' : '21K'}
               </button>
+              <button
+                onClick={() => setTopDisplayKarat('sovereign')}
+                className={`flex-1 sm:flex-none flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-bold transition-all ${
+                  topDisplayKarat === 'sovereign' 
+                  ? 'bg-amber-500/20 text-amber-400 shadow-lg border border-amber-500/30' 
+                  : 'text-gray-500 hover:text-gray-300'
+                }`}
+              >
+                {isRtl ? 'جنيه 21' : 'Sovereign 21'}
+              </button>
             </div>
           )}
 
-          {/* Top Unit Toggle Tab */}
-          <div className="flex bg-black/40 p-1 rounded-xl border border-white/5 flex-1 sm:flex-none">
-            <button
+          {/* Top Unit Toggle Tab (Hidden if Sovereign) */}
+          {topDisplayKarat !== 'sovereign' && (
+            <div className="flex bg-black/40 p-1 rounded-xl border border-white/5 flex-1 sm:flex-none">
+              <button
               onClick={() => setTopDisplayUnit('g')}
               className={`flex-1 sm:flex-none flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-bold transition-all ${
                 topDisplayUnit === 'g' 
@@ -208,6 +222,7 @@ export default function MetalsInventoryPage() {
               {isRtl ? 'أونصة' : 'Ounces'}
             </button>
           </div>
+          )}
         </div>
       </div>
 

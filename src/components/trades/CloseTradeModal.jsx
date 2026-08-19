@@ -180,9 +180,24 @@ export default function CloseTradeModal({ trade, onClose, onSave, livePrice }) {
                   <div className="text-gray-400 text-[10px] mb-1 font-sans">الكمية الأساسية</div>
                   <div className="text-white font-bold font-mono text-sm">{fmt(closingTrade.quantity, 4)}</div>
                 </div>
-                <div className="bg-white/5 border border-white/10 rounded-xl p-3 text-center">
+                <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col items-center justify-center relative">
                   <div className="text-gray-400 text-[10px] mb-1 font-sans">الكمية المتبقية</div>
-                  <div className="text-cyan-300 font-bold font-mono text-sm">{fmt(stats.currentQuantity, 4)}</div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-cyan-300 font-bold font-mono text-sm">
+                      {closingTrade.market_type === 'metals' && unit === 'oz' 
+                        ? fmt(stats.currentQuantity / 31.1034768, 4) 
+                        : fmt(stats.currentQuantity, 4)}
+                    </span>
+                    {closingTrade.market_type === 'metals' && (
+                      <span className="text-[10px] text-gray-500">{unit === 'oz' ? 'oz' : 'g'}</span>
+                    )}
+                  </div>
+                  {closingTrade.market_type === 'metals' && (
+                    <div className="mt-2 flex bg-black/40 p-0.5 rounded-lg border border-white/5">
+                      <button type="button" onClick={() => setUnit('g')} className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${unit === 'g' ? 'bg-amber-500 text-black' : 'text-gray-400 hover:text-white'}`}>جرام</button>
+                      <button type="button" onClick={() => setUnit('oz')} className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${unit === 'oz' ? 'bg-amber-500 text-black' : 'text-gray-400 hover:text-white'}`}>أونصة</button>
+                    </div>
+                  )}
                 </div>
                 <div className="bg-white/5 border border-white/10 rounded-xl p-3 text-center">
                   <div className="text-gray-400 text-[10px] mb-1 font-sans">الأرباح المحققة (P&L)</div>
@@ -308,24 +323,7 @@ export default function CloseTradeModal({ trade, onClose, onSave, livePrice }) {
                     الكل
                   </button>
                 </div>
-                {closingTrade.market_type === 'metals' && (
-                  <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 shrink-0 h-[42px] items-center">
-                    <button
-                      type="button"
-                      onClick={() => setUnit('g')}
-                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${unit === 'g' ? 'bg-amber-500 text-black shadow-sm' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
-                    >
-                      جرام
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setUnit('oz')}
-                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${unit === 'oz' ? 'bg-amber-500 text-black shadow-sm' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
-                    >
-                      أونصة
-                    </button>
-                  </div>
-                )}
+              </div>
               </div>
             </div>
             <div>

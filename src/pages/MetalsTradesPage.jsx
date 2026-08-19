@@ -68,10 +68,18 @@ export default function MetalsTradesPage() {
     return true;
   });
 
-  // Calculations for Summary Cards
   let totalInvested = 0;
   let totalUnrealizedPnL = 0;
   let totalRealizedPnL = 0;
+
+  const getKaratMultiplier = (k, symbol) => {
+    if (!k) return 1;
+    if (symbol === 'XAU') {
+      return parseInt(k) / 24;
+    } else {
+      return parseInt(k) / 999;
+    }
+  };
 
   filteredTrades.forEach(trade => {
     const livePrice = getLivePrice(trade.symbol);
@@ -97,7 +105,12 @@ export default function MetalsTradesPage() {
         const proportion = remainingQty / trade.quantity;
         const remainingInvested = (trade.amount_usd + trade.calculated_fee) * proportion;
         totalInvested += remainingInvested;
-        const currentValue = remainingQty * livePrice;
+        
+        const k = trade.metal_karat || (trade.symbol === 'XAU' ? 24 : 999);
+        const multiplier = getKaratMultiplier(k, trade.symbol);
+        const pureWeight = remainingQty * multiplier;
+        const currentValue = pureWeight * livePrice;
+        
         totalUnrealizedPnL += (currentValue - remainingInvested);
     }
   });
@@ -114,6 +127,37 @@ export default function MetalsTradesPage() {
     setEditKarat(trade.metal_karat || '');
     setShowEditModal(true);
   };
+
+  const handleEditEntryPriceChange = (e) => {
+    const val = e.target.value;
+    setEditEntryPriceStr(formatInputWithCommas(val));
+    const price = parseCommasToNumber(val);
+    const qty = parseCommasToNumber(editQuantityStr);
+    if (price >= 0 && qty >= 0) {
+      setEditAmountUsdStr(formatInputWithCommas((price * qty).toFixed(2)));
+    }
+  };
+
+  const handleEditAmountUsdChange = (e) => {
+    const val = e.target.value;
+    setEditAmountUsdStr(formatInputWithCommas(val));
+    const amt = parseCommasToNumber(val);
+    const qty = parseCommasToNumber(editQuantityStr);
+    if (amt >= 0 && qty > 0) {
+      setEditEntryPriceStr(formatInputWithCommas((amt / qty).toFixed(4)));
+    }
+  };
+
+  const handleEditQuantityChange = (e) => {
+    const val = e.target.value;
+    setEditQuantityStr(formatInputWithCommas(val));
+    const qty = parseCommasToNumber(val);
+    const price = parseCommasToNumber(editEntryPriceStr);
+    if (qty >= 0 && price >= 0) {
+      setEditAmountUsdStr(formatInputWithCommas((price * qty).toFixed(2)));
+    }
+  };
+
 
   const handleSaveEditedTrade = async (e) => {
     e.preventDefault();
@@ -301,7 +345,12 @@ export default function MetalsTradesPage() {
                   
                   const proportion = remainingQty / trade.quantity;
                   const remainingInvested = (trade.amount_usd + trade.calculated_fee) * proportion;
-                  const currentValue = remainingQty * livePrice;
+                  
+                  const k = trade.metal_karat || (trade.symbol === 'XAU' ? 24 : 999);
+                  const multiplier = getKaratMultiplier(k, trade.symbol);
+                  const pureWeight = remainingQty * multiplier;
+                  const currentValue = pureWeight * livePrice;
+                  
                   const unrealizedPnL = remainingQty > 0 ? (currentValue - remainingInvested) : 0;
                   const isPositiveUnrealized = unrealizedPnL >= 0;
                   const isPositiveRealized = realizedProfit >= 0;
@@ -429,16 +478,16 @@ export default function MetalsTradesPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-gray-300 mb-1 font-semibold">{t('entryPrice')}</label>
-                  <input type="text" inputMode="decimal" dir="ltr" value={editEntryPriceStr} onChange={(e) => setEditEntryPriceStr(formatInputWithCommas(e.target.value))} required className="w-full p-3 rounded-xl glass-input font-mono font-bold text-white text-sm" />
+                  <input type="text" inputMode="decimal" dir="ltr" value={editEntryPriceStr} onChange={handleEditEntryPriceChange} required className="w-full p-3 rounded-xl glass-input font-mono font-bold text-white text-sm" />
                 </div>
                 <div>
                   <label className="block text-gray-300 mb-1 font-semibold">{t('amountUsd')}</label>
-                  <input type="text" inputMode="decimal" dir="ltr" value={editAmountUsdStr} onChange={(e) => setEditAmountUsdStr(formatInputWithCommas(e.target.value))} required className="w-full p-3 rounded-xl glass-input font-mono font-bold text-emerald-400 text-sm" />
+                  <input type="text" inputMode="decimal" dir="ltr" value={editAmountUsdStr} onChange={handleEditAmountUsdChange} required className="w-full p-3 rounded-xl glass-input font-mono font-bold text-emerald-400 text-sm" />
                 </div>
               </div>
               <div>
                 <label className="block text-gray-300 mb-1 font-semibold">{isRtl ? 'تعديل الكمية الأساسية (الوزن الكلي بالجرام)' : 'Edit Total Quantity (Weight in g)'}</label>
-                <input type="text" inputMode="decimal" dir="ltr" value={editQuantityStr} onChange={(e) => setEditQuantityStr(formatInputWithCommas(e.target.value))} required className="w-full p-3 rounded-xl glass-input font-mono font-bold text-cyan-300 text-sm" />
+                <input type="text" inputMode="decimal" dir="ltr" value={editQuantityStr} onChange={handleEditQuantityChange} required className="w-full p-3 rounded-xl glass-input font-mono font-bold text-cyan-300 text-sm" />
               </div>
               <div>
                 <label className="block text-gray-300 mb-1 font-semibold">{t('statusLabel')}</label>

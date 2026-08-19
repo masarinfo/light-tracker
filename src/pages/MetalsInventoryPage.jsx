@@ -38,10 +38,25 @@ export default function MetalsInventoryPage() {
     const karatMap = {};
 
     metalsTrades.forEach(t => {
+      let remainingQty = t.quantity;
+      if (t.targets && Array.isArray(t.targets)) {
+        t.targets.forEach(tgt => {
+          if (tgt.status === 'EXECUTED') {
+            const qtyToSell = tgt.quantityToSell || tgt.quantity_to_sell || 0;
+            remainingQty -= qtyToSell;
+          }
+        });
+      }
+      remainingQty = Math.max(0, remainingQty);
+
+      if (remainingQty === 0) return;
+
+      const proportion = remainingQty / t.quantity;
+      const cost = (t.amount_usd + t.calculated_fee) * proportion;
+
       const k = t.metal_karat || (activeTab === 'XAU' ? 24 : 999);
       const multiplier = getKaratMultiplier(k);
-      const pureWeight = t.quantity * multiplier;
-      const cost = t.amount_usd + t.calculated_fee;
+      const pureWeight = remainingQty * multiplier;
 
       totalPureGrams += pureWeight;
       totalInvested += cost;
@@ -54,7 +69,7 @@ export default function MetalsInventoryPage() {
           totalCost: 0
         };
       }
-      karatMap[k].actualGrams += t.quantity;
+      karatMap[k].actualGrams += remainingQty;
       karatMap[k].pureGrams += pureWeight;
       karatMap[k].totalCost += cost;
     });

@@ -317,12 +317,6 @@ export default function WalletPage() {
               </table>
             </div>
             
-            {/* DEBUG BLOCK FOR WALLET TRANSACTIONS */}
-            <div className="mt-4 p-4 bg-gray-900 rounded text-xs text-green-400 font-mono overflow-auto max-h-40">
-              <p>Debug Transactions Length: {Array.isArray(walletTransactions) ? walletTransactions.length : 'Not an array'}</p>
-              <pre>{JSON.stringify(walletTransactions, null, 2)}</pre>
-            </div>
-            {/* END DEBUG BLOCK */}
 
           </div>
         </div>

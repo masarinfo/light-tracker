@@ -20,6 +20,14 @@ export default function MetalTradeEntryPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
+  // Advanced Fields State
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [unitPrice, setUnitPrice] = useState('');
+  const [ozQuantity, setOzQuantity] = useState('');
+  const [isSovereign, setIsSovereign] = useState(false);
+
+  const TROY_OUNCE_TO_GRAM = 31.1034768;
+
   // Set defaults when metal type changes
   useEffect(() => {
     if (metalType === 'XAU') {
@@ -27,6 +35,7 @@ export default function MetalTradeEntryPage() {
     } else {
       setKarat('999');
     }
+    setIsSovereign(false);
   }, [metalType]);
 
   // Set default strategy/exchange
@@ -42,7 +51,6 @@ export default function MetalTradeEntryPage() {
   const metalsStrategies = strategies.filter(s => s.market_type === 'metals' || !s.market_type || s.market_type === 'crypto');
 
   // Live Price Calculation
-  const TROY_OUNCE_TO_GRAM = 31.1034768;
   const liveOzPrice = metalType === 'XAU' ? (livePrices['GC=F'] || 2500) : (livePrices['SI=F'] || 28);
   const livePureGramPrice = liveOzPrice / TROY_OUNCE_TO_GRAM;
   
@@ -61,20 +69,59 @@ export default function MetalTradeEntryPage() {
     const w = parseFloat(weight);
     if (!isNaN(w) && w > 0) {
       setTotalPrice((w * liveKaratGramPrice).toFixed(2));
+      setUnitPrice(liveKaratGramPrice.toFixed(2));
     }
   };
 
   const handleWeightChange = (val) => {
     const parsedVal = convertArabicNumerals(val);
     setWeight(parsedVal);
+    setIsSovereign(false);
+    const w = parseFloat(parsedVal);
+    if (!isNaN(w) && w > 0) {
+      setOzQuantity((w / TROY_OUNCE_TO_GRAM).toFixed(4));
+    } else {
+      setOzQuantity('');
+    }
   };
 
   const handleKaratClick = (k) => {
     setKarat(k);
+    setIsSovereign(false);
   };
 
   const handlePriceChange = (val) => {
     setTotalPrice(convertArabicNumerals(val));
+  };
+
+  const handleUnitPriceChange = (val) => {
+    const parsedVal = convertArabicNumerals(val);
+    setUnitPrice(parsedVal);
+    const p = parseFloat(parsedVal);
+    const w = parseFloat(weight);
+    if (!isNaN(p) && p > 0 && !isNaN(w) && w > 0) {
+      setTotalPrice((p * w).toFixed(2));
+    }
+  };
+
+  const handleOzChange = (val) => {
+    const parsedVal = convertArabicNumerals(val);
+    setOzQuantity(parsedVal);
+    const oz = parseFloat(parsedVal);
+    if (!isNaN(oz) && oz > 0) {
+      const g = (oz * TROY_OUNCE_TO_GRAM).toFixed(4);
+      setWeight(g);
+      setIsSovereign(false);
+    } else {
+      setWeight('');
+    }
+  };
+
+  const handleSovereignClick = () => {
+    setKarat('21');
+    setWeight('8');
+    setIsSovereign(true);
+    setOzQuantity((8 / TROY_OUNCE_TO_GRAM).toFixed(4));
   };
 
   const handleSubmit = async (e) => {
@@ -187,14 +234,14 @@ export default function MetalTradeEntryPage() {
               {/* Karat Selection (Buttons) */}
             <div>
               <label className="block text-xs font-bold text-gray-400 mb-2">{isRtl ? 'العيار (النقاء)' : 'Karat / Purity'}</label>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-5 gap-2">
                 {activeKarats.map(k => (
                   <button
                     key={k}
                     type="button"
                     onClick={() => handleKaratClick(k)}
                     className={`py-2 rounded-lg text-sm font-bold transition-all border ${
-                      karat === k 
+                      karat === k && !isSovereign
                       ? (metalType === 'XAU' ? 'bg-amber-500/20 border-amber-500/50 text-amber-400' : 'bg-gray-400/20 border-gray-400/50 text-gray-200')
                       : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
                     }`}
@@ -202,6 +249,19 @@ export default function MetalTradeEntryPage() {
                     {k}{metalType === 'XAU' ? 'K' : ''}
                   </button>
                 ))}
+                {metalType === 'XAU' && (
+                  <button
+                    type="button"
+                    onClick={handleSovereignClick}
+                    className={`py-2 rounded-lg text-[10px] sm:text-xs font-bold transition-all border ${
+                      isSovereign 
+                      ? 'bg-amber-500/20 border-amber-500/50 text-amber-400' 
+                      : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
+                    }`}
+                  >
+                    جنيه 21
+                  </button>
+                )}
               </div>
             </div>
 
@@ -227,7 +287,8 @@ export default function MetalTradeEntryPage() {
                   value={weight}
                   onChange={(e) => handleWeightChange(e.target.value)}
                   placeholder="e.g. 10.5"
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500/50"
+                  className={`w-full border rounded-xl px-4 py-3 text-white focus:outline-none ${isSovereign ? 'bg-amber-500/10 border-amber-500/30 text-amber-200' : 'bg-black/40 border-white/10 focus:border-amber-500/50'}`}
+                  readOnly={isSovereign}
                   required
                 />
               </div>
@@ -261,6 +322,46 @@ export default function MetalTradeEntryPage() {
                 required
               />
               </div>
+            </div>
+
+            {/* Advanced Options Toggle */}
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="text-[11px] text-gray-400 hover:text-white underline decoration-dashed transition-colors"
+              >
+                {showAdvanced ? (isRtl ? 'إخفاء الخيارات المتقدمة' : 'Hide Advanced Options') : (isRtl ? 'إظهار خيارات الإدخال المتقدمة (أونصة، سعر الوحدة)' : 'Show Advanced Options (Oz, Unit Price)')}
+              </button>
+              
+              {showAdvanced && (
+                <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-black/20 border border-white/5 shadow-inner">
+                  <div>
+                    <label className="block text-[11px] font-bold text-gray-400 mb-1.5">{isRtl ? 'الكمية (بالأونصة)' : 'Quantity (Oz)'}</label>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      dir="ltr"
+                      value={ozQuantity}
+                      onChange={(e) => handleOzChange(e.target.value)}
+                      placeholder="e.g. 0.15"
+                      className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-amber-500/50 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-gray-400 mb-1.5">{isRtl ? 'سعر الوحدة (للجرام)' : 'Unit Price (Per Gram)'}</label>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      dir="ltr"
+                      value={unitPrice}
+                      onChange={(e) => handleUnitPriceChange(e.target.value)}
+                      placeholder="e.g. 80.5"
+                      className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-amber-500/50 transition-colors"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
 import { api } from '../api/client';
-import { PlusCircle, Activity, Info, Coins, ShieldCheck, Calculator, Globe } from 'lucide-react';
+import { PlusCircle, Activity, Info, Coins, ShieldCheck, Calculator, Globe, Check } from 'lucide-react';
 import { formatCryptoPrice, convertArabicNumerals, generateTradeTargets } from '../utils/mathEngine';
 
 export default function MetalTradeEntryPage() {

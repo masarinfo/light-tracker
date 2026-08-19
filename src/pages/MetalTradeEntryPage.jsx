@@ -16,15 +16,16 @@ export default function MetalTradeEntryPage() {
   
   const [strategyId, setStrategyId] = useState('');
   const [exchangeId, setExchangeId] = useState('');
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
-
+  
   // Advanced Fields State
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [unitPrice, setUnitPrice] = useState('');
   const [ozQuantity, setOzQuantity] = useState('');
   const [isSovereign, setIsSovereign] = useState(false);
+  const [unitPriceType, setUnitPriceType] = useState('g'); // 'g' or 'oz'
 
   const TROY_OUNCE_TO_GRAM = 31.1034768;
 
@@ -94,14 +95,24 @@ export default function MetalTradeEntryPage() {
     setTotalPrice(convertArabicNumerals(val));
   };
 
-  const handleUnitPriceChange = (val) => {
+  const handleUnitPriceChange = (val, currentType = unitPriceType) => {
     const parsedVal = convertArabicNumerals(val);
     setUnitPrice(parsedVal);
     const p = parseFloat(parsedVal);
     const w = parseFloat(weight);
     if (!isNaN(p) && p > 0 && !isNaN(w) && w > 0) {
-      setTotalPrice((p * w).toFixed(2));
+      if (currentType === 'oz') {
+        const oz = w / TROY_OUNCE_TO_GRAM;
+        setTotalPrice((p * oz).toFixed(2));
+      } else {
+        setTotalPrice((p * w).toFixed(2));
+      }
     }
+  };
+
+  const toggleUnitPriceType = (type) => {
+    setUnitPriceType(type);
+    if (unitPrice) handleUnitPriceChange(unitPrice, type);
   };
 
   const handleOzChange = (val) => {
@@ -325,14 +336,21 @@ export default function MetalTradeEntryPage() {
             </div>
 
             {/* Advanced Options Toggle */}
-            <div className="pt-1">
-              <button
-                type="button"
-                onClick={() => setShowAdvanced(!showAdvanced)}
-                className="text-[11px] text-gray-400 hover:text-white underline decoration-dashed transition-colors"
-              >
-                {showAdvanced ? (isRtl ? 'إخفاء الخيارات المتقدمة' : 'Hide Advanced Options') : (isRtl ? 'إظهار خيارات الإدخال المتقدمة (أونصة، سعر الوحدة)' : 'Show Advanced Options (Oz, Unit Price)')}
-              </button>
+            <div className="pt-2">
+              <label className="flex items-center gap-2 cursor-pointer w-fit group">
+                <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${showAdvanced ? 'bg-amber-500 border-amber-500' : 'border-gray-500 bg-white/5 group-hover:border-amber-500/50'}`}>
+                  {showAdvanced && <Check className="w-3 h-3 text-black" />}
+                </div>
+                <input
+                  type="checkbox"
+                  className="hidden"
+                  checked={showAdvanced}
+                  onChange={() => setShowAdvanced(!showAdvanced)}
+                />
+                <span className="text-xs font-bold text-gray-400 group-hover:text-white transition-colors">
+                  {isRtl ? 'إدخال متقدم' : 'Advanced Input'}
+                </span>
+              </label>
               
               {showAdvanced && (
                 <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-black/20 border border-white/5 shadow-inner">
@@ -349,7 +367,13 @@ export default function MetalTradeEntryPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-gray-400 mb-1.5">{isRtl ? 'سعر الوحدة (للجرام)' : 'Unit Price (Per Gram)'}</label>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-[11px] font-bold text-gray-400">{isRtl ? 'سعر الوحدة' : 'Unit Price'}</label>
+                      <div className="flex bg-black/40 p-0.5 rounded border border-white/5">
+                        <button type="button" onClick={() => toggleUnitPriceType('g')} className={`px-2 py-0.5 text-[9px] font-bold rounded ${unitPriceType === 'g' ? 'bg-amber-500 text-black' : 'text-gray-500'}`}>جرام</button>
+                        <button type="button" onClick={() => toggleUnitPriceType('oz')} className={`px-2 py-0.5 text-[9px] font-bold rounded ${unitPriceType === 'oz' ? 'bg-amber-500 text-black' : 'text-gray-500'}`}>أونصة</button>
+                      </div>
+                    </div>
                     <input
                       type="text"
                       inputMode="decimal"

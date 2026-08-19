@@ -322,9 +322,8 @@ export default function CloseTradeModal({ trade, onClose, onSave, livePrice }) {
                   >
                     الكل
                   </button>
-                </div>
               </div>
-              </div>
+            </div>
             </div>
             <div>
               <div className="flex items-center justify-between mb-1">

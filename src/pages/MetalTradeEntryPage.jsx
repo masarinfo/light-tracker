@@ -217,19 +217,21 @@ export default function MetalTradeEntryPage() {
             <div className="flex bg-black/20 p-1.5 rounded-xl border border-white/5 relative z-10">
               <button
                 type="button"
-                onClick={() => setMetalType('XAU')}
+                onClick={() => { if (!isSovereign) setMetalType('XAU'); }}
                 className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
                   metalType === 'XAU' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-black shadow-lg shadow-amber-500/20' : 'text-gray-400 hover:text-amber-400'
-                }`}
+                } ${isSovereign ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={isSovereign}
               >
                 <span>🥇</span> {isRtl ? 'ذهب' : 'Gold'}
               </button>
               <button
                 type="button"
-                onClick={() => setMetalType('XAG')}
+                onClick={() => { if (!isSovereign) setMetalType('XAG'); }}
                 className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
                   metalType === 'XAG' ? 'bg-gradient-to-r from-gray-300 to-slate-400 text-black shadow-lg shadow-gray-500/20' : 'text-gray-400 hover:text-gray-200'
-                }`}
+                } ${isSovereign ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={isSovereign}
               >
                 <span>🥈</span> {isRtl ? 'فضة' : 'Silver'}
               </button>

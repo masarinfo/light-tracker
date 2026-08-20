@@ -8,7 +8,8 @@ import {
 } from 'lucide-react';
 
 export default function WalletPage() {
-  const { t, exchanges, trades, walletTransactions, fetchData } = useApp();
+  const { t, exchanges, trades, walletTransactions, fetchData, lang } = useApp();
+  const isRtl = lang === 'ar';
   const [activeTab, setActiveTab] = useState('deposit');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

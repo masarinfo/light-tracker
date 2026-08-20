@@ -4,7 +4,8 @@ import { calculateEffectiveFeePct, calculateExchangeLiveBalance } from '../utils
 import { Building2, Plus, Edit, Trash2, Percent, DollarSign, Tag, CheckCircle2, AlertCircle, XCircle } from 'lucide-react';
 
 export default function ExchangeSetupPage() {
-  const { exchanges, trades, addExchange, updateExchange, deleteExchange, fetchData, t } = useApp();
+  const { exchanges, trades, addExchange, updateExchange, deleteExchange, fetchData, t, activeWorkspace, lang } = useApp();
+  const isRtl = lang === 'ar';
   const [showModal, setShowModal] = useState(false);
   const [editingExchangeId, setEditingExchangeId] = useState(null);
 

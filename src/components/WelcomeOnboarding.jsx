@@ -1,56 +1,75 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Coins, Bitcoin, CheckCircle2, Sparkles } from 'lucide-react';
+import { Coins, Bitcoin, CheckSquare, Square, TrendingUp, Package } from 'lucide-react';
 
 export default function WelcomeOnboarding({ onComplete }) {
   const { lang, setPlatformMode, setActiveWorkspace } = useApp();
   const isRtl = lang === 'ar';
   
-  const [selectedMode, setSelectedMode] = useState(null);
+  const [selectedOptions, setSelectedOptions] = useState([]);
+
+  const toggleOption = (id) => {
+    setSelectedOptions(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
 
   const handleComplete = () => {
-    if (!selectedMode) return;
+    if (selectedOptions.length === 0) return;
     
-    setPlatformMode(selectedMode);
-    localStorage.setItem('platform_mode', selectedMode);
+    const hasMetals = selectedOptions.includes('metals');
+    const hasCrypto = selectedOptions.includes('crypto');
     
-    if (selectedMode === 'metals_only') {
-      setActiveWorkspace('metals');
-    } else {
-      setActiveWorkspace('crypto');
+    let mode = 'both';
+    let primaryWorkspace = 'crypto';
+
+    if (hasMetals && hasCrypto) {
+      mode = 'both';
+      primaryWorkspace = 'metals'; // Gold is primary if both are selected
+    } else if (hasMetals) {
+      mode = 'metals_only';
+      primaryWorkspace = 'metals';
+    } else if (hasCrypto) {
+      mode = 'crypto_only';
+      primaryWorkspace = 'crypto';
     }
     
+    setPlatformMode(mode);
+    localStorage.setItem('platform_mode', mode);
+    setActiveWorkspace(primaryWorkspace);
     localStorage.setItem('onboarding_complete', 'true');
+    
     if (onComplete) onComplete();
   };
 
   const options = [
     {
-      id: 'crypto_only',
-      title: isRtl ? 'العملات الرقمية (Crypto)' : 'Crypto Only',
-      desc: isRtl ? 'تركيز كامل على تداول العملات الرقمية والأسواق المشفرة' : 'Focus entirely on crypto trading and markets',
-      icon: <Bitcoin className="w-8 h-8" />,
-      color: 'text-cyan-400',
-      bg: 'bg-cyan-500/10',
-      border: 'border-cyan-500/30'
-    },
-    {
-      id: 'metals_only',
+      id: 'metals',
       title: isRtl ? 'المعادن الثمينة (الذهب والفضة)' : 'Precious Metals',
-      desc: isRtl ? 'إدارة سبائك الذهب والفضة وتتبع أسعار الأونصة عالمياً' : 'Manage gold and silver bars, tracking global ounce prices',
-      icon: <Coins className="w-8 h-8" />,
-      color: 'text-amber-400',
-      bg: 'bg-amber-500/10',
-      border: 'border-amber-500/30'
+      desc: isRtl ? 'إدارة سبائك الذهب والفضة وتتبع الأسعار' : 'Manage gold and silver bars',
+      icon: <Coins className="w-6 h-6 text-amber-500" />,
+      disabled: false
     },
     {
-      id: 'both',
-      title: isRtl ? 'كلاهما (العملات والمعادن)' : 'Both (Crypto & Metals)',
-      desc: isRtl ? 'محفظة شاملة تجمع بين الكريبتو والملاذ الآمن (الذهب)' : 'A comprehensive portfolio combining crypto and safe havens',
-      icon: <Sparkles className="w-8 h-8" />,
-      color: 'text-emerald-400',
-      bg: 'bg-emerald-500/10',
-      border: 'border-emerald-500/30'
+      id: 'crypto',
+      title: isRtl ? 'العملات الرقمية (Crypto)' : 'Crypto Assets',
+      desc: isRtl ? 'تداول وتتبع أسواق الكريبتو' : 'Track and trade crypto markets',
+      icon: <Bitcoin className="w-6 h-6 text-cyan-400" />,
+      disabled: false
+    },
+    {
+      id: 'stocks',
+      title: isRtl ? 'الأسهم (Stocks)' : 'Stocks',
+      desc: isRtl ? 'محافظ الأسهم العالمية والمحلية' : 'Global and local stock portfolios',
+      icon: <TrendingUp className="w-6 h-6 text-purple-400" />,
+      disabled: true
+    },
+    {
+      id: 'commodities',
+      title: isRtl ? 'السلع (Commodities)' : 'Commodities',
+      desc: isRtl ? 'تتبع سلع الطاقة والزراعة' : 'Energy and agriculture commodities',
+      icon: <Package className="w-6 h-6 text-emerald-400" />,
+      disabled: true
     }
   ];
 
@@ -58,53 +77,76 @@ export default function WelcomeOnboarding({ onComplete }) {
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
       <div className="bg-[#0f1014] border border-white/10 rounded-3xl p-6 md:p-8 max-w-2xl w-full shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-cyan-500/20 rounded-full blur-[100px] pointer-events-none" />
+        
         <div className="relative z-10 text-center mb-8">
           <h2 className="text-3xl font-black text-white mb-3">
-            {isRtl ? 'أهلاً بك في منصتك الاستثمارية 👋' : 'Welcome to Your Investment Platform 👋'}
+            {isRtl ? 'أهلاً بك في منصتك الاستثمارية 👋' : 'Welcome to Your Platform 👋'}
           </h2>
           <p className="text-gray-400 text-sm md:text-base">
             {isRtl 
-              ? 'لتخصيص واجهة التطبيق بما يتناسب مع أهدافك، ما هو اهتمامك الرئيسي في التداول؟' 
-              : 'To customize the application interface to suit your goals, what is your main trading interest?'}
+              ? 'اختر الأسواق التي تهتم بالتداول فيها (يمكنك اختيار أكثر من سوق):' 
+              : 'Select the markets you are interested in trading (you can select multiple):'}
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          {options.map((opt) => (
-            <button
-              key={opt.id}
-              onClick={() => setSelectedMode(opt.id)}
-              className={`relative flex flex-col items-center text-center p-6 rounded-2xl border-2 transition-all duration-300 overflow-hidden ${
-                selectedMode === opt.id 
-                ? `${opt.border} ${opt.bg} scale-105 shadow-xl` 
-                : 'border-white/5 bg-white/5 hover:bg-white/10 opacity-70 hover:opacity-100'
-              }`}
-            >
-              {selectedMode === opt.id && (
-                <div className="absolute top-3 right-3 text-white">
-                  <CheckCircle2 className="w-5 h-5 fill-emerald-500 text-black" />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          {options.map((opt) => {
+            const isSelected = selectedOptions.includes(opt.id);
+            return (
+              <button
+                key={opt.id}
+                disabled={opt.disabled}
+                onClick={() => toggleOption(opt.id)}
+                className={`relative flex items-center text-start p-4 rounded-2xl border-2 transition-all duration-300 ${
+                  opt.disabled 
+                  ? 'border-white/5 bg-white/5 opacity-50 cursor-not-allowed'
+                  : isSelected 
+                    ? 'border-cyan-500 bg-cyan-500/10 shadow-lg shadow-cyan-500/10' 
+                    : 'border-white/10 bg-white/5 hover:bg-white/10'
+                }`}
+              >
+                <div className="flex-shrink-0 ml-4 mr-4">
+                  {isSelected ? (
+                    <CheckSquare className="w-6 h-6 text-cyan-400" />
+                  ) : (
+                    <Square className="w-6 h-6 text-gray-500" />
+                  )}
                 </div>
-              )}
-              <div className={`mb-4 p-3 rounded-full bg-black/40 shadow-inner ${opt.color}`}>
-                {opt.icon}
-              </div>
-              <h3 className="text-white font-bold mb-2">{opt.title}</h3>
-              <p className="text-[10px] text-gray-400 leading-relaxed">
-                {opt.desc}
-              </p>
-            </button>
-          ))}
+                
+                <div className="flex-1 flex items-center gap-3">
+                  <div className={`p-2 rounded-lg bg-black/40`}>
+                    {opt.icon}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-white font-bold">{opt.title}</h3>
+                      {opt.disabled && (
+                        <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-gray-700 text-gray-300">
+                          {isRtl ? 'قريباً' : 'SOON'}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-gray-400 mt-1">
+                      {opt.desc}
+                    </p>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
         </div>
+        
         <div className="flex justify-center">
           <button
             onClick={handleComplete}
-            disabled={!selectedMode}
+            disabled={selectedOptions.length === 0}
             className={`px-12 py-4 rounded-xl text-black font-black text-lg transition-all flex items-center justify-center gap-2 shadow-lg ${
-              selectedMode 
+              selectedOptions.length > 0 
               ? 'bg-cyan-500 hover:bg-cyan-400 shadow-cyan-500/20 hover:-translate-y-1' 
               : 'bg-gray-500 opacity-50 cursor-not-allowed'
             }`}
           >
-            {isRtl ? 'ابدأ الآن' : 'Start Now'}
+            {isRtl ? 'ابدأ الاستثمار' : 'Start Investing'}
           </button>
         </div>
       </div>

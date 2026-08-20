@@ -326,8 +326,6 @@ export function AppProvider({ children }) {
         livePrices,
         priceSource,
         isFetchingPrices,
-        currentHub,
-        setCurrentHub,
         coinPortfolios,
         overviewMetrics,
         fetchData,

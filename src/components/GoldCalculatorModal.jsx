@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { Calculator, X, History, Trash2, Coins } from 'lucide-react';
 
 export default function GoldCalculatorModal() {
-  const { currentHub, livePrices, lang } = useApp();
+  const { activeWorkspace, livePrices, lang } = useApp();
   const [isOpen, setIsOpen] = useState(false);
   
   const [metal, setMetal] = useState('XAU');
@@ -71,7 +71,7 @@ export default function GoldCalculatorModal() {
   };
 
   // Only render if in metals hub
-  if (currentHub !== 'metals') return null;
+  if (activeWorkspace !== 'metals') return null;
 
   return (
     <>

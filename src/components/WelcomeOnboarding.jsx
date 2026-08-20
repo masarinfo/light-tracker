@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Coins, Bitcoin, CheckSquare, Square, TrendingUp, Package } from 'lucide-react';
+import { Coins, Bitcoin, CheckSquare, Square, TrendingUp, Package, Landmark, Banknote } from 'lucide-react';
 
 export default function WelcomeOnboarding({ onComplete }) {
   const { lang, setPlatformMode, setActiveWorkspace, setActiveScreen } = useApp();
@@ -76,6 +76,20 @@ export default function WelcomeOnboarding({ onComplete }) {
       title: isRtl ? 'السلع (Commodities)' : 'Commodities',
       desc: isRtl ? 'تتبع سلع الطاقة والزراعة' : 'Energy and agriculture commodities',
       icon: <Package className="w-6 h-6 text-emerald-400" />,
+      disabled: true
+    },
+    {
+      id: 'bonds',
+      title: isRtl ? 'السندات والأوراق المالية' : 'Bonds & Securities',
+      desc: isRtl ? 'إدارة السندات الحكومية والشركات' : 'Manage government and corporate bonds',
+      icon: <Landmark className="w-6 h-6 text-blue-400" />,
+      disabled: true
+    },
+    {
+      id: 'forex',
+      title: isRtl ? 'الفوركس والعملات' : 'Forex & Currencies',
+      desc: isRtl ? 'تداول أزواج العملات الأجنبية' : 'Foreign exchange currency pairs',
+      icon: <Banknote className="w-6 h-6 text-green-400" />,
       disabled: true
     }
   ];

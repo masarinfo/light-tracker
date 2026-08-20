@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { api } from '../api/client';
-import { User, Mail, Phone, Lock, Save, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { User, Mail, Phone, Lock, Save, AlertCircle, CheckCircle2, LayoutTemplate } from 'lucide-react';
+import WelcomeOnboarding from '../components/WelcomeOnboarding';
 
 export default function ProfilePage() {
   const { user, t } = useApp();
@@ -18,6 +19,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -104,6 +106,28 @@ export default function ProfilePage() {
             <p className="text-sm text-emerald-300 font-medium">{success}</p>
           </div>
         )}
+
+        {/* Workspace Preference Section */}
+        <div className="mb-8 p-6 rounded-2xl bg-cyan-500/5 border border-cyan-500/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
+          <div>
+            <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-1">
+              <LayoutTemplate className="w-5 h-5 text-cyan-400" />
+              {isRtl ? 'بيئة العمل المفضلة' : 'Preferred Workspace'}
+            </h3>
+            <p className="text-sm text-gray-400">
+              {isRtl 
+                ? 'تخصيص الواجهة لتناسب اهتمامك (كريبتو، ذهب، أو كلاهما).' 
+                : 'Customize the interface to suit your interests (Crypto, Gold, or both).'}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowOnboarding(true)}
+            className="px-6 py-2.5 rounded-xl bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 font-bold transition-all whitespace-nowrap"
+          >
+            {isRtl ? 'تعديل بيئة العمل' : 'Change Workspace'}
+          </button>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
           
@@ -230,6 +254,8 @@ export default function ProfilePage() {
 
         </form>
       </div>
+      
+      {showOnboarding && <WelcomeOnboarding onComplete={() => setShowOnboarding(false)} />}
     </div>
   );
 }

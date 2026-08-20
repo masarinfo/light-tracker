@@ -17,6 +17,19 @@ export default function MetalTradeEntryPage() {
   const [strategyId, setStrategyId] = useState(strategies.filter(s => s.market_type === 'metals')[0]?.id || '');
   const [exchangeId, setExchangeId] = useState(exchanges.filter(e => e.market_type === 'metals')[0]?.id || '');
 
+  // Sync defaults when context data loads asynchronously
+  useEffect(() => {
+    const metalsEx = exchanges.filter(e => e.market_type === 'metals' || !e.market_type || e.market_type === 'crypto');
+    const metalsStrat = strategies.filter(s => s.market_type === 'metals' || !s.market_type || s.market_type === 'crypto');
+    
+    if (!strategyId && metalsStrat.length > 0) {
+      setStrategyId(metalsStrat[0].id);
+    }
+    if (!exchangeId && metalsEx.length > 0) {
+      setExchangeId(metalsEx[0].id);
+    }
+  }, [exchanges, strategies, strategyId, exchangeId]);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [showVaultWarning, setShowVaultWarning] = useState(false);
@@ -39,10 +52,14 @@ export default function MetalTradeEntryPage() {
     }
   }, [metalType]);
 
-  // Set default strategy/exchange
+  // Set karat based on metalType
   useEffect(() => {
-    // No longer setting default strategy/exchange automatically to keep them optional.
-  }, [exchanges, strategies, metalType]);
+    if (metalType === 'XAU') {
+      setKarat('24');
+    } else {
+      setKarat('999');
+    }
+  }, [metalType]);
 
   const metalsExchanges = exchanges.filter(e => e.market_type === 'metals' || !e.market_type || e.market_type === 'crypto'); // Fallback if none exist
   const metalsStrategies = strategies.filter(s => s.market_type === 'metals' || !s.market_type || s.market_type === 'crypto');
@@ -153,6 +170,10 @@ export default function MetalTradeEntryPage() {
         if (selectedStrategy && selectedStrategy.tp_levels) {
           tradeData.targets = generateTradeTargets(pricePerGram, w, selectedStrategy);
         }
+      }
+
+      if (exchangeId) {
+        tradeData.exchange_id = parseInt(exchangeId);
       }
 
       if (!strategyId && !tradeData.strategy_warning_accepted) {

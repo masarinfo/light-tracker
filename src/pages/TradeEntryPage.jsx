@@ -24,6 +24,16 @@ export default function TradeEntryPage() {
   // Selected exchange state
   const [selectedExchangeId, setSelectedExchangeId] = useState(currentStrategy?.default_exchange_id || exchanges[0]?.id || '');
 
+  // Sync defaults when context data loads asynchronously
+  useEffect(() => {
+    if (!selectedStrategyId && strategies.length > 0) {
+      setSelectedStrategyId(strategies[0].id);
+    }
+    if (!selectedExchangeId && exchanges.length > 0) {
+      setSelectedExchangeId(currentStrategy?.default_exchange_id || exchanges[0].id);
+    }
+  }, [strategies, exchanges, selectedStrategyId, selectedExchangeId, currentStrategy]);
+
   // Formatted Input Strings with Auto Thousand Separators & Digit Normalization
   const [entryPriceStr, setEntryPriceStr] = useState('100');
   const [amountUsdStr, setAmountUsdStr] = useState('1,000');

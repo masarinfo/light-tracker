@@ -316,8 +316,8 @@ class Trade(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     market_type = Column(String(10), default="crypto") # "crypto" or "metals"
     symbol = Column(String(20), index=True, nullable=False)
-    strategy_id = Column(Integer, ForeignKey("strategies.id"), nullable=False)
-    exchange_id = Column(Integer, ForeignKey("exchanges.id"), nullable=False)
+    strategy_id = Column(Integer, ForeignKey("strategies.id"), nullable=True)
+    exchange_id = Column(Integer, ForeignKey("exchanges.id"), nullable=True)
     order_type = Column(String(20), nullable=False)
     entry_price = Column(Float, nullable=False)
     amount_usd = Column(Float, nullable=False)

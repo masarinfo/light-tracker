@@ -87,8 +87,8 @@ class TradeTargetResponse(BaseModel):
 class TradeBase(BaseModel):
     market_type: str = "crypto"
     symbol: str
-    strategy_id: int
-    exchange_id: int
+    strategy_id: Optional[int] = None
+    exchange_id: Optional[int] = None
     order_type: str
     entry_price: float
     amount_usd: float

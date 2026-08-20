@@ -39,8 +39,8 @@ export default function Sidebar() {
   const { user } = useAuth();
   const isRtl = lang === 'ar';
   
-  // Keep dashboards and assets open by default
-  const [expandedGroups, setExpandedGroups] = useState({ dashboards: true, assets: true });
+  // Keep only dashboards open by default
+  const [expandedGroups, setExpandedGroups] = useState({ dashboards: true });
 
   const toggleGroup = (key) => {
     setExpandedGroups(prev => ({ ...prev, [key]: !prev[key] }));

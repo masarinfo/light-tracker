@@ -266,7 +266,7 @@ export default function Sidebar() {
               {!isSidebarCollapsed && (lang === 'ar' ? 'كريبتو' : 'Crypto')}
             </button>
             <button
-              onClick={() => { setActiveWorkspace('metals'); setActiveScreen('metals-inventory'); }}
+              onClick={() => { setActiveWorkspace('metals'); setActiveScreen('metals-market'); }}
               className={`flex-1 flex items-center justify-center gap-2 py-2 px-1 rounded-lg text-xs font-bold transition-all ${
                 activeWorkspace === 'metals' 
                 ? 'bg-amber-500/20 text-amber-300 shadow-sm' 

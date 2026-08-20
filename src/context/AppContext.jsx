@@ -119,7 +119,7 @@ export function AppProvider({ children }) {
       setActiveScreen('overview');
     } else if (platformMode === 'metals_only' && activeWorkspace !== 'metals') {
       setActiveWorkspace('metals');
-      setActiveScreen('metals-inventory');
+      setActiveScreen('metals-market');
     }
   }, [platformMode, activeWorkspace]);
 

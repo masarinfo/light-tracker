@@ -10,10 +10,10 @@ LAST_FETCH_TIME = datetime.min
 def fetch_commodities_prices():
     global COMMODITIES_CACHE, LAST_FETCH_TIME
     try:
-        # GC=F (Gold), CL=F (Crude Oil), ^TNX (US 10-Yr Bond Yield)
+        # XAUUSD=X (Spot Gold), XAGUSD=X (Spot Silver), CL=F (Crude Oil), ^TNX (US 10-Yr Bond Yield)
         tickers = {
-            "GC=F": {"name": "Gold", "symbol": "XAU/USD"},
-            "SI=F": {"name": "Silver", "symbol": "XAG/USD"},
+            "XAUUSD=X": {"name": "Gold", "symbol": "XAU/USD"},
+            "XAGUSD=X": {"name": "Silver", "symbol": "XAG/USD"},
             "CL=F": {"name": "Crude Oil", "symbol": "WTI"},
             "^TNX": {"name": "US 10-Yr Bond", "symbol": "US10Y"}
         }

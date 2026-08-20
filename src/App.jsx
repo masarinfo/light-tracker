@@ -83,7 +83,7 @@ function PrivateAppWrapper() {
     lang 
   } = useApp();
 
-  const [showOnboarding, setShowOnboarding] = React.useState(() => !localStorage.getItem('onboarding_complete'));
+  const [showOnboarding, setShowOnboarding] = React.useState(() => !localStorage.getItem('onboarding_complete_v4'));
 
   const renderScreen = () => {
     if (activeScreen === 'exchange-setup') return <ExchangeSetupPage />;

@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { Coins, Bitcoin, CheckSquare, Square, TrendingUp, Package } from 'lucide-react';
 
 export default function WelcomeOnboarding({ onComplete }) {
-  const { lang, setPlatformMode, setActiveWorkspace } = useApp();
+  const { lang, setPlatformMode, setActiveWorkspace, setActiveScreen } = useApp();
   const isRtl = lang === 'ar';
   
   const [selectedOptions, setSelectedOptions] = useState([]);
@@ -22,22 +22,29 @@ export default function WelcomeOnboarding({ onComplete }) {
     
     let mode = 'both';
     let primaryWorkspace = 'crypto';
+    let startingScreen = 'overview';
 
     if (hasMetals && hasCrypto) {
       mode = 'both';
       primaryWorkspace = 'metals'; // Gold is primary if both are selected
+      startingScreen = 'metals-market';
     } else if (hasMetals) {
       mode = 'metals_only';
       primaryWorkspace = 'metals';
+      startingScreen = 'metals-market';
     } else if (hasCrypto) {
       mode = 'crypto_only';
       primaryWorkspace = 'crypto';
+      startingScreen = 'overview';
     }
     
     setPlatformMode(mode);
     localStorage.setItem('platform_mode', mode);
+    
     setActiveWorkspace(primaryWorkspace);
-    localStorage.setItem('onboarding_complete', 'true');
+    setActiveScreen(startingScreen);
+    
+    localStorage.setItem('onboarding_complete_v4', 'true');
     
     if (onComplete) onComplete();
   };

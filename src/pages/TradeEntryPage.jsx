@@ -4,7 +4,7 @@ import { generateTradeTargets, calculateTradePurchase, formatCryptoPrice } from 
 import { PlusCircle, Zap, Target, ShieldAlert, CheckCircle2, Sparkles, Building2, Copy, Check, Settings2, Search } from 'lucide-react';
 
 export default function TradeEntryPage() {
-  const { strategies, exchanges, addTrade, livePrices, t, lang, setActiveScreen } = useApp();
+  const { strategies, exchanges, addTrade, addStrategy, addExchange, livePrices, t, lang, setActiveScreen } = useApp();
 
   const [symbol, setSymbol] = useState('SOLUSDT');
   const [selectedStrategyId, setSelectedStrategyId] = useState('');
@@ -202,6 +202,75 @@ export default function TradeEntryPage() {
     const updatedPending = { ...pendingTradeData, exchange_warning_accepted: true };
     setPendingTradeData(updatedPending);
     await saveFinalTrade(updatedPending);
+  };
+
+  const handleCreateDummyStrategy = async () => {
+    try {
+      setIsSubmitting(true);
+      setError(null);
+      const newStrat = await addStrategy({
+        name: isRtl ? "استراتيجية تجريبية (تلقائية)" : "Dummy Strategy (Auto)",
+        category: "Short-Term",
+        market_type: "crypto",
+        default_order_type: "Limit",
+        tp_rules: [{ stage: 1, gain_pct: 5, sell_portion_pct: 100 }],
+        sl_rules: [{ stage: 1, loss_pct: 5, sell_portion_pct: 100 }],
+        is_active: true
+      });
+      setSelectedStrategyId(newStrat.id);
+      
+      const updatedPending = { 
+        ...pendingTradeData, 
+        strategy_id: newStrat.id,
+        strategy_name: newStrat.name,
+        category: newStrat.category,
+        strategy_warning_accepted: true 
+      };
+      setPendingTradeData(updatedPending);
+      setShowStrategyWarning(false);
+      
+      if (!currentExchange && !updatedPending.exchange_warning_accepted) {
+        setShowExchangeWarning(true);
+      } else {
+        await saveFinalTrade(updatedPending);
+      }
+    } catch (err) {
+      setError(err.message || (isRtl ? 'حدث خطأ غير متوقع' : 'An unexpected error occurred'));
+      setShowStrategyWarning(false);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCreateDummyExchange = async () => {
+    try {
+      setIsSubmitting(true);
+      setError(null);
+      const newEx = await addExchange({
+        name: isRtl ? "منصة تجريبية (تلقائية)" : "Dummy Exchange (Auto)",
+        market_type: "crypto",
+        maker_fee_pct: 0.1,
+        taker_fee_pct: 0.1,
+        initial_cash_balance: 10000
+      });
+      setSelectedExchangeId(newEx.id);
+      
+      const updatedPending = { 
+        ...pendingTradeData, 
+        exchange_id: newEx.id,
+        exchange_name: newEx.name,
+        exchange_warning_accepted: true 
+      };
+      setPendingTradeData(updatedPending);
+      setShowExchangeWarning(false);
+      
+      await saveFinalTrade(updatedPending);
+    } catch (err) {
+      setError(err.message || (isRtl ? 'حدث خطأ غير متوقع' : 'An unexpected error occurred'));
+      setShowExchangeWarning(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -533,14 +602,20 @@ export default function TradeEntryPage() {
                 <div className="flex justify-end gap-3">
                   <button
                     type="button"
-                    onClick={() => setActiveScreen('exchange-setup')}
-                    className="px-4 py-2 rounded-xl text-sm font-bold bg-white/5 hover:bg-white/10 text-white transition-all"
+                    onClick={handleCreateDummyExchange}
+                    disabled={isSubmitting}
+                    className="px-4 py-2 rounded-xl text-sm font-bold bg-white/5 hover:bg-white/10 text-white transition-all flex items-center justify-center"
                   >
-                    {isRtl ? 'تعريف منصة جديدة' : 'Define New Exchange'}
+                    {isSubmitting ? (
+                      <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      isRtl ? 'إنشاء منصة تجريبية' : 'Create Dummy Exchange'
+                    )}
                   </button>
                   <button
                     type="button"
                     onClick={handleContinueExchangeWarning}
+                    disabled={isSubmitting}
                     className="px-4 py-2 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-400 text-black transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center"
                   >
                     {isRtl ? 'الاستمرار على أي حال' : 'Continue anyway'}
@@ -572,14 +647,20 @@ export default function TradeEntryPage() {
                 <div className="flex justify-end gap-3">
                   <button
                     type="button"
-                    onClick={() => setActiveScreen('strategy-factory')}
-                    className="px-4 py-2 rounded-xl text-sm font-bold bg-white/5 hover:bg-white/10 text-white transition-all"
+                    onClick={handleCreateDummyStrategy}
+                    disabled={isSubmitting}
+                    className="px-4 py-2 rounded-xl text-sm font-bold bg-white/5 hover:bg-white/10 text-white transition-all flex items-center justify-center"
                   >
-                    {isRtl ? 'إنشاء استراتيجية جديدة' : 'Create New Strategy'}
+                    {isSubmitting ? (
+                      <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      isRtl ? 'إنشاء استراتيجية تجريبية' : 'Create Dummy Strategy'
+                    )}
                   </button>
                   <button
                     type="button"
                     onClick={handleContinueStrategyWarning}
+                    disabled={isSubmitting}
                     className="px-4 py-2 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-400 text-black transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center"
                   >
                     {isRtl ? 'الاستمرار على أي حال' : 'Continue anyway'}

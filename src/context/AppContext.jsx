@@ -184,6 +184,7 @@ export function AppProvider({ children }) {
     try {
       const newEx = await api.createExchange(exchangeData);
       setExchanges((prev) => [...prev, newEx]);
+      return newEx;
     } catch (err) {
       console.error("Failed to create exchange:", err);
       throw err;
@@ -208,6 +209,7 @@ export function AppProvider({ children }) {
     try {
       const newStrat = await api.createStrategy(strategyData);
       setStrategies((prev) => [...prev, newStrat]);
+      return newStrat;
     } catch (err) {
       console.error("Failed to create strategy:", err);
       throw err;

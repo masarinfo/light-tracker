@@ -5,7 +5,7 @@ import { PlusCircle, Activity, Info, Coins, ShieldCheck, Calculator, Globe, Chec
 import { formatCryptoPrice, convertArabicNumerals, generateTradeTargets } from '../utils/mathEngine';
 
 export default function MetalTradeEntryPage() {
-  const { strategies, exchanges, addTrade, livePrices, t, lang, setActiveScreen } = useApp();
+  const { addTrade, strategies, exchanges, livePrices, t, lang, setActiveScreen, addStrategy, addExchange } = useApp();
   const isRtl = lang === 'ar';
 
   const [metalType, setMetalType] = useState('XAU'); // XAU (Gold) or XAG (Silver)
@@ -208,6 +208,72 @@ export default function MetalTradeEntryPage() {
     const updatedPending = { ...pendingTradeData, vault_warning_accepted: true };
     setPendingTradeData(updatedPending);
     saveFinalTrade(updatedPending);
+  };
+
+  const handleCreateDummyStrategy = async () => {
+    try {
+      setIsSubmitting(true);
+      setError(null);
+      const newStrat = await addStrategy({
+        name: isRtl ? "استراتيجية تجريبية (للذهب)" : "Dummy Strategy (Metals)",
+        category: "Short-Term",
+        market_type: "metals",
+        default_order_type: "Limit",
+        tp_rules: [{ stage: 1, gain_pct: 5, sell_portion_pct: 100 }],
+        sl_rules: [{ stage: 1, loss_pct: 5, sell_portion_pct: 100 }],
+        is_active: true
+      });
+      setStrategyId(newStrat.id);
+      
+      const updatedPending = { 
+        ...pendingTradeData, 
+        strategy_id: newStrat.id,
+        strategy_warning_accepted: true 
+      };
+      setPendingTradeData(updatedPending);
+      setShowStrategyWarning(false);
+      
+      if (!exchangeId) {
+        setShowVaultWarning(true);
+      } else {
+        await saveFinalTrade(updatedPending);
+      }
+    } catch (err) {
+      setError(err.message || (isRtl ? 'حدث خطأ غير متوقع' : 'An unexpected error occurred'));
+      setShowStrategyWarning(false);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCreateDummyVault = async () => {
+    try {
+      setIsSubmitting(true);
+      setError(null);
+      const newEx = await addExchange({
+        name: isRtl ? "مخزن تجريبي (تلقائي)" : "Dummy Vault (Auto)",
+        market_type: "metals",
+        maker_fee_pct: 0.1,
+        taker_fee_pct: 0.1,
+        initial_cash_balance: 10000
+      });
+      setExchangeId(newEx.id);
+      
+      const updatedPending = { 
+        ...pendingTradeData, 
+        exchange_id: newEx.id,
+        vault_warning_accepted: true 
+      };
+      setPendingTradeData(updatedPending);
+      setShowVaultWarning(false);
+      
+      await saveFinalTrade(updatedPending);
+    } catch (err) {
+      setError(err.message || (isRtl ? 'حدث خطأ غير متوقع' : 'An unexpected error occurred'));
+      setShowVaultWarning(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const goldKarats = ['24', '22', '21', '18'];
@@ -537,10 +603,15 @@ export default function MetalTradeEntryPage() {
                 <div className="flex justify-end gap-3">
                   <button
                     type="button"
-                    onClick={() => setActiveScreen('exchange-setup')}
-                    className="px-4 py-2 rounded-xl text-sm font-bold bg-white/5 hover:bg-white/10 text-white transition-all"
+                    onClick={handleCreateDummyVault}
+                    disabled={isSubmitting}
+                    className="px-4 py-2 rounded-xl text-sm font-bold bg-white/5 hover:bg-white/10 text-white transition-all flex items-center justify-center"
                   >
-                    {isRtl ? 'تعريف مخزن جديد' : 'Define New Vault'}
+                    {isSubmitting ? (
+                      <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      isRtl ? 'إنشاء مخزن تجريبي' : 'Create Dummy Vault'
+                    )}
                   </button>
                   <button
                     type="button"
@@ -581,10 +652,15 @@ export default function MetalTradeEntryPage() {
                 <div className="flex justify-end gap-3">
                   <button
                     type="button"
-                    onClick={() => setActiveScreen('strategy-factory')}
-                    className="px-4 py-2 rounded-xl text-sm font-bold bg-white/5 hover:bg-white/10 text-white transition-all"
+                    onClick={handleCreateDummyStrategy}
+                    disabled={isSubmitting}
+                    className="px-4 py-2 rounded-xl text-sm font-bold bg-white/5 hover:bg-white/10 text-white transition-all flex items-center justify-center"
                   >
-                    {isRtl ? 'إنشاء استراتيجية جديدة' : 'Create New Strategy'}
+                    {isSubmitting ? (
+                      <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      isRtl ? 'إنشاء استراتيجية تجريبية' : 'Create Dummy Strategy'
+                    )}
                   </button>
                   <button
                     type="button"

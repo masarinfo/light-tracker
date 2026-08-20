@@ -5,6 +5,7 @@ import { AppProvider, useApp } from './context/AppContext';
 
 import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
+import WelcomeOnboarding from './components/WelcomeOnboarding';
 
 import ExchangeSetupPage from './pages/ExchangeSetupPage';
 import StrategyFactoryPage from './pages/StrategyFactoryPage';
@@ -76,8 +77,14 @@ function PublicLayout({ children }) {
 }
 
 function PrivateAppWrapper() {
-  const { activeScreen, lang } = useApp();
-  
+  const { 
+    activeScreen, 
+    setActiveScreen,
+    lang 
+  } = useApp();
+
+  const [showOnboarding, setShowOnboarding] = React.useState(() => !localStorage.getItem('onboarding_complete'));
+
   const renderScreen = () => {
     if (activeScreen === 'exchange-setup') return <ExchangeSetupPage />;
     if (activeScreen === 'strategy-factory') return <StrategyFactoryPage />;
@@ -113,6 +120,7 @@ function PrivateAppWrapper() {
 
   return (
     <div dir={isRtl ? 'rtl' : 'ltr'} className="min-h-screen flex bg-[var(--bg-main)] text-[var(--text-primary)] transition-colors duration-300">
+      {showOnboarding && <WelcomeOnboarding onComplete={() => setShowOnboarding(false)} />}
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0 relative">
         <Header />

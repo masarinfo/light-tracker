@@ -14,8 +14,8 @@ export default function MetalTradeEntryPage() {
   const [weight, setWeight] = useState('');
   const [totalPrice, setTotalPrice] = useState('');
   
-  const [strategyId, setStrategyId] = useState('');
-  const [exchangeId, setExchangeId] = useState('');
+  const [strategyId, setStrategyId] = useState(strategies.filter(s => s.market_type === 'metals')[0]?.id || '');
+  const [exchangeId, setExchangeId] = useState(exchanges.filter(e => e.market_type === 'metals')[0]?.id || '');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -188,26 +188,6 @@ export default function MetalTradeEntryPage() {
       setShowVaultWarning(false);
       setShowStrategyWarning(false);
     }
-  };
-
-  const handleContinueStrategyWarning = () => {
-    setShowStrategyWarning(false);
-    const updatedPending = { ...pendingTradeData, strategy_warning_accepted: true };
-    setPendingTradeData(updatedPending);
-    
-    // Now verify vault
-    if (!exchangeId) {
-      setShowVaultWarning(true);
-    } else {
-      saveFinalTrade(updatedPending);
-    }
-  };
-
-  const handleContinueVaultWarning = () => {
-    setShowVaultWarning(false);
-    const updatedPending = { ...pendingTradeData, vault_warning_accepted: true };
-    setPendingTradeData(updatedPending);
-    saveFinalTrade(updatedPending);
   };
 
   const handleCreateDummyStrategy = async () => {
@@ -615,15 +595,11 @@ export default function MetalTradeEntryPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={handleContinueVaultWarning}
+                    onClick={() => setShowVaultWarning(false)}
                     disabled={isSubmitting}
-                    className="px-4 py-2 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-400 text-black transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center"
+                    className="px-4 py-2 rounded-xl text-sm font-bold bg-white/5 hover:bg-white/10 text-gray-300 transition-all flex items-center justify-center"
                   >
-                    {isSubmitting ? (
-                      <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-                    ) : (
-                      isRtl ? 'الاستمرار على أي حال' : 'Continue anyway'
-                    )}
+                    {isRtl ? 'إغلاق' : 'Close'}
                   </button>
                 </div>
               </div>
@@ -664,15 +640,11 @@ export default function MetalTradeEntryPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={handleContinueStrategyWarning}
+                    onClick={() => setShowStrategyWarning(false)}
                     disabled={isSubmitting}
-                    className="px-4 py-2 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-400 text-black transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center"
+                    className="px-4 py-2 rounded-xl text-sm font-bold bg-white/5 hover:bg-white/10 text-gray-300 transition-all flex items-center justify-center"
                   >
-                    {isSubmitting ? (
-                      <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-                    ) : (
-                      isRtl ? 'الاستمرار على أي حال' : 'Continue anyway'
-                    )}
+                    {isRtl ? 'إغلاق' : 'Close'}
                   </button>
                 </div>
               </div>

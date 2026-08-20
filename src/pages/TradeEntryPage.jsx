@@ -7,7 +7,7 @@ export default function TradeEntryPage() {
   const { strategies, exchanges, addTrade, addStrategy, addExchange, livePrices, t, lang, setActiveScreen } = useApp();
 
   const [symbol, setSymbol] = useState('SOLUSDT');
-  const [selectedStrategyId, setSelectedStrategyId] = useState('');
+  const [selectedStrategyId, setSelectedStrategyId] = useState(strategies[0]?.id || '');
   const [showSymbolDropdown, setShowSymbolDropdown] = useState(false);
   const [showManualQuantity, setShowManualQuantity] = useState(false);
   const [copiedTarget, setCopiedTarget] = useState(null);
@@ -22,7 +22,7 @@ export default function TradeEntryPage() {
   const currentStrategy = strategies.find((s) => String(s.id) === String(selectedStrategyId));
 
   // Selected exchange state
-  const [selectedExchangeId, setSelectedExchangeId] = useState('');
+  const [selectedExchangeId, setSelectedExchangeId] = useState(currentStrategy?.default_exchange_id || exchanges[0]?.id || '');
 
   // Formatted Input Strings with Auto Thousand Separators & Digit Normalization
   const [entryPriceStr, setEntryPriceStr] = useState('100');
@@ -183,25 +183,6 @@ export default function TradeEntryPage() {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleContinueStrategyWarning = async () => {
-    setShowStrategyWarning(false);
-    const updatedPending = { ...pendingTradeData, strategy_warning_accepted: true };
-    setPendingTradeData(updatedPending);
-    
-    if (!currentExchange) {
-      setShowExchangeWarning(true);
-    } else {
-      await saveFinalTrade(updatedPending);
-    }
-  };
-
-  const handleContinueExchangeWarning = async () => {
-    setShowExchangeWarning(false);
-    const updatedPending = { ...pendingTradeData, exchange_warning_accepted: true };
-    setPendingTradeData(updatedPending);
-    await saveFinalTrade(updatedPending);
   };
 
   const handleCreateDummyStrategy = async () => {
@@ -614,11 +595,11 @@ export default function TradeEntryPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={handleContinueExchangeWarning}
+                    onClick={() => setShowExchangeWarning(false)}
                     disabled={isSubmitting}
-                    className="px-4 py-2 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-400 text-black transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center"
+                    className="px-4 py-2 rounded-xl text-sm font-bold bg-white/5 hover:bg-white/10 text-gray-300 transition-all flex items-center justify-center"
                   >
-                    {isRtl ? 'الاستمرار على أي حال' : 'Continue anyway'}
+                    {isRtl ? 'إلغاء' : 'Cancel'}
                   </button>
                 </div>
               </div>
@@ -659,11 +640,11 @@ export default function TradeEntryPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={handleContinueStrategyWarning}
+                    onClick={() => setShowStrategyWarning(false)}
                     disabled={isSubmitting}
-                    className="px-4 py-2 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-400 text-black transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center"
+                    className="px-4 py-2 rounded-xl text-sm font-bold bg-white/5 hover:bg-white/10 text-gray-300 transition-all flex items-center justify-center"
                   >
-                    {isRtl ? 'الاستمرار على أي حال' : 'Continue anyway'}
+                    {isRtl ? 'إلغاء' : 'Cancel'}
                   </button>
                 </div>
               </div>

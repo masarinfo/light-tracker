@@ -19,6 +19,8 @@ export default function MetalTradeEntryPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [showVaultWarning, setShowVaultWarning] = useState(false);
+  const [pendingTradeData, setPendingTradeData] = useState(null);
   
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [unitPrice, setUnitPrice] = useState('');
@@ -38,11 +40,7 @@ export default function MetalTradeEntryPage() {
 
   // Set default strategy/exchange
   useEffect(() => {
-    const defaultExchange = exchanges.find(e => e.market_type === 'metals') || exchanges[0];
-    if (defaultExchange && !exchangeId) setExchangeId(defaultExchange.id.toString());
-
-    const defaultStrategy = strategies.find(s => s.market_type === 'metals') || strategies[0];
-    if (defaultStrategy && !strategyId) setStrategyId(defaultStrategy.id.toString());
+    // No longer setting default strategy/exchange automatically to keep them optional.
   }, [exchanges, strategies, metalType]);
 
   const metalsExchanges = exchanges.filter(e => e.market_type === 'metals' || !e.market_type || e.market_type === 'crypto'); // Fallback if none exist
@@ -133,18 +131,11 @@ export default function MetalTradeEntryPage() {
       
       if (isNaN(w) || w <= 0) throw new Error(isRtl ? 'الوزن غير صحيح' : 'Invalid weight');
       if (isNaN(total) || total <= 0) throw new Error(isRtl ? 'السعر غير صحيح' : 'Invalid total price');
-      if (!strategyId) throw new Error(isRtl ? 'الرجاء اختيار استراتيجية' : 'Please select a strategy');
-      if (!exchangeId) throw new Error(isRtl ? 'الرجاء اختيار مخزن/منصة' : 'Please select an exchange/vault');
 
       const pricePerGram = total / w;
 
-      const selectedStrategy = strategies.find(s => s.id === parseInt(strategyId));
-      if (!selectedStrategy) throw new Error(isRtl ? 'الاستراتيجية غير موجودة' : 'Strategy not found');
-
       const tradeData = {
         symbol: metalType,
-        strategy_id: parseInt(strategyId),
-        exchange_id: parseInt(exchangeId),
         order_type: 'Market',
         entry_price: pricePerGram,
         amount_usd: total,
@@ -155,12 +146,39 @@ export default function MetalTradeEntryPage() {
         targets: []
       };
 
+      if (strategyId) {
+        tradeData.strategy_id = parseInt(strategyId);
+        const selectedStrategy = strategies.find(s => s.id === parseInt(strategyId));
+        if (selectedStrategy && selectedStrategy.tp_levels) {
+          tradeData.targets = generateTradeTargets(pricePerGram, w, selectedStrategy);
+        }
+      }
+
+      if (exchangeId) {
+        tradeData.exchange_id = parseInt(exchangeId);
+        await saveFinalTrade(tradeData);
+      } else {
+        // Show warning if no vault selected
+        setPendingTradeData(tradeData);
+        setShowVaultWarning(true);
+        setIsSubmitting(false);
+      }
+    } catch (err) {
+      setError(err.message || (isRtl ? 'حدث خطأ غير متوقع' : 'An unexpected error occurred'));
+      setIsSubmitting(false);
+    }
+  };
+
+  const saveFinalTrade = async (tradeData) => {
+    try {
+      setIsSubmitting(true);
       await addTrade(tradeData);
       setActiveScreen('metals-inventory');
     } catch (err) {
       setError(err.message || (isRtl ? 'حدث خطأ غير متوقع' : 'An unexpected error occurred'));
     } finally {
       setIsSubmitting(false);
+      setShowVaultWarning(false);
     }
   };
 
@@ -364,7 +382,7 @@ export default function MetalTradeEntryPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-gray-400 uppercase tracking-wider px-1">
-                  {isRtl ? 'الاستراتيجية' : 'Strategy'}
+                  {isRtl ? 'الاستراتيجية (اختياري)' : 'Strategy (Optional)'}
                 </label>
                 <select
                   value={strategyId}
@@ -381,7 +399,7 @@ export default function MetalTradeEntryPage() {
 
               <div className="space-y-2">
                 <label className="text-xs font-bold text-gray-400 uppercase tracking-wider px-1">
-                  {isRtl ? 'المخزن / المنصة' : 'Vault / Exchange'}
+                  {isRtl ? 'المخزن / المنصة (اختياري)' : 'Vault / Exchange (Optional)'}
                 </label>
                 <select
                   value={exchangeId}
@@ -473,6 +491,49 @@ export default function MetalTradeEntryPage() {
           </div>
         </div>
       </div>
+      {/* Warning Modal for Missing Vault/Exchange */}
+      {showVaultWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="glass-panel p-6 rounded-2xl max-w-md w-full border border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-orange-500/10 shadow-2xl">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-amber-500/20 rounded-full shrink-0">
+                <Info className="w-6 h-6 text-amber-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white mb-2">
+                  {isRtl ? 'لم تقم بإضافة مخزن' : 'No Vault Selected'}
+                </h3>
+                <p className="text-sm text-gray-300 mb-6">
+                  {isRtl
+                    ? 'أنت على وشك حفظ الصفقة بدون تحديد مخزن أو تاجر. هل تريد الاستمرار على أي حال؟'
+                    : 'You are about to save the trade without specifying a vault or dealer. Do you want to continue anyway?'}
+                </p>
+                <div className="flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowVaultWarning(false)}
+                    className="px-4 py-2 rounded-xl text-sm font-bold bg-white/5 hover:bg-white/10 text-white transition-all"
+                  >
+                    {isRtl ? 'رجوع لإضافة مخزن' : 'Back to select'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => saveFinalTrade(pendingTradeData)}
+                    disabled={isSubmitting}
+                    className="px-4 py-2 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-400 text-black transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center"
+                  >
+                    {isSubmitting ? (
+                      <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                    ) : (
+                      isRtl ? 'الاستمرار على أي حال' : 'Continue anyway'
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

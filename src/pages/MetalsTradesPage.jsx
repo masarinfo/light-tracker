@@ -173,8 +173,8 @@ export default function MetalsTradesPage() {
     const updatedTrade = {
       ...editingTrade,
       symbol: editSymbol.toUpperCase(),
-      strategy_id: stratObj ? stratObj.id : editingTrade.strategy_id,
-      exchange_id: exObj ? exObj.id : editingTrade.exchange_id,
+      strategy_id: editStrategyId ? parseInt(editStrategyId) : null,
+      exchange_id: editExchangeId ? parseInt(editExchangeId) : null,
       entry_price: entryPrice,
       amount_usd: amountUsd,
       quantity: quantity,
@@ -473,6 +473,26 @@ export default function MetalsTradesPage() {
                 <div>
                   <label className="block text-gray-300 mb-1 font-semibold">{isRtl ? 'العيار' : 'Karat'}</label>
                   <input type="text" dir="ltr" value={editKarat} onChange={(e) => setEditKarat(e.target.value)} className="w-full p-3 rounded-xl glass-input font-bold text-white" />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-gray-300 mb-1 font-semibold">{isRtl ? 'الاستراتيجية (اختياري)' : 'Strategy (Optional)'}</label>
+                  <select value={editStrategyId} onChange={(e) => setEditStrategyId(e.target.value)} className="w-full p-3 rounded-xl glass-input font-bold text-white">
+                    <option value="" className="bg-gray-900">{isRtl ? 'بدون استراتيجية' : 'No Strategy'}</option>
+                    {strategies.filter(s => s.market_type === 'metals' || s.market_type === 'crypto' || !s.market_type).map(s => (
+                      <option key={s.id} value={s.id} className="bg-gray-900">{s.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-gray-300 mb-1 font-semibold">{isRtl ? 'المخزن / المنصة (اختياري)' : 'Vault / Exchange (Optional)'}</label>
+                  <select value={editExchangeId} onChange={(e) => setEditExchangeId(e.target.value)} className="w-full p-3 rounded-xl glass-input font-bold text-white">
+                    <option value="" className="bg-gray-900">{isRtl ? 'بدون مخزن' : 'No Vault'}</option>
+                    {exchanges.filter(e => e.market_type === 'metals' || e.market_type === 'crypto' || !e.market_type).map(ex => (
+                      <option key={ex.id} value={ex.id} className="bg-gray-900">{ex.name}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -35,7 +35,7 @@ import {
 } from 'lucide-react';
 
 export default function Sidebar() {
-  const { activeScreen, setActiveScreen, setSelectedStrategyId, strategies, t, lang, isSidebarCollapsed, toggleSidebar, activeWorkspace, setActiveWorkspace } = useApp();
+  const { activeScreen, setActiveScreen, setSelectedStrategyId, strategies, t, lang, isSidebarCollapsed, toggleSidebar, activeWorkspace, setActiveWorkspace, platformMode } = useApp();
   const { user } = useAuth();
   const isRtl = lang === 'ar';
   
@@ -252,6 +252,7 @@ export default function Sidebar() {
           )}
 
           {/* Workspace Toggle Header */}
+          {platformMode === 'both' && (
           <div className="mt-4 flex bg-black/40 p-1 rounded-xl shrink-0">
             <button
               onClick={() => { setActiveWorkspace('crypto'); setActiveScreen('overview'); }}
@@ -278,6 +279,7 @@ export default function Sidebar() {
               {!isSidebarCollapsed && (lang === 'ar' ? 'ذهب' : 'Gold')}
             </button>
           </div>
+          )}
         </div>
 
         {/* Navigation Items */}

@@ -96,7 +96,7 @@ export default function WelcomeOnboarding({ onComplete }) {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-      <div className="bg-[#0f1014] border border-white/10 rounded-3xl p-6 md:p-8 max-w-2xl w-full shadow-2xl relative overflow-hidden">
+      <div className="bg-[#0f1014] border border-white/10 rounded-3xl p-6 md:p-8 max-w-2xl w-full max-h-[95vh] shadow-2xl relative flex flex-col">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-cyan-500/20 rounded-full blur-[100px] pointer-events-none" />
         
         <div className="relative z-10 text-center mb-8">
@@ -110,7 +110,7 @@ export default function WelcomeOnboarding({ onComplete }) {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 overflow-y-auto custom-scrollbar pr-1 flex-1">
           {options.map((opt) => {
             const isSelected = selectedOptions.includes(opt.id);
             return (
@@ -157,7 +157,7 @@ export default function WelcomeOnboarding({ onComplete }) {
           })}
         </div>
         
-        <div className="flex justify-center">
+        <div className="flex justify-center mt-auto pt-4 border-t border-white/10 shrink-0">
           <button
             onClick={handleComplete}
             disabled={selectedOptions.length === 0}

@@ -116,8 +116,7 @@ export default function Sidebar() {
       title: isRtl ? 'الأرصدة والمحافظ' : 'Balances & Wallets',
       icon: Wallet,
       items: [
-        { id: 'exchange-setup', label: isRtl ? 'منصات التداول والمحافظ' : 'Exchanges & Wallets', icon: Building2, onClick: () => setActiveScreen('exchange-setup') },
-        { id: 'add-wallet', label: isRtl ? 'تعريف جديد' : 'Add New', icon: PlusCircle, onClick: () => setActiveScreen('exchange-setup') },
+        { id: 'exchange-setup', label: isRtl ? 'مركز الأرصدة (منصات ومحافظ)' : 'Balances Hub (Exchanges)', icon: Building2, onClick: () => setActiveScreen('exchange-setup') },
         { id: 'wallet', label: isRtl ? 'التحويلات' : 'Transfers', icon: ArrowRight, onClick: () => setActiveScreen('wallet') },
       ]
     },
@@ -158,8 +157,7 @@ export default function Sidebar() {
       title: isRtl ? 'الأرصدة والمخازن' : 'Balances & Vaults',
       icon: ShieldCheck,
       items: [
-        { id: 'exchange-setup', label: isRtl ? 'الخزائن والتجار' : 'Dealers & Vaults', icon: Building2, onClick: () => setActiveScreen('exchange-setup') },
-        { id: 'add-vault', label: isRtl ? 'تعريف جديد' : 'Add New', icon: PlusCircle, onClick: () => setActiveScreen('exchange-setup') },
+        { id: 'exchange-setup', label: isRtl ? 'مركز الأرصدة (الخزائن والتجار)' : 'Balances Hub (Vaults)', icon: Building2, onClick: () => setActiveScreen('exchange-setup') },
         { id: 'transfers', label: isRtl ? 'التحويلات' : 'Transfers', icon: ArrowRight, onClick: () => setActiveScreen('wallet') },
       ]
     },

@@ -101,11 +101,14 @@ export default function Sidebar() {
   const cryptoNavGroups = [
     {
       id: 'dashboards',
-      title: isRtl ? 'الرئيسية' : 'Dashboards',
+      title: isRtl ? 'مركز التداول 🪙' : 'Crypto Hub',
       icon: Activity,
       items: [
-        { id: 'overview', label: isRtl ? 'مركز التداول' : 'Crypto Dashboard', icon: BarChart3, onClick: () => setActiveScreen('overview') },
+        { id: 'overview', label: isRtl ? 'نظرة عامة' : 'Overview', icon: BarChart3, onClick: () => setActiveScreen('overview') },
         { id: 'market-prices', label: isRtl ? 'أسعار السوق الحية' : 'Live Markets', icon: Globe, onClick: () => setActiveScreen('market-prices') },
+        { id: 'trade-entry', label: isRtl ? 'صفقة جديدة' : 'New Trade', icon: PlusCircle, highlight: true, onClick: () => setActiveScreen('trade-entry') },
+        { id: 'coin-portfolio', label: isRtl ? 'إدارة الصفقات' : 'Manage Trades', icon: Briefcase, onClick: () => setActiveScreen('coin-portfolio') },
+        { id: 'trade-history', label: isRtl ? 'سجل الصفقات' : 'Trades History', icon: History, onClick: () => setActiveScreen('trade-history') },
       ]
     },
     {
@@ -113,18 +116,9 @@ export default function Sidebar() {
       title: isRtl ? 'الأرصدة والمحافظ' : 'Balances & Wallets',
       icon: Wallet,
       items: [
-        { id: 'wallet', label: isRtl ? 'المحفظة الرقمية' : 'Digital Wallet', icon: Coins, onClick: () => setActiveScreen('wallet') },
-        { id: 'exchange-setup', label: isRtl ? 'منصات التداول' : 'Exchanges', icon: Building2, onClick: () => setActiveScreen('exchange-setup') },
-        { id: 'coin-portfolio', label: isRtl ? 'تفصيل الأصول' : 'Coin Portfolio', icon: PieChart, onClick: () => setActiveScreen('coin-portfolio') },
-      ]
-    },
-    {
-      id: 'operations',
-      title: isRtl ? 'إدارة الصفقات' : 'Trades Management',
-      icon: Briefcase,
-      items: [
-        { id: 'trade-entry', label: isRtl ? 'صفقة جديدة' : 'New Trade', icon: PlusCircle, highlight: true, onClick: () => setActiveScreen('trade-entry') },
-        { id: 'trade-history', label: isRtl ? 'سجل الصفقات' : 'Trades History', icon: History, onClick: () => setActiveScreen('trade-history') },
+        { id: 'exchange-setup', label: isRtl ? 'منصات التداول والمحافظ' : 'Exchanges & Wallets', icon: Building2, onClick: () => setActiveScreen('exchange-setup') },
+        { id: 'add-wallet', label: isRtl ? 'تعريف جديد' : 'Add New', icon: PlusCircle, onClick: () => setActiveScreen('exchange-setup') },
+        { id: 'wallet', label: isRtl ? 'التحويلات' : 'Transfers', icon: ArrowRight, onClick: () => setActiveScreen('wallet') },
       ]
     },
     {
@@ -133,6 +127,7 @@ export default function Sidebar() {
       icon: Target,
       items: [
         { id: 'strategy-factory', label: isRtl ? 'مركز الاستراتيجيات' : 'Strategies Center', icon: Factory, onClick: () => setActiveScreen('strategy-factory') },
+        { id: 'notifications', label: isRtl ? 'الإشعارات والتنبيهات (قريباً)' : 'Alerts (Soon)', icon: Zap, onClick: () => {} },
       ]
     },
     {
@@ -149,29 +144,23 @@ export default function Sidebar() {
   const metalsNavGroups = [
     {
       id: 'dashboards',
-      title: isRtl ? 'الرئيسية' : 'Dashboards',
-      icon: Activity,
+      title: isRtl ? 'مركز الذهب 🥇' : 'Gold Hub 🥇',
+      icon: Gem,
       items: [
-        { id: 'metals-dashboard', label: isRtl ? 'مركز الذهب' : 'Gold Dashboard', icon: Gem, onClick: () => setActiveScreen('metals-inventory') },
-        { id: 'metals-market', label: isRtl ? 'سوق الذهب والمعادن' : 'Gold Market', icon: Globe, onClick: () => setActiveScreen('metals-market') },
+        { id: 'metals-market', label: isRtl ? 'سوق الذهب والمعادن' : 'Gold & Metals Market', icon: Globe, onClick: () => setActiveScreen('metals-market') },
+        { id: 'metals-inventory', label: isRtl ? 'مخزن الذهب' : 'Gold Vault', icon: Database, onClick: () => setActiveScreen('metals-inventory') },
+        { id: 'metal-trade-entry', label: isRtl ? 'صفقة جديدة' : 'New Transaction', icon: PlusCircle, highlight: true, onClick: () => setActiveScreen('metal-trade-entry') },
+        { id: 'metals-trades', label: isRtl ? 'إدارة الصفقات والسجل' : 'Manage & History', icon: History, onClick: () => setActiveScreen('metals-trades') },
       ]
     },
     {
       id: 'assets',
       title: isRtl ? 'الأرصدة والمخازن' : 'Balances & Vaults',
-      icon: Database,
+      icon: ShieldCheck,
       items: [
-        { id: 'metals-inventory', label: isRtl ? 'مخزن الذهب' : 'Gold Vault', icon: ShieldCheck, onClick: () => setActiveScreen('metals-inventory') },
-        { id: 'exchange-setup', label: isRtl ? 'التجار والخزائن' : 'Dealers & Vaults', icon: Building2, onClick: () => setActiveScreen('exchange-setup') },
-      ]
-    },
-    {
-      id: 'operations',
-      title: isRtl ? 'إدارة العمليات' : 'Operations',
-      icon: Briefcase,
-      items: [
-        { id: 'metal-trade-entry', label: isRtl ? 'عملية جديدة' : 'New Transaction', icon: PlusCircle, highlight: true, onClick: () => setActiveScreen('metal-trade-entry') },
-        { id: 'metals-trades', label: isRtl ? 'إدارة الصفقات والسجل' : 'Manage & History', icon: History, onClick: () => setActiveScreen('metals-trades') },
+        { id: 'exchange-setup', label: isRtl ? 'الخزائن والتجار' : 'Dealers & Vaults', icon: Building2, onClick: () => setActiveScreen('exchange-setup') },
+        { id: 'add-vault', label: isRtl ? 'تعريف جديد' : 'Add New', icon: PlusCircle, onClick: () => setActiveScreen('exchange-setup') },
+        { id: 'transfers', label: isRtl ? 'التحويلات' : 'Transfers', icon: ArrowRight, onClick: () => setActiveScreen('wallet') },
       ]
     },
     {
@@ -180,6 +169,7 @@ export default function Sidebar() {
       icon: Target,
       items: [
         { id: 'strategy-factory', label: isRtl ? 'مركز الاستراتيجيات' : 'Strategies Center', icon: Factory, onClick: () => setActiveScreen('strategy-factory') },
+        { id: 'notifications', label: isRtl ? 'الإشعارات والتنبيهات (قريباً)' : 'Alerts (Soon)', icon: Zap, onClick: () => {} },
       ]
     },
     {

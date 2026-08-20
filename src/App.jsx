@@ -32,7 +32,6 @@ import MetalsMarketPage from './pages/MetalsMarketPage';
 import MetalsInventoryPage from './pages/MetalsInventoryPage';
 import MetalsTradesPage from './pages/MetalsTradesPage';
 import MetalTradeEntryPage from './pages/MetalTradeEntryPage';
-import GoldCalculatorModal from './components/GoldCalculatorModal';
 
 import LandingPage from './pages/public/LandingPage';
 import LoginPage from './pages/auth/LoginPage';
@@ -122,9 +121,6 @@ function PrivateAppWrapper() {
             {renderScreen()}
           </ErrorBoundary>
         </main>
-        
-        {/* Floating Components */}
-        <GoldCalculatorModal />
       </div>
     </div>
   );

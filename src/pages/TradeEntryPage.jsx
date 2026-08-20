@@ -11,6 +11,8 @@ export default function TradeEntryPage() {
   const [showSymbolDropdown, setShowSymbolDropdown] = useState(false);
   const [showManualQuantity, setShowManualQuantity] = useState(false);
   const [copiedTarget, setCopiedTarget] = useState(null);
+  const [error, setError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [showStrategyWarning, setShowStrategyWarning] = useState(false);
   const [showExchangeWarning, setShowExchangeWarning] = useState(false);
@@ -139,17 +141,17 @@ export default function TradeEntryPage() {
       calculated_fee: purchaseInfo.feeUsd,
       status: 'OPEN',
       targets: [...tpTargets, ...slTargets],
-      market_type: 'crypto'
+      market_type: 'crypto',
+      strategy_id: currentStrategy ? currentStrategy.id : null,
+      exchange_id: currentExchange ? currentExchange.id : null
     };
 
     if (currentStrategy) {
-      newTrade.strategy_id = currentStrategy.id;
       newTrade.strategy_name = currentStrategy.name;
       newTrade.category = currentStrategy.category;
     }
 
     if (currentExchange) {
-      newTrade.exchange_id = currentExchange.id;
       newTrade.exchange_name = currentExchange.name;
     }
 
@@ -168,14 +170,22 @@ export default function TradeEntryPage() {
     saveFinalTrade(newTrade);
   };
 
-  const saveFinalTrade = (tradeData) => {
-    addTrade(tradeData);
-    setShowStrategyWarning(false);
-    setShowExchangeWarning(false);
-    setActiveScreen('coin-portfolio');
+  const saveFinalTrade = async (tradeData) => {
+    try {
+      setIsSubmitting(true);
+      setError(null);
+      await addTrade(tradeData);
+      setShowStrategyWarning(false);
+      setShowExchangeWarning(false);
+      setActiveScreen('coin-portfolio');
+    } catch (err) {
+      setError(err.message || (isRtl ? 'حدث خطأ غير متوقع' : 'An unexpected error occurred'));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleContinueStrategyWarning = () => {
+  const handleContinueStrategyWarning = async () => {
     setShowStrategyWarning(false);
     const updatedPending = { ...pendingTradeData, strategy_warning_accepted: true };
     setPendingTradeData(updatedPending);
@@ -183,15 +193,15 @@ export default function TradeEntryPage() {
     if (!currentExchange) {
       setShowExchangeWarning(true);
     } else {
-      saveFinalTrade(updatedPending);
+      await saveFinalTrade(updatedPending);
     }
   };
 
-  const handleContinueExchangeWarning = () => {
+  const handleContinueExchangeWarning = async () => {
     setShowExchangeWarning(false);
     const updatedPending = { ...pendingTradeData, exchange_warning_accepted: true };
     setPendingTradeData(updatedPending);
-    saveFinalTrade(updatedPending);
+    await saveFinalTrade(updatedPending);
   };
 
   return (
@@ -204,6 +214,13 @@ export default function TradeEntryPage() {
         </h2>
         <p className="text-sm text-gray-400 mt-1">{t('tradeEntryDesc')}</p>
       </div>
+
+      {error && (
+        <div className="glass-panel p-4 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-400 text-sm font-bold flex items-center gap-2">
+          <ShieldAlert className="w-5 h-5 shrink-0" />
+          {error}
+        </div>
+      )}
 
       {/* Main Trade Form & Instant Dynamic Targets Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

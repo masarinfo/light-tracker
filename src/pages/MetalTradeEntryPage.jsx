@@ -416,7 +416,6 @@ export default function MetalTradeEntryPage() {
                   value={strategyId}
                   onChange={(e) => setStrategyId(e.target.value)}
                   className="input-field w-full"
-                  required
                 >
                   <option value="">{isRtl ? 'اختر الاستراتيجية...' : 'Select Strategy...'}</option>
                   {metalsStrategies.map(s => (
@@ -433,7 +432,6 @@ export default function MetalTradeEntryPage() {
                   value={exchangeId}
                   onChange={(e) => setExchangeId(e.target.value)}
                   className="input-field w-full"
-                  required
                 >
                   <option value="">{isRtl ? 'اختر المخزن...' : 'Select Vault...'}</option>
                   {metalsExchanges.map(e => (

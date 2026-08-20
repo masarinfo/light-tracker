@@ -35,12 +35,12 @@ import {
 } from 'lucide-react';
 
 export default function Sidebar() {
-  const { activeScreen, setActiveScreen, setSelectedStrategyId, strategies, t, lang, isSidebarCollapsed, toggleSidebar, currentHub, setCurrentHub } = useApp();
+  const { activeScreen, setActiveScreen, setSelectedStrategyId, strategies, t, lang, isSidebarCollapsed, toggleSidebar, activeWorkspace, setActiveWorkspace } = useApp();
   const { user } = useAuth();
   const isRtl = lang === 'ar';
   
-  // Make "trades" (Trading Hub) open by default
-  const [expandedGroups, setExpandedGroups] = useState({ trades: true, 'gold-hub': true });
+  // Keep dashboards and assets open by default
+  const [expandedGroups, setExpandedGroups] = useState({ dashboards: true, assets: true });
 
   const toggleGroup = (key) => {
     setExpandedGroups(prev => ({ ...prev, [key]: !prev[key] }));
@@ -59,8 +59,8 @@ export default function Sidebar() {
   ];
   
   strategies.forEach(strat => {
-    // Only show strategy if it matches the current hub, or if strategy doesn't have market_type yet
-    if ((strat.market_type || 'crypto') === currentHub) {
+    // Only show strategy if it matches the current workspace, or if strategy doesn't have market_type yet
+    if ((strat.market_type || 'crypto') === activeWorkspace) {
       reportsItems.push({
         id: `strategy-${strat.id}`,
         label: strat.name,
@@ -72,93 +72,127 @@ export default function Sidebar() {
     }
   });
 
-  const navGroups = [
+  // Common Settings & Admin Group
+  const settingsGroup = {
+    id: 'settings',
+    title: isRtl ? 'الإعدادات والأمان' : 'Settings & Security',
+    icon: Settings,
+    items: [
+      { id: 'profile', label: isRtl ? 'الملف الشخصي' : 'Profile', icon: User, onClick: () => setActiveScreen('profile') },
+      { id: 'security-preview', label: t('navSecurityPreview'), icon: ShieldCheck, onClick: () => setActiveScreen('security-preview') },
+      { id: 'billing', label: isRtl ? 'الاشتراك والفواتير' : 'Billing', icon: CreditCard, onClick: () => setActiveScreen('billing') },
+      { id: 'affiliate', label: isRtl ? 'التسويق بالعمولة' : 'Affiliate', icon: Megaphone, onClick: () => setActiveScreen('affiliate') },
+    ]
+  };
+
+  const adminGroup = user?.is_superadmin ? {
+    id: 'admin',
+    title: isRtl ? 'الإدارة' : 'Admin',
+    icon: Shield,
+    items: [
+      { id: 'users-management', label: isRtl ? 'إدارة المستخدمين' : 'Users Mgt', icon: Users, onClick: () => setActiveScreen('users-management') },
+      { id: 'waitlist-management', label: isRtl ? 'قائمة الانتظار' : 'Waitlist', icon: Mail, onClick: () => setActiveScreen('waitlist-management') },
+      { id: 'coupons-management', label: isRtl ? 'إدارة الكوبونات' : 'Coupons', icon: Tag, onClick: () => setActiveScreen('coupons-management') },
+      { id: 'system-logs', label: isRtl ? 'سجل النظام (Admin)' : 'System Logs', icon: ShieldAlert, onClick: () => setActiveScreen('system-logs') },
+    ]
+  } : null;
+
+  // Crypto Mode Groups
+  const cryptoNavGroups = [
     {
-      id: 'trades',
-      title: lang === 'ar' ? 'مركز التداول' : 'Trading Hub',
+      id: 'dashboards',
+      title: isRtl ? 'الرئيسية' : 'Dashboards',
       icon: Activity,
       items: [
-        { id: 'overview', label: t('navOverview'), icon: BarChart3, onClick: () => setActiveScreen('overview') },
-        { id: 'market-prices', label: t('navMarketPrices'), icon: Globe, onClick: () => setActiveScreen('market-prices') },
-        { id: 'trade-entry', label: t('navTradeEntry'), icon: PlusCircle, highlight: true, onClick: () => setActiveScreen('trade-entry') },
-        { id: 'coin-portfolio', label: t('navCoinPortfolio'), icon: Coins, onClick: () => setActiveScreen('coin-portfolio') },
-        { id: 'trade-history', label: lang === 'ar' ? 'سجل الصفقات' : 'Trade History', icon: History, onClick: () => setActiveScreen('trade-history') },
+        { id: 'overview', label: isRtl ? 'مركز التداول' : 'Crypto Dashboard', icon: BarChart3, onClick: () => setActiveScreen('overview') },
+        { id: 'market-prices', label: isRtl ? 'أسعار السوق الحية' : 'Live Markets', icon: Globe, onClick: () => setActiveScreen('market-prices') },
       ]
     },
-
     {
-      id: 'portfolios',
-      title: lang === 'ar' ? 'المحافظ والاستراتيجيات' : 'Portfolios & Strategies',
+      id: 'assets',
+      title: isRtl ? 'الأرصدة والمحافظ' : 'Balances & Wallets',
+      icon: Wallet,
+      items: [
+        { id: 'wallet', label: isRtl ? 'المحفظة الرقمية' : 'Digital Wallet', icon: Coins, onClick: () => setActiveScreen('wallet') },
+        { id: 'exchange-setup', label: isRtl ? 'منصات التداول' : 'Exchanges', icon: Building2, onClick: () => setActiveScreen('exchange-setup') },
+        { id: 'coin-portfolio', label: isRtl ? 'تفصيل الأصول' : 'Coin Portfolio', icon: PieChart, onClick: () => setActiveScreen('coin-portfolio') },
+      ]
+    },
+    {
+      id: 'operations',
+      title: isRtl ? 'إدارة الصفقات' : 'Trades Management',
       icon: Briefcase,
       items: [
-        { id: 'wallet', label: lang === 'ar' ? 'المحفظة' : 'Wallet', icon: Wallet, onClick: () => setActiveScreen('wallet') },
-        { id: 'exchange-setup', label: t('navExchangeSetup'), icon: Building2, onClick: () => setActiveScreen('exchange-setup') },
-        { id: 'strategy-factory', label: t('navStrategyFactory'), icon: Factory, onClick: () => setActiveScreen('strategy-factory') },
+        { id: 'trade-entry', label: isRtl ? 'صفقة جديدة' : 'New Trade', icon: PlusCircle, highlight: true, onClick: () => setActiveScreen('trade-entry') },
+        { id: 'trade-history', label: isRtl ? 'سجل الصفقات' : 'Trades History', icon: History, onClick: () => setActiveScreen('trade-history') },
+      ]
+    },
+    {
+      id: 'planning',
+      title: isRtl ? 'خطط واستثمار' : 'Plans & Investment',
+      icon: Target,
+      items: [
+        { id: 'strategy-factory', label: isRtl ? 'مركز الاستراتيجيات' : 'Strategies Center', icon: Factory, onClick: () => setActiveScreen('strategy-factory') },
       ]
     },
     {
       id: 'reports',
-      title: lang === 'ar' ? 'التقارير والمقارنات' : 'Reports & Comparisons',
-      icon: PieChart,
+      title: isRtl ? 'أرقام وتقارير' : 'Numbers & Reports',
+      icon: LineChart,
       items: reportsItems
     },
-    {
-      id: 'settings',
-      title: lang === 'ar' ? 'الإعدادات والأمان' : 'Settings & Security',
-      icon: Settings,
-      items: [
-        { id: 'profile', label: lang === 'ar' ? 'الملف الشخصي' : 'Profile', icon: User, onClick: () => setActiveScreen('profile') },
-        { id: 'security-preview', label: t('navSecurityPreview'), icon: ShieldCheck, onClick: () => setActiveScreen('security-preview') },
-        { id: 'billing', label: lang === 'ar' ? 'الاشتراك والفواتير' : 'Billing', icon: CreditCard, onClick: () => setActiveScreen('billing') },
-        { id: 'affiliate', label: lang === 'ar' ? 'التسويق بالعمولة' : 'Affiliate', icon: Megaphone, onClick: () => setActiveScreen('affiliate') },
-      ]
-    }
+    settingsGroup,
+    ...(adminGroup ? [adminGroup] : [])
   ];
 
-  if (user?.is_superadmin) {
-    navGroups.push({
-      id: 'admin',
-      title: lang === 'ar' ? 'الإدارة' : 'Admin',
-      icon: Shield,
-      items: [
-        { id: 'users-management', label: lang === 'ar' ? 'إدارة المستخدمين' : 'Users Mgt', icon: Users, onClick: () => setActiveScreen('users-management') },
-        { id: 'waitlist-management', label: lang === 'ar' ? 'قائمة الانتظار' : 'Waitlist', icon: Mail, onClick: () => setActiveScreen('waitlist-management') },
-        { id: 'coupons-management', label: lang === 'ar' ? 'إدارة الكوبونات' : 'Coupons', icon: Tag, onClick: () => setActiveScreen('coupons-management') },
-        { id: 'system-logs', label: lang === 'ar' ? 'سجل النظام (Admin)' : 'System Logs', icon: ShieldAlert, onClick: () => setActiveScreen('system-logs') },
-      ]
-    });
-  }
-
-  const goldNavGroups = [
+  // Metals Mode Groups
+  const metalsNavGroups = [
     {
-      id: 'gold-hub',
-      title: lang === 'ar' ? 'مركز الذهب 🥇' : 'Gold Hub 🥇',
-      icon: Gem,
+      id: 'dashboards',
+      title: isRtl ? 'الرئيسية' : 'Dashboards',
+      icon: Activity,
       items: [
-        { id: 'metals-inventory', label: lang === 'ar' ? 'مخزن الذهب' : 'Gold Inventory', icon: Database, onClick: () => setActiveScreen('metals-inventory') },
-        { id: 'metals-market', label: lang === 'ar' ? 'سوق الذهب' : 'Gold Market', icon: Globe, onClick: () => setActiveScreen('metals-market') },
-        { id: 'metals-trades', label: lang === 'ar' ? 'الصفقات المفتوحة والسجل' : 'Trades & History', icon: History, onClick: () => setActiveScreen('metals-trades') },
-        { id: 'metal-trade-entry', label: lang === 'ar' ? 'إدخال صفقة' : 'Trade Entry', icon: PlusCircle, highlight: true, onClick: () => setActiveScreen('metal-trade-entry') },
+        { id: 'metals-dashboard', label: isRtl ? 'مركز الذهب' : 'Gold Dashboard', icon: Gem, onClick: () => setActiveScreen('metals-inventory') },
+        { id: 'metals-market', label: isRtl ? 'سوق الذهب والمعادن' : 'Gold Market', icon: Globe, onClick: () => setActiveScreen('metals-market') },
       ]
     },
     {
-      id: 'portfolios',
-      title: lang === 'ar' ? 'المحافظ والاستراتيجيات' : 'Portfolios & Strategies',
+      id: 'assets',
+      title: isRtl ? 'الأرصدة والمخازن' : 'Balances & Vaults',
+      icon: Database,
+      items: [
+        { id: 'metals-inventory', label: isRtl ? 'مخزن الذهب' : 'Gold Vault', icon: ShieldCheck, onClick: () => setActiveScreen('metals-inventory') },
+        { id: 'exchange-setup', label: isRtl ? 'التجار والخزائن' : 'Dealers & Vaults', icon: Building2, onClick: () => setActiveScreen('exchange-setup') },
+      ]
+    },
+    {
+      id: 'operations',
+      title: isRtl ? 'إدارة العمليات' : 'Operations',
       icon: Briefcase,
       items: [
-        { id: 'exchange-setup', label: t('navExchangeSetup'), icon: Building2, onClick: () => setActiveScreen('exchange-setup') },
-        { id: 'strategy-factory', label: t('navStrategyFactory'), icon: Factory, onClick: () => setActiveScreen('strategy-factory') },
+        { id: 'metal-trade-entry', label: isRtl ? 'عملية جديدة' : 'New Transaction', icon: PlusCircle, highlight: true, onClick: () => setActiveScreen('metal-trade-entry') },
+        { id: 'metals-trades', label: isRtl ? 'إدارة الصفقات والسجل' : 'Manage & History', icon: History, onClick: () => setActiveScreen('metals-trades') },
+      ]
+    },
+    {
+      id: 'planning',
+      title: isRtl ? 'خطط واستثمار' : 'Plans & Investment',
+      icon: Target,
+      items: [
+        { id: 'strategy-factory', label: isRtl ? 'مركز الاستراتيجيات' : 'Strategies Center', icon: Factory, onClick: () => setActiveScreen('strategy-factory') },
       ]
     },
     {
       id: 'reports',
-      title: lang === 'ar' ? 'تقارير الاستراتيجيات' : 'Strategy Reports',
-      icon: PieChart,
+      title: isRtl ? 'أرقام وتقارير' : 'Numbers & Reports',
+      icon: LineChart,
       items: reportsItems
-    }
+    },
+    settingsGroup,
+    ...(adminGroup ? [adminGroup] : [])
   ];
 
-  const activeGroups = currentHub === 'metals' ? goldNavGroups : navGroups;
+  const activeGroups = activeWorkspace === 'metals' ? metalsNavGroups : cryptoNavGroups;
 
   return (
     <>
@@ -185,19 +219,19 @@ export default function Sidebar() {
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-3 min-w-0">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-lg ${
-                currentHub === 'metals' 
+                activeWorkspace === 'metals' 
                 ? 'bg-gradient-to-tr from-amber-500 via-orange-500 to-yellow-600 shadow-amber-500/20'
                 : 'bg-gradient-to-tr from-cyan-500 via-indigo-500 to-purple-600 shadow-cyan-500/20'
               }`}>
-                {currentHub === 'metals' ? <Gem className="w-6 h-6 text-white" /> : <Coins className="w-6 h-6 text-white" />}
+                {activeWorkspace === 'metals' ? <Gem className="w-6 h-6 text-white" /> : <Coins className="w-6 h-6 text-white" />}
               </div>
               {!isSidebarCollapsed && (
                 <div className="min-w-0 flex-1">
                   <h1 className="text-sm font-bold text-white tracking-wide leading-tight truncate">
-                    {currentHub === 'metals' ? (lang === 'ar' ? 'مركز الذهب' : 'Gold Hub') : t('appTitle')}
+                    {activeWorkspace === 'metals' ? (lang === 'ar' ? 'مركز الذهب' : 'Gold Hub') : t('appTitle')}
                   </h1>
-                  <p className={`text-[11px] font-mono tracking-wider mt-0.5 truncate ${currentHub === 'metals' ? 'text-amber-400' : 'text-cyan-400'}`}>
-                    {currentHub === 'metals' ? (lang === 'ar' ? 'إدارة الثروات المعدنية' : 'Precious Metals') : t('appVersion')}
+                  <p className={`text-[11px] font-mono tracking-wider mt-0.5 truncate ${activeWorkspace === 'metals' ? 'text-amber-400' : 'text-cyan-400'}`}>
+                    {activeWorkspace === 'metals' ? (lang === 'ar' ? 'إدارة الثروات المعدنية' : 'Precious Metals') : t('appVersion')}
                   </p>
                 </div>
               )}
@@ -218,23 +252,23 @@ export default function Sidebar() {
           {/* Strict Spot Only Banner */}
           {!isSidebarCollapsed ? (
             <div className={`mt-2 px-3 py-1.5 rounded-lg border flex items-center justify-center gap-2 text-xs font-semibold ${
-              currentHub === 'metals' 
+              activeWorkspace === 'metals' 
               ? 'bg-amber-500/10 border-amber-500/20 text-amber-300'
               : 'bg-cyan-500/10 border-cyan-500/20 text-cyan-300'
             }`}>
-              <span className={`w-2 h-2 rounded-full animate-ping shrink-0 ${currentHub === 'metals' ? 'bg-amber-400' : 'bg-cyan-400'}`}></span>
-              <span className="truncate">{currentHub === 'metals' ? (lang === 'ar' ? 'شراء مادي حقيقي' : 'Physical Spot') : t('spotOnlyBadge')}</span>
+              <span className={`w-2 h-2 rounded-full animate-ping shrink-0 ${activeWorkspace === 'metals' ? 'bg-amber-400' : 'bg-cyan-400'}`}></span>
+              <span className="truncate">{activeWorkspace === 'metals' ? (lang === 'ar' ? 'شراء مادي حقيقي' : 'Physical Spot') : t('spotOnlyBadge')}</span>
             </div>
           ) : (
-            <div className={`mt-1 w-2 h-2 rounded-full animate-ping ${currentHub === 'metals' ? 'bg-amber-400' : 'bg-cyan-400'}`} title={t('spotOnlyBadge')}></div>
+            <div className={`mt-1 w-2 h-2 rounded-full animate-ping ${activeWorkspace === 'metals' ? 'bg-amber-400' : 'bg-cyan-400'}`} title={t('spotOnlyBadge')}></div>
           )}
 
-          {/* Hub Toggle Header */}
+          {/* Workspace Toggle Header */}
           <div className="mt-4 flex bg-black/40 p-1 rounded-xl shrink-0">
             <button
-              onClick={() => setCurrentHub('crypto')}
+              onClick={() => { setActiveWorkspace('crypto'); setActiveScreen('overview'); }}
               className={`flex-1 flex items-center justify-center gap-2 py-2 px-1 rounded-lg text-xs font-bold transition-all ${
-                currentHub === 'crypto' 
+                activeWorkspace === 'crypto' 
                 ? 'bg-cyan-500/20 text-cyan-300 shadow-sm' 
                 : 'text-gray-500 hover:text-gray-300'
               }`}
@@ -244,9 +278,9 @@ export default function Sidebar() {
               {!isSidebarCollapsed && (lang === 'ar' ? 'كريبتو' : 'Crypto')}
             </button>
             <button
-              onClick={() => setCurrentHub('metals')}
+              onClick={() => { setActiveWorkspace('metals'); setActiveScreen('metals-inventory'); }}
               className={`flex-1 flex items-center justify-center gap-2 py-2 px-1 rounded-lg text-xs font-bold transition-all ${
-                currentHub === 'metals' 
+                activeWorkspace === 'metals' 
                 ? 'bg-amber-500/20 text-amber-300 shadow-sm' 
                 : 'text-gray-500 hover:text-gray-300'
               }`}
@@ -270,7 +304,7 @@ export default function Sidebar() {
                     className="w-full px-3 py-2 flex items-center justify-between text-xs font-bold text-gray-300 uppercase tracking-wider hover:text-white transition-colors hover:bg-white/5 rounded-lg"
                   >
                     <div className="flex items-center gap-2.5">
-                      <GroupIcon className={`w-4 h-4 ${currentHub === 'metals' ? 'text-amber-500' : 'text-cyan-500'}`} />
+                      <GroupIcon className={`w-4 h-4 ${activeWorkspace === 'metals' ? 'text-amber-500' : 'text-cyan-500'}`} />
                       <span>{group.title}</span>
                     </div>
                     <ChevronRight 
@@ -302,15 +336,15 @@ export default function Sidebar() {
                         } rounded-xl text-xs font-medium transition-all duration-200 ${
                           isActive
                             ? item.isStrategy 
-                                ? (currentHub === 'metals' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold' : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-bold')
-                                : (currentHub === 'metals' ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 border border-amber-500/30 shadow-lg shadow-amber-500/10 font-bold' : 'bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 text-cyan-300 border border-cyan-500/30 shadow-lg shadow-cyan-500/10 font-bold')
+                                ? (activeWorkspace === 'metals' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold' : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-bold')
+                                : (activeWorkspace === 'metals' ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 border border-amber-500/30 shadow-lg shadow-amber-500/10 font-bold' : 'bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 text-cyan-300 border border-cyan-500/30 shadow-lg shadow-cyan-500/10 font-bold')
                             : item.highlight
                             ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20 font-semibold'
                             : 'text-gray-300 hover:bg-white/5 hover:text-white'
                         }`}
                       >
                         <div className={`flex items-center gap-3 min-w-0 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
-                          <Icon className={`w-4 h-4 shrink-0 ${isActive ? (item.isStrategy ? (currentHub === 'metals' ? 'text-amber-400' : 'text-indigo-400') : (currentHub === 'metals' ? 'text-amber-400' : 'text-cyan-400')) : item.highlight ? 'text-emerald-400' : 'text-gray-400'}`} />
+                          <Icon className={`w-4 h-4 shrink-0 ${isActive ? (item.isStrategy ? (activeWorkspace === 'metals' ? 'text-amber-400' : 'text-indigo-400') : (activeWorkspace === 'metals' ? 'text-amber-400' : 'text-cyan-400')) : item.highlight ? 'text-emerald-400' : 'text-gray-400'}`} />
                           {!isSidebarCollapsed && <span className="truncate">{item.label}</span>}
                         </div>
                         

@@ -9,8 +9,14 @@ const AppContext = createContext();
 export function AppProvider({ children }) {
   const [lang, setLang] = useState(() => localStorage.getItem('app_lang') || 'ar');
   const [theme, setTheme] = useState(() => localStorage.getItem('app_theme') || 'dark');
+  // App Mode & Workspace States
+  const [platformMode, setPlatformMode] = useState(() => localStorage.getItem('platform_mode') || 'both'); // 'both', 'crypto_only', 'metals_only'
+  const [activeWorkspace, setActiveWorkspace] = useState(() => {
+    const savedMode = localStorage.getItem('platform_mode');
+    return savedMode === 'metals_only' ? 'metals' : 'crypto';
+  }); // 'crypto' or 'metals'
+
   const [activeScreen, setActiveScreen] = useState('overview');
-  const [currentHub, setCurrentHub] = useState('crypto'); // 'crypto' or 'metals'
   const [selectedStrategyId, setSelectedStrategyId] = useState(null);
   
   // Collapsible Sidebar State
@@ -104,6 +110,18 @@ export function AppProvider({ children }) {
   useEffect(() => {
     localStorage.setItem('app_lang', lang);
   }, [lang]);
+
+  // Sync platform mode with localStorage
+  useEffect(() => {
+    localStorage.setItem('platform_mode', platformMode);
+    if (platformMode === 'crypto_only' && activeWorkspace !== 'crypto') {
+      setActiveWorkspace('crypto');
+      setActiveScreen('overview');
+    } else if (platformMode === 'metals_only' && activeWorkspace !== 'metals') {
+      setActiveWorkspace('metals');
+      setActiveScreen('metals-inventory');
+    }
+  }, [platformMode, activeWorkspace]);
 
   // Poll Backend for Binance Live Prices
   useEffect(() => {
@@ -282,6 +300,10 @@ export function AppProvider({ children }) {
         theme,
         toggleTheme,
         t,
+        platformMode,
+        setPlatformMode,
+        activeWorkspace,
+        setActiveWorkspace,
         activeScreen,
         setActiveScreen,
         selectedStrategyId,

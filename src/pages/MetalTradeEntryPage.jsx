@@ -456,14 +456,13 @@ export default function MetalTradeEntryPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-gray-400 uppercase tracking-wider px-1">
-                  {isRtl ? 'الاستراتيجية (اختياري)' : 'Strategy (Optional)'}
+                  {isRtl ? 'الاستراتيجية' : 'Strategy'}
                 </label>
                 <select
                   value={strategyId}
                   onChange={(e) => setStrategyId(e.target.value)}
                   className="input-field w-full"
                 >
-                  <option value="">{isRtl ? 'اختر الاستراتيجية...' : 'Select Strategy...'}</option>
                   {metalsStrategies.map(s => (
                     <option key={s.id} value={s.id}>{s.name}</option>
                   ))}
@@ -472,14 +471,13 @@ export default function MetalTradeEntryPage() {
 
               <div className="space-y-2">
                 <label className="text-xs font-bold text-gray-400 uppercase tracking-wider px-1">
-                  {isRtl ? 'المخزن / المنصة (اختياري)' : 'Vault / Exchange (Optional)'}
+                  {isRtl ? 'المخزن / المنصة' : 'Vault / Exchange'}
                 </label>
                 <select
                   value={exchangeId}
                   onChange={(e) => setExchangeId(e.target.value)}
                   className="input-field w-full"
                 >
-                  <option value="">{isRtl ? 'اختر المخزن...' : 'Select Vault...'}</option>
                   {metalsExchanges.map(e => (
                     <option key={e.id} value={e.id}>{e.name}</option>
                   ))}

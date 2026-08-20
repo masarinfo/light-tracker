@@ -338,13 +338,12 @@ export default function TradeEntryPage() {
 
             {/* Strategy Select */}
             <div>
-              <label className="block text-gray-300 mb-1 font-semibold">{t('strategy')} {isRtl ? '(اختياري)' : '(Optional)'}</label>
+              <label className="block text-gray-300 mb-1 font-semibold">{t('strategy')}</label>
               <select
                 value={selectedStrategyId}
                 onChange={(e) => setSelectedStrategyId(e.target.value)}
                 className="w-full p-3 rounded-xl glass-input text-white font-semibold text-xs"
               >
-                <option value="" className="bg-gray-900">{isRtl ? 'بدون استراتيجية' : 'No Strategy'}</option>
                 {strategies.map((st) => (
                   <option key={st.id} value={st.id} className="bg-gray-900">
                     {st.name} ({st.category})
@@ -356,7 +355,7 @@ export default function TradeEntryPage() {
             {/* Interactive Exchange Select Dropdown */}
             <div>
               <label className="block text-gray-300 mb-1 font-semibold flex items-center justify-between">
-                <span>{t('exchange')} {isRtl ? '(اختياري)' : '(Optional)'}</span>
+                <span>{t('exchange')}</span>
                 <span className="text-[10px] text-cyan-400 font-mono">تحديث العمولة تلقائياً</span>
               </label>
               <select
@@ -364,7 +363,6 @@ export default function TradeEntryPage() {
                 onChange={(e) => setSelectedExchangeId(e.target.value ? parseInt(e.target.value) : '')}
                 className="w-full p-3 rounded-xl glass-input text-white font-bold text-xs"
               >
-                <option value="" className="bg-gray-900">{isRtl ? 'بدون منصة' : 'No Exchange'}</option>
                 {exchanges.map((ex) => (
                   <option key={ex.id} value={ex.id} className="bg-gray-900">
                     {ex.name} (الكاش المتاح: ${ex.initial_cash_balance.toLocaleString()})

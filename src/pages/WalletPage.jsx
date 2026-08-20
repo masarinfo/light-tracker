@@ -113,8 +113,8 @@ export default function WalletPage() {
           <Wallet className="w-6 h-6 text-indigo-400" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-white">المحفظة والتحويلات</h1>
-          <p className="text-sm text-gray-400">إدارة التدفقات النقدية بين منصاتك (إيداع، سحب، تحويل)</p>
+          <h1 className="text-2xl font-bold text-white">{isRtl ? 'التحويلات وحركة الأموال 💸' : 'Transfers & Money Movement 💸'}</h1>
+          <p className="text-sm text-gray-400 mt-1">{isRtl ? 'سجل الإيداعات والسحوبات ونقل الأصول بين المنصات والمخازن.' : 'Record of deposits, withdrawals, and asset transfers.'}</p>
         </div>
       </div>
 

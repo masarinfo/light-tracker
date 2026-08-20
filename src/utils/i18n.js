@@ -58,7 +58,7 @@ export const translations = {
     statusPartiallyClosed: "مغلقة جزئياً (PARTIALLY_CLOSED)",
     statusClosed: "مغلقة بالكامل (CLOSED)",
     statusLabel: "حالة الصفقة",
-    historicalTradesTitle: "سجل الصفقات المغلقة والقديمة",
+    historicalTradesTitle: "سجل الصفقات التاريخي 📚",
     activePositionsTitle: "المراكز المفتوحة الحالية",
     portfolioSummaryLabel: "المحفظة:",
 
@@ -106,8 +106,8 @@ export const translations = {
     addExchangeModalTitle: "إضافة حساب منصة جديد",
 
     // Strategy Factory Screen
-    strategyFactoryTitle: "واجهة مصنع الاستراتيجيات (Strategy Factory)",
-    strategyFactoryDesc: "بناء الاستراتيجيات المسبقة وتحديد مستويات أهداف الربح (TP) ووقف الخسارة (SL).",
+    strategyFactoryTitle: "مركز الاستراتيجيات وخطط الاستثمار 🎯",
+    strategyFactoryDesc: "بناء وتعديل خططك (مثل التجميع DCA) لتحقيق أهدافك الماليّة.",
     strategyName: "اسم الاستراتيجية",
     category: "تصنيف الصفقة",
     categoryShortTerm: "صفقات سريعة (Short-Term)",
@@ -125,8 +125,8 @@ export const translations = {
     addStrategyModalTitle: "إنشاء استراتيجية جديدة",
 
     // Coin Portfolio Screen
-    coinPortfolioTitle: "واجهة إدارة ومراقبة العملات (Coin Portfolio)",
-    coinPortfolioDesc: "مركز تحليلي تراكمي لحساب متوسط التكلفة، الأرباح المحققة، الأرباح غير المحققة والعمولات.",
+    coinPortfolioTitle: "إدارة الصفقات وتفاصيل الأصول الرقمية 💼",
+    coinPortfolioDesc: "تحليل دقيق لمراكزك المفتوحة وتوزيع عملاتك عبر مختلف المنصات.",
     autoUpdatedBinance: "محدث أوتوماتيكياً عبر CoinGecko API",
     symbol: "اسم العملة",
     exchange: "المنصة",
@@ -144,8 +144,8 @@ export const translations = {
     avgCostNote2: "• يبقى متوسط التكلفة ثابتاً للقطع المتبقية عند عمليات البيع الجزئي ولا يتغير مطلقاً.",
 
     // Trade Entry Screen
-    tradeEntryTitle: "واجهة إدخال الصفقة السريع (Trade Entry Form)",
-    tradeEntryDesc: "توليد مستويات الأهداف والستوب لوس تلقائياً في الأجزاء من الثانية فور إدخال بيانات الصفقة.",
+    tradeEntryTitle: "صفقة جديدة (شراء / بيع كريبتو) 📝",
+    tradeEntryDesc: "قم بإدخال بيانات عمليتك الجديدة لتوثيقها في السجل.",
     quickInputsTitle: "مدخلات الصفقة السريعة",
     entryPrice: "سعر الدخول ($)",
     amountUsd: "المبلغ المستثمر ($)",
@@ -165,7 +165,7 @@ export const translations = {
     stopStageLabel: "الستوب",
 
     // Overview Dashboard
-    overviewTitle: "الداشبورد العام (Overview Dashboard)",
+    overviewTitle: "نظرة عامة على مركز التداول 🪙",
     overviewDesc: "نظرة شاملة لكامل المحفظة وإدارة المخاطر والسيولة المتاحة.",
     totalPortfolioValue: "إجمالي قيمة المحفظة",
     totalReturnBadge: "+13.4% إجمالي العائد",

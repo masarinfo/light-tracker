@@ -116,10 +116,10 @@ export default function MetalsInventoryPage() {
         <div>
           <h1 className="text-2xl font-black text-amber-400 tracking-tight flex items-center gap-3">
             <Database className="w-8 h-8" />
-            {isRtl ? 'مخزن المعادن' : 'Metals Inventory'}
+            {isRtl ? 'مخزن الذهب والمقتنيات 🏦' : 'Gold Vault 🏦'}
           </h1>
           <p className="text-sm text-amber-200/60 mt-1 font-medium">
-            {isRtl ? 'ملخص ممتلكاتك من الذهب والفضة التفصيلي' : 'Detailed summary of your gold and silver holdings'}
+            {isRtl ? 'نظرة تفصيلية على إجمالي مقتنياتك من السبائك والعملات وقيمتها الحالية.' : 'Detailed summary of your gold and silver holdings.'}
           </p>
         </div>
         <button

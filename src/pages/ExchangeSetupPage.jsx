@@ -89,9 +89,9 @@ export default function ExchangeSetupPage() {
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <Building2 className="w-6 h-6 text-cyan-400 shrink-0" />
-            <span>{t('exchangeSetupTitle')}</span>
+            <span>{activeWorkspace === 'metals' ? (isRtl ? 'مركز الأرصدة (الخزائن والتجار) 🏦' : 'Balances Hub (Vaults) 🏦') : (isRtl ? 'مركز الأرصدة (منصات ومحافظ) 🏦' : 'Balances Hub (Exchanges & Wallets) 🏦')}</span>
           </h2>
-          <p className="text-sm text-gray-400 mt-1">{t('exchangeSetupDesc')}</p>
+          <p className="text-sm text-gray-400 mt-1">{activeWorkspace === 'metals' ? (isRtl ? 'إدارة الخزائن، المحلات، والأماكن التي تحفظ فيها مقتنياتك الثمينة.' : 'Manage vaults, dealers, and places where you store your precious holdings.') : (isRtl ? 'إدارة منصات التداول والمحافظ الرقمية التي تعتمد عليها.' : 'Manage trading platforms and digital wallets you rely on.')}</p>
         </div>
 
         <button

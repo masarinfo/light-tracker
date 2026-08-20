@@ -7,16 +7,20 @@ export default function TradeEntryPage() {
   const { strategies, exchanges, addTrade, livePrices, t, lang, setActiveScreen } = useApp();
 
   const [symbol, setSymbol] = useState('SOLUSDT');
-  const [selectedStrategyId, setSelectedStrategyId] = useState(strategies[0]?.id || 1);
+  const [selectedStrategyId, setSelectedStrategyId] = useState('');
   const [showSymbolDropdown, setShowSymbolDropdown] = useState(false);
   const [showManualQuantity, setShowManualQuantity] = useState(false);
   const [copiedTarget, setCopiedTarget] = useState(null);
   
+  const [showStrategyWarning, setShowStrategyWarning] = useState(false);
+  const [showExchangeWarning, setShowExchangeWarning] = useState(false);
+  const [pendingTradeData, setPendingTradeData] = useState(null);
+  
   // Selected strategy details
-  const currentStrategy = strategies.find((s) => String(s.id) === String(selectedStrategyId)) || strategies[0];
+  const currentStrategy = strategies.find((s) => String(s.id) === String(selectedStrategyId));
 
   // Selected exchange state
-  const [selectedExchangeId, setSelectedExchangeId] = useState(currentStrategy?.default_exchange_id || exchanges[0]?.id || 1);
+  const [selectedExchangeId, setSelectedExchangeId] = useState('');
 
   // Formatted Input Strings with Auto Thousand Separators & Digit Normalization
   const [entryPriceStr, setEntryPriceStr] = useState('100');
@@ -95,7 +99,7 @@ export default function TradeEntryPage() {
   }, [selectedStrategyId]);
 
   // Current active exchange object
-  const currentExchange = exchanges.find((ex) => String(ex.id) === String(selectedExchangeId)) || exchanges[0];
+  const currentExchange = exchanges.find((ex) => String(ex.id) === String(selectedExchangeId));
 
   // Auto-fetch price if user types a known symbol
   useEffect(() => {
@@ -128,23 +132,66 @@ export default function TradeEntryPage() {
 
     const newTrade = {
       symbol: symbol.toUpperCase(),
-      strategy_id: currentStrategy.id,
-      strategy_name: currentStrategy.name,
-      category: currentStrategy.category,
-      exchange_id: currentExchange.id,
-      exchange_name: currentExchange.name,
-      order_type: currentStrategy.default_order_type || 'Limit',
+      order_type: currentStrategy?.default_order_type || 'Limit',
       entry_price: entryPrice,
       amount_usd: amountUsd,
       quantity: finalQuantity,
       calculated_fee: purchaseInfo.feeUsd,
       status: 'OPEN',
-      targets: [...tpTargets, ...slTargets]
+      targets: [...tpTargets, ...slTargets],
+      market_type: 'crypto'
     };
 
-    addTrade(newTrade);
-    // Redirect to Portfolio
+    if (currentStrategy) {
+      newTrade.strategy_id = currentStrategy.id;
+      newTrade.strategy_name = currentStrategy.name;
+      newTrade.category = currentStrategy.category;
+    }
+
+    if (currentExchange) {
+      newTrade.exchange_id = currentExchange.id;
+      newTrade.exchange_name = currentExchange.name;
+    }
+
+    if (!currentStrategy && !newTrade.strategy_warning_accepted) {
+      setPendingTradeData(newTrade);
+      setShowStrategyWarning(true);
+      return;
+    }
+
+    if (!currentExchange && !newTrade.exchange_warning_accepted) {
+      setPendingTradeData(newTrade);
+      setShowExchangeWarning(true);
+      return;
+    }
+
+    saveFinalTrade(newTrade);
+  };
+
+  const saveFinalTrade = (tradeData) => {
+    addTrade(tradeData);
+    setShowStrategyWarning(false);
+    setShowExchangeWarning(false);
     setActiveScreen('coin-portfolio');
+  };
+
+  const handleContinueStrategyWarning = () => {
+    setShowStrategyWarning(false);
+    const updatedPending = { ...pendingTradeData, strategy_warning_accepted: true };
+    setPendingTradeData(updatedPending);
+    
+    if (!currentExchange) {
+      setShowExchangeWarning(true);
+    } else {
+      saveFinalTrade(updatedPending);
+    }
+  };
+
+  const handleContinueExchangeWarning = () => {
+    setShowExchangeWarning(false);
+    const updatedPending = { ...pendingTradeData, exchange_warning_accepted: true };
+    setPendingTradeData(updatedPending);
+    saveFinalTrade(updatedPending);
   };
 
   return (
@@ -224,12 +271,13 @@ export default function TradeEntryPage() {
 
             {/* Strategy Select */}
             <div>
-              <label className="block text-gray-300 mb-1 font-semibold">{t('strategy')}</label>
+              <label className="block text-gray-300 mb-1 font-semibold">{t('strategy')} {isRtl ? '(اختياري)' : '(Optional)'}</label>
               <select
                 value={selectedStrategyId}
                 onChange={(e) => setSelectedStrategyId(e.target.value)}
                 className="w-full p-3 rounded-xl glass-input text-white font-semibold text-xs"
               >
+                <option value="" className="bg-gray-900">{isRtl ? 'بدون استراتيجية' : 'No Strategy'}</option>
                 {strategies.map((st) => (
                   <option key={st.id} value={st.id} className="bg-gray-900">
                     {st.name} ({st.category})
@@ -241,14 +289,15 @@ export default function TradeEntryPage() {
             {/* Interactive Exchange Select Dropdown */}
             <div>
               <label className="block text-gray-300 mb-1 font-semibold flex items-center justify-between">
-                <span>{t('exchange')}</span>
+                <span>{t('exchange')} {isRtl ? '(اختياري)' : '(Optional)'}</span>
                 <span className="text-[10px] text-cyan-400 font-mono">تحديث العمولة تلقائياً</span>
               </label>
               <select
                 value={selectedExchangeId}
-                onChange={(e) => setSelectedExchangeId(parseInt(e.target.value))}
+                onChange={(e) => setSelectedExchangeId(e.target.value ? parseInt(e.target.value) : '')}
                 className="w-full p-3 rounded-xl glass-input text-white font-bold text-xs"
               >
+                <option value="" className="bg-gray-900">{isRtl ? 'بدون منصة' : 'No Exchange'}</option>
                 {exchanges.map((ex) => (
                   <option key={ex.id} value={ex.id} className="bg-gray-900">
                     {ex.name} (الكاش المتاح: ${ex.initial_cash_balance.toLocaleString()})
@@ -446,6 +495,84 @@ export default function TradeEntryPage() {
           </div>
         </div>
       </div>
+
+      {/* Warning Modal for Missing Exchange */}
+      {showExchangeWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="glass-panel p-6 rounded-2xl max-w-md w-full border border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-orange-500/10 shadow-2xl">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-amber-500/20 rounded-full shrink-0">
+                <ShieldAlert className="w-6 h-6 text-amber-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white mb-2">
+                  {isRtl ? 'لم تقم بتحديد منصة' : 'No Exchange Selected'}
+                </h3>
+                <p className="text-sm text-gray-300 mb-6">
+                  {isRtl
+                    ? 'أنت على وشك حفظ الصفقة بدون تحديد منصة تداول. هل تريد الاستمرار على أي حال؟'
+                    : 'You are about to save the trade without specifying an exchange. Do you want to continue anyway?'}
+                </p>
+                <div className="flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setActiveScreen('exchange-setup')}
+                    className="px-4 py-2 rounded-xl text-sm font-bold bg-white/5 hover:bg-white/10 text-white transition-all"
+                  >
+                    {isRtl ? 'تعريف منصة جديدة' : 'Define New Exchange'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleContinueExchangeWarning}
+                    className="px-4 py-2 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-400 text-black transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center"
+                  >
+                    {isRtl ? 'الاستمرار على أي حال' : 'Continue anyway'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Warning Modal for Missing Strategy */}
+      {showStrategyWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="glass-panel p-6 rounded-2xl max-w-md w-full border border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-orange-500/10 shadow-2xl">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-amber-500/20 rounded-full shrink-0">
+                <ShieldAlert className="w-6 h-6 text-amber-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white mb-2">
+                  {isRtl ? 'لم تقم بتحديد استراتيجية' : 'No Strategy Selected'}
+                </h3>
+                <p className="text-sm text-gray-300 mb-6">
+                  {isRtl
+                    ? 'لا يمكن فتح صفقة بشكل منظم دون تحديد استراتيجية تحدد أهداف البيع والشراء. هل تريد الاستمرار على أي حال؟'
+                    : 'It is not recommended to open a trade without a strategy. Do you want to continue anyway?'}
+                </p>
+                <div className="flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setActiveScreen('strategy-factory')}
+                    className="px-4 py-2 rounded-xl text-sm font-bold bg-white/5 hover:bg-white/10 text-white transition-all"
+                  >
+                    {isRtl ? 'إنشاء استراتيجية جديدة' : 'Create New Strategy'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleContinueStrategyWarning}
+                    className="px-4 py-2 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-400 text-black transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center"
+                  >
+                    {isRtl ? 'الاستمرار على أي حال' : 'Continue anyway'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

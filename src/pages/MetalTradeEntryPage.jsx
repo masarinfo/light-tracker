@@ -20,6 +20,7 @@ export default function MetalTradeEntryPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [showVaultWarning, setShowVaultWarning] = useState(false);
+  const [showStrategyWarning, setShowStrategyWarning] = useState(false);
   const [pendingTradeData, setPendingTradeData] = useState(null);
   
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -154,15 +155,21 @@ export default function MetalTradeEntryPage() {
         }
       }
 
-      if (exchangeId) {
-        tradeData.exchange_id = parseInt(exchangeId);
-        await saveFinalTrade(tradeData);
-      } else {
-        // Show warning if no vault selected
+      if (!strategyId && !tradeData.strategy_warning_accepted) {
+        setPendingTradeData(tradeData);
+        setShowStrategyWarning(true);
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!exchangeId && !tradeData.vault_warning_accepted) {
         setPendingTradeData(tradeData);
         setShowVaultWarning(true);
         setIsSubmitting(false);
+        return;
       }
+
+      await saveFinalTrade(tradeData);
     } catch (err) {
       setError(err.message || (isRtl ? 'حدث خطأ غير متوقع' : 'An unexpected error occurred'));
       setIsSubmitting(false);
@@ -179,7 +186,28 @@ export default function MetalTradeEntryPage() {
     } finally {
       setIsSubmitting(false);
       setShowVaultWarning(false);
+      setShowStrategyWarning(false);
     }
+  };
+
+  const handleContinueStrategyWarning = () => {
+    setShowStrategyWarning(false);
+    const updatedPending = { ...pendingTradeData, strategy_warning_accepted: true };
+    setPendingTradeData(updatedPending);
+    
+    // Now verify vault
+    if (!exchangeId) {
+      setShowVaultWarning(true);
+    } else {
+      saveFinalTrade(updatedPending);
+    }
+  };
+
+  const handleContinueVaultWarning = () => {
+    setShowVaultWarning(false);
+    const updatedPending = { ...pendingTradeData, vault_warning_accepted: true };
+    setPendingTradeData(updatedPending);
+    saveFinalTrade(updatedPending);
   };
 
   const goldKarats = ['24', '22', '21', '18'];
@@ -511,14 +539,58 @@ export default function MetalTradeEntryPage() {
                 <div className="flex justify-end gap-3">
                   <button
                     type="button"
-                    onClick={() => setShowVaultWarning(false)}
+                    onClick={() => setActiveScreen('exchange-setup')}
                     className="px-4 py-2 rounded-xl text-sm font-bold bg-white/5 hover:bg-white/10 text-white transition-all"
                   >
-                    {isRtl ? 'رجوع لإضافة مخزن' : 'Back to select'}
+                    {isRtl ? 'تعريف مخزن جديد' : 'Define New Vault'}
                   </button>
                   <button
                     type="button"
-                    onClick={() => saveFinalTrade(pendingTradeData)}
+                    onClick={handleContinueVaultWarning}
+                    disabled={isSubmitting}
+                    className="px-4 py-2 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-400 text-black transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center"
+                  >
+                    {isSubmitting ? (
+                      <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                    ) : (
+                      isRtl ? 'الاستمرار على أي حال' : 'Continue anyway'
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Warning Modal for Missing Strategy */}
+      {showStrategyWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="glass-panel p-6 rounded-2xl max-w-md w-full border border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-orange-500/10 shadow-2xl">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-amber-500/20 rounded-full shrink-0">
+                <Info className="w-6 h-6 text-amber-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white mb-2">
+                  {isRtl ? 'لم تقم بتحديد استراتيجية' : 'No Strategy Selected'}
+                </h3>
+                <p className="text-sm text-gray-300 mb-6">
+                  {isRtl
+                    ? 'لا يمكن فتح صفقة بشكل منظم دون تحديد استراتيجية تحدد أهداف البيع والشراء. هل تريد الاستمرار على أي حال؟'
+                    : 'It is not recommended to open a trade without a strategy. Do you want to continue anyway?'}
+                </p>
+                <div className="flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setActiveScreen('strategy-factory')}
+                    className="px-4 py-2 rounded-xl text-sm font-bold bg-white/5 hover:bg-white/10 text-white transition-all"
+                  >
+                    {isRtl ? 'إنشاء استراتيجية جديدة' : 'Create New Strategy'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleContinueStrategyWarning}
                     disabled={isSubmitting}
                     className="px-4 py-2 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-400 text-black transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center"
                   >

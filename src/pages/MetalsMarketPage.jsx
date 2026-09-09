@@ -42,9 +42,9 @@ export default function MetalsMarketPage() {
 
   const isRtl = lang === 'ar';
 
-  // Find Gold and Silver
-  const goldData = commodities.find(c => c.id === 'GC=F') || { current_price: 0, price_change_percentage_24h: 0 };
-  const silverData = commodities.find(c => c.id === 'SI=F') || { current_price: 0, price_change_percentage_24h: 0 };
+  // Find Gold and Silver (prioritize spot XAU, fallback to GC=F)
+  const goldData = commodities.find(c => c.id === 'XAU' || c.symbol === 'XAU/USD' || c.id === 'GC=F') || { current_price: 0, price_change_percentage_24h: 0 };
+  const silverData = commodities.find(c => c.id === 'XAG' || c.symbol === 'XAG/USD' || c.id === 'SI=F') || { current_price: 0, price_change_percentage_24h: 0 };
 
   const TROY_OUNCE_TO_GRAM = 31.1034768;
 
@@ -71,10 +71,10 @@ export default function MetalsMarketPage() {
         <div>
           <h1 className="text-2xl font-black text-amber-400 tracking-tight flex items-center gap-3">
             <Globe className="w-8 h-8" />
-            {isRtl ? 'سوق المعادن الثمينة' : 'Precious Metals Market'}
+            {isRtl ? 'سوق المعادن الثمينة (أسعار فورية)' : 'Precious Metals Market (Spot)'}
           </h1>
           <p className="text-sm text-amber-200/60 mt-1 font-medium">
-            {isRtl ? 'أسعار الذهب والفضة الحية وتحليل العيارات' : 'Live Gold & Silver prices and karat analysis'}
+            {isRtl ? 'أسعار الذهب والفضة الفورية الحية (Spot) وتحليل العيارات' : 'Live Spot Gold & Silver prices and karat analysis'}
           </p>
         </div>
         <button
@@ -107,8 +107,8 @@ export default function MetalsMarketPage() {
                   <Activity className="w-5 h-5 text-amber-400" />
                 </div>
                 <div>
-                  <h2 className="font-bold text-white text-lg">🥇 {isRtl ? 'الذهب' : 'Gold'}</h2>
-                  <p className="text-xs text-amber-400/80 font-mono">XAU/USD</p>
+                  <h2 className="font-bold text-white text-lg">🥇 {isRtl ? 'الذهب (فوري)' : 'Gold (Spot)'}</h2>
+                  <p className="text-xs text-amber-400/80 font-mono">XAU/USD (Spot)</p>
                 </div>
               </div>
               <div className="text-right">
@@ -144,8 +144,8 @@ export default function MetalsMarketPage() {
                   <Activity className="w-5 h-5 text-gray-300" />
                 </div>
                 <div>
-                  <h2 className="font-bold text-white text-lg">🥈 {isRtl ? 'الفضة' : 'Silver'}</h2>
-                  <p className="text-xs text-gray-400/80 font-mono">XAG/USD</p>
+                  <h2 className="font-bold text-white text-lg">🥈 {isRtl ? 'الفضة (فوري)' : 'Silver (Spot)'}</h2>
+                  <p className="text-xs text-gray-400/80 font-mono">XAG/USD (Spot)</p>
                 </div>
               </div>
               <div className="text-right">

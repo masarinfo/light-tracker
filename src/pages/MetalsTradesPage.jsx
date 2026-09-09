@@ -31,8 +31,14 @@ export default function MetalsTradesPage() {
   const metalsTrades = trades.filter(t => t.market_type === 'metals');
 
   const getLivePrice = (symbol) => {
-    if (symbol === 'XAU') return livePrices['GC=F'] ? livePrices['GC=F'] / 31.1034768 : 0;
-    if (symbol === 'XAG') return livePrices['SI=F'] ? livePrices['SI=F'] / 31.1034768 : 0;
+    if (symbol === 'XAU') {
+      const priceOz = livePrices['XAU'] || livePrices['XAU/USD'] || livePrices['GC=F'] || 0;
+      return priceOz ? priceOz / 31.1034768 : 0;
+    }
+    if (symbol === 'XAG') {
+      const priceOz = livePrices['XAG'] || livePrices['XAG/USD'] || livePrices['SI=F'] || 0;
+      return priceOz ? priceOz / 31.1034768 : 0;
+    }
     return 0;
   };
 

@@ -137,7 +137,18 @@ export function AppProvider({ children }) {
         const basePrices = pricesData.prices || {};
         const commoditiesPrices = {};
         if (Array.isArray(commoditiesData)) {
-          commoditiesData.forEach(c => { commoditiesPrices[c.id] = c.current_price; });
+          commoditiesData.forEach(c => {
+            if (c.id) commoditiesPrices[c.id] = c.current_price;
+            if (c.symbol) commoditiesPrices[c.symbol] = c.current_price;
+            if (c.id === 'XAU' || c.symbol === 'XAU/USD') {
+              commoditiesPrices['XAU'] = c.current_price;
+              commoditiesPrices['GC=F'] = c.current_price;
+            }
+            if (c.id === 'XAG' || c.symbol === 'XAG/USD') {
+              commoditiesPrices['XAG'] = c.current_price;
+              commoditiesPrices['SI=F'] = c.current_price;
+            }
+          });
         }
         
         setLivePrices(prev => ({ ...prev, ...basePrices, ...commoditiesPrices }));

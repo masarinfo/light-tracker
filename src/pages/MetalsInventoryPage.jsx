@@ -15,8 +15,8 @@ export default function MetalsInventoryPage() {
   const metalsTrades = trades.filter(t => t.market_type === 'metals' && t.status !== 'CLOSED' && t.symbol === activeTab);
 
   const TROY_OUNCE_TO_GRAM = 31.1034768;
-  const liveGoldPriceOz = livePrices['GC=F'] || 2500;
-  const liveSilverPriceOz = livePrices['SI=F'] || 28;
+  const liveGoldPriceOz = livePrices['XAU'] || livePrices['XAU/USD'] || livePrices['GC=F'] || 2500;
+  const liveSilverPriceOz = livePrices['XAG'] || livePrices['XAG/USD'] || livePrices['SI=F'] || 28;
   const liveGoldPriceGram = liveGoldPriceOz / TROY_OUNCE_TO_GRAM;
   const liveSilverPriceGram = liveSilverPriceOz / TROY_OUNCE_TO_GRAM;
 

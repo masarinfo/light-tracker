@@ -9,8 +9,9 @@ function CommodityCard({ item }) {
   const flashClass = usePriceFlash(item.current_price);
 
   let Icon = Database;
-  if (item.name === 'Gold') Icon = Coins;
-  if (item.name === 'Crude Oil') Icon = Droplet;
+  if (item.name && item.name.includes('Gold')) Icon = Coins;
+  if (item.name && item.name.includes('Silver')) Icon = Coins;
+  if (item.name && item.name.includes('Oil')) Icon = Droplet;
 
   return (
     <div className="glass-panel p-5 rounded-2xl border border-white/10 flex items-center justify-between group hover:border-amber-500/30 transition-all">
@@ -189,8 +190,10 @@ export default function MarketPricesPage() {
       {/* Traditional Commodities Widgets */}
       {commodities.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {commodities.map((item) => (
-            <CommodityCard key={item.id} item={item} />
+          {commodities
+            .filter((item, index, self) => index === self.findIndex(c => c.symbol === item.symbol))
+            .map((item) => (
+              <CommodityCard key={item.id} item={item} />
           ))}
         </div>
       )}

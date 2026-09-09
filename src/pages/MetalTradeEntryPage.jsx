@@ -64,8 +64,10 @@ export default function MetalTradeEntryPage() {
   const metalsExchanges = exchanges.filter(e => e.market_type === 'metals' || !e.market_type || e.market_type === 'crypto'); // Fallback if none exist
   const metalsStrategies = strategies.filter(s => s.market_type === 'metals' || !s.market_type || s.market_type === 'crypto');
 
-  // Live Price Calculation
-  const liveOzPrice = metalType === 'XAU' ? (livePrices['GC=F'] || 2500) : (livePrices['SI=F'] || 28);
+  // Live Price Calculation (Spot)
+  const liveOzPrice = metalType === 'XAU' 
+    ? (livePrices['XAU'] || livePrices['XAU/USD'] || livePrices['GC=F'] || 2500) 
+    : (livePrices['XAG'] || livePrices['XAG/USD'] || livePrices['SI=F'] || 28);
   const livePureGramPrice = liveOzPrice / TROY_OUNCE_TO_GRAM;
   
   // Calculate specific karat gram price
@@ -561,10 +563,10 @@ export default function MetalTradeEntryPage() {
           
           {/* Global Spot Info */}
           <div className="glass-panel p-5 rounded-2xl border border-white/10">
-             <div className="flex items-center gap-2 mb-3">
-               <Globe className={`w-4 h-4 ${metalType === 'XAU' ? 'text-amber-500' : 'text-gray-400'}`} />
-               <span className="text-sm font-bold text-gray-300">{isRtl ? 'السعر العالمي المباشر' : 'Live Spot Price'}</span>
-             </div>
+              <div className="flex items-center gap-2 mb-3">
+                <Globe className={`w-4 h-4 ${metalType === 'XAU' ? 'text-amber-500' : 'text-gray-400'}`} />
+                <span className="text-sm font-bold text-gray-300">{isRtl ? 'السعر العالمي الفوري (Spot)' : 'Live Spot Price'}</span>
+              </div>
              <div className="flex justify-between items-end">
                <div>
                  <div className="text-[10px] text-gray-500 mb-1">{isRtl ? `للجرام (عيار ${karat})` : `Per Gram (${karat}K)`}</div>

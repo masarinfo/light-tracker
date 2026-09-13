@@ -169,10 +169,16 @@ export function calculateCoinPortfolio({ trades = [], livePrices = {} }) {
     
     // Fetch live price
     let livePrice = averageCost;
-    if (livePrices[item.symbol] || livePrices[`${item.symbol}USDT`]) {
-      livePrice = livePrices[item.symbol] || livePrices[`${item.symbol}USDT`];
-      // Convert Oz price to Gram price for metals
-      if (item.symbol === 'XAU' || item.symbol === 'XAG') {
+    let rawPrice = livePrices[item.symbol] || livePrices[`${item.symbol}USDT`];
+    if (!rawPrice && item.symbol === 'XAU') rawPrice = livePrices['GC=F'] || livePrices['XAU/USD'];
+    if (!rawPrice && item.symbol === 'GC=F') rawPrice = livePrices['XAU'] || livePrices['XAU/USD'];
+    if (!rawPrice && item.symbol === 'XAG') rawPrice = livePrices['SI=F'] || livePrices['XAG/USD'];
+    if (!rawPrice && item.symbol === 'SI=F') rawPrice = livePrices['XAG'] || livePrices['XAG/USD'];
+
+    if (rawPrice !== undefined && rawPrice !== null && !isNaN(parseFloat(rawPrice))) {
+      livePrice = parseFloat(rawPrice);
+      // Convert Oz price to Gram price for precious metals (XAU, XAG, GC=F, SI=F)
+      if (['XAU', 'XAG', 'GC=F', 'SI=F'].includes(item.symbol)) {
         livePrice = livePrice / 31.1034768;
       }
     }

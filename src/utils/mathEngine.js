@@ -168,7 +168,15 @@ export function calculateCoinPortfolio({ trades = [], livePrices = {} }) {
     const totalInvestedRemaining = currentQuantity * averageCost;
     
     // Fetch live price
-    const livePrice = livePrices[item.symbol] || livePrices[`${item.symbol}USDT`] || averageCost;
+    let livePrice = averageCost;
+    if (livePrices[item.symbol] || livePrices[`${item.symbol}USDT`]) {
+      livePrice = livePrices[item.symbol] || livePrices[`${item.symbol}USDT`];
+      // Convert Oz price to Gram price for metals
+      if (item.symbol === 'XAU' || item.symbol === 'XAG') {
+        livePrice = livePrice / 31.1034768;
+      }
+    }
+    
     const currentValue = currentQuantity * livePrice;
     const unrealizedPnlUsd = currentValue - totalInvestedRemaining;
     const unrealizedPnlPct = totalInvestedRemaining > 0 ? (unrealizedPnlUsd / totalInvestedRemaining) * 100 : 0;

@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Globe, Radio, Wallet, PanelLeftClose, PanelLeftOpen, Sun, Moon, Eye, EyeOff, Timer, User, LogOut, Sparkles, AlertTriangle } from 'lucide-react';
+import { Globe, Radio, Wallet, PanelLeftClose, PanelLeftOpen, Sun, Moon, Eye, EyeOff, Timer, User, LogOut, Sparkles, AlertTriangle, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Header() {
-  const { lang, toggleLanguage, theme, toggleTheme, t, activeScreen, priceSource, isFetchingPrices, overviewMetrics, isSidebarCollapsed, toggleSidebar } = useApp();
+  const { lang, toggleLanguage, theme, toggleTheme, t, activeScreen, setActiveScreen, priceSource, isFetchingPrices, overviewMetrics, isSidebarCollapsed, toggleSidebar } = useApp();
   const { user, logout } = useAuth();
 
   const [showBalance, setShowBalance] = useState(() => localStorage.getItem('show_balance') !== 'false');
+  const [showLiquidityAlert, setShowLiquidityAlert] = useState(false);
   const [countdown, setCountdown] = useState(30);
 
   const isDark = theme === 'dark';
@@ -98,13 +99,22 @@ export default function Header() {
               : isDark ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-emerald-50 border-emerald-300 text-emerald-800'
           }`}
           title={overviewMetrics.hasNegativeCash 
-            ? (isRtl ? `⚠️ عجز نقدي بقيمة $${overviewMetrics.unloggedDepositAmount.toLocaleString()} (يمكنك تعديل رصيد المنصة)` : `⚠️ Unlogged Deposit: $${overviewMetrics.unloggedDepositAmount.toLocaleString()}`) 
+            ? (isRtl 
+                ? '⚠️ تنبيه سيولة: يمثل هذا الرقم القيمة السوقية الحالية لأصولك. يوجد عجز نقدي لعدم تسجيل رصيد الكاش الأولي مسبق؛ يمكنك تعديل رصيد المنصة أو تسجيل إيداع لمطابقة الكاش.' 
+                : '⚠️ Liquidity Alert: This amount represents the current market value of your assets. An unlogged cash deficit exists because the initial cash balance was not recorded beforehand; you can update the platform balance or log a deposit to match your cash.')
             : ''}
         >
           {overviewMetrics.hasNegativeCash ? (
-            <AlertTriangle className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${
-              isDark ? 'text-amber-400' : 'text-amber-600'
-            }`} />
+            <button
+              type="button"
+              onClick={() => setShowLiquidityAlert(true)}
+              className="hover:scale-115 active:scale-95 transition-transform cursor-pointer focus:outline-hidden"
+              title={isRtl ? 'انقر لتفاصيل تنبيه السيولة' : 'Click for liquidity alert details'}
+            >
+              <AlertTriangle className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${
+                isDark ? 'text-amber-400' : 'text-amber-600'
+              }`} />
+            </button>
           ) : (
             <Wallet className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${
               isDark ? 'text-emerald-400' : 'text-emerald-600'
@@ -176,6 +186,62 @@ export default function Header() {
         </div>
 
       </div>
+
+      {/* Liquidity Alert Modal */}
+      {showLiquidityAlert && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" dir={isRtl ? 'rtl' : 'ltr'}>
+          <div className={`relative w-full max-w-md p-6 rounded-2xl border shadow-2xl transition-all ${
+            isDark ? 'bg-slate-900 border-amber-500/40 text-white' : 'bg-white border-amber-300 text-slate-900'
+          }`}>
+            <button 
+              onClick={() => setShowLiquidityAlert(false)}
+              className={`absolute top-4 ${isRtl ? 'left-4' : 'right-4'} p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-gray-200 transition-colors`}
+              title={isRtl ? 'إغلاق' : 'Close'}
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <h3 className="text-base font-bold text-amber-400">
+                {isRtl ? 'تنبيه سيولة' : 'Liquidity Alert'}
+              </h3>
+            </div>
+
+            <p className={`text-sm leading-relaxed mb-6 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+              {isRtl
+                ? '⚠️ تنبيه سيولة: يمثل هذا الرقم القيمة السوقية الحالية لأصولك. يوجد عجز نقدي لعدم تسجيل رصيد الكاش الأولي مسبق؛ يمكنك تعديل رصيد المنصة أو تسجيل إيداع لمطابقة الكاش.'
+                : '⚠️ Liquidity Alert: This amount represents the current market value of your assets. An unlogged cash deficit exists because the initial cash balance was not recorded beforehand; you can update the platform balance or log a deposit to match your cash.'}
+            </p>
+
+            <div className="flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowLiquidityAlert(false)}
+                className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${
+                  isDark 
+                    ? 'border-white/10 bg-white/5 hover:bg-white/10 text-slate-300' 
+                    : 'border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700'
+                }`}
+              >
+                {isRtl ? 'حسناً، فهمت' : 'Understood'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowLiquidityAlert(false);
+                  setActiveScreen('exchange-setup');
+                }}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 font-black shadow-lg shadow-amber-500/20 transition-all cursor-pointer"
+              >
+                {isRtl ? 'تعديل رصيد المنصة' : 'Adjust Platform Balance'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

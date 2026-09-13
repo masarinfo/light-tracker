@@ -83,6 +83,9 @@ def update_profile(
         
     if profile_data.phone is not None:
         current_user.phone = profile_data.phone
+
+    if profile_data.preferred_workspace is not None:
+        current_user.preferred_workspace = profile_data.preferred_workspace
         
     db.commit()
     db.refresh(current_user)

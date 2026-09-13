@@ -34,7 +34,7 @@ export function AppProvider({ children }) {
   const [priceSource, setPriceSource] = useState('Connecting...');
   const [isFetchingPrices, setIsFetchingPrices] = useState(false);
   
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const isAuthenticated = !!token;
   
   // Fetch initial data
@@ -133,6 +133,22 @@ export function AppProvider({ children }) {
       setActiveScreen('metals-market');
     }
   }, [platformMode, activeWorkspace]);
+
+  // Sync user preferred workspace from backend when user logs in
+  useEffect(() => {
+    if (user && user.preferred_workspace) {
+      const mode = user.preferred_workspace;
+      setPlatformMode(mode);
+      localStorage.setItem('platform_mode', mode);
+      localStorage.setItem('onboarding_complete_v4', 'true');
+      
+      if (mode === 'metals_only') {
+        setActiveWorkspace('metals');
+      } else if (mode === 'crypto_only') {
+        setActiveWorkspace('crypto');
+      }
+    }
+  }, [user]);
 
   // Poll Backend for Binance Live Prices
   useEffect(() => {

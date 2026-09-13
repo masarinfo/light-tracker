@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { api } from '../api/client';
 import { Coins, Bitcoin, CheckSquare, Square, TrendingUp, Package, Landmark, Banknote } from 'lucide-react';
 
 export default function WelcomeOnboarding({ onComplete }) {
@@ -45,6 +46,11 @@ export default function WelcomeOnboarding({ onComplete }) {
     setActiveScreen(startingScreen);
     
     localStorage.setItem('onboarding_complete_v4', 'true');
+    
+    // Persist to backend user profile
+    api.updateProfile({ preferred_workspace: mode }).catch((err) => {
+      console.warn("Could not sync preferred workspace to backend:", err);
+    });
     
     if (onComplete) onComplete();
   };

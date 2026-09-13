@@ -21,6 +21,7 @@ class User(Base):
     
     # Legacy fields
     is_superadmin = Column(Boolean, default=False)
+    preferred_workspace = Column(String(20), default="both") # 'both', 'metals_only', 'crypto_only'
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 

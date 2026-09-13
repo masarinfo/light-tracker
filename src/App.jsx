@@ -77,13 +77,23 @@ function PublicLayout({ children }) {
 }
 
 function PrivateAppWrapper() {
+  const { user } = useAuth();
   const { 
     activeScreen, 
     setActiveScreen,
     lang 
   } = useApp();
 
-  const [showOnboarding, setShowOnboarding] = React.useState(() => !localStorage.getItem('onboarding_complete_v4'));
+  const [showOnboarding, setShowOnboarding] = React.useState(() => {
+    return !localStorage.getItem('onboarding_complete_v4');
+  });
+
+  React.useEffect(() => {
+    if (user?.preferred_workspace) {
+      localStorage.setItem('onboarding_complete_v4', 'true');
+      setShowOnboarding(false);
+    }
+  }, [user?.preferred_workspace]);
 
   const renderScreen = () => {
     if (activeScreen === 'exchange-setup') return <ExchangeSetupPage />;

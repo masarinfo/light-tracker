@@ -172,6 +172,7 @@ class UserUpdate(BaseModel):
     phone: Optional[str] = None
     current_password: Optional[str] = None
     new_password: Optional[str] = None
+    preferred_workspace: Optional[str] = None
 
 class UserResponse(BaseModel):
     id: int
@@ -182,6 +183,7 @@ class UserResponse(BaseModel):
     is_also_affiliate: bool
     status: str
     is_superadmin: bool
+    preferred_workspace: Optional[str] = "both"
     created_at: datetime
 
     class Config:

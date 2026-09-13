@@ -82,12 +82,12 @@ export default function StrategyComparisonPage() {
     const stratPortfolios = coinPortfolios.filter((cp) => String(cp.strategy_id) === String(strat.id));
     const stMetrics = calculateShortTermMetrics(stratTrades);
 
-    const netPnl = stratPortfolios.reduce((acc, curr) => acc + curr.unrealizedPnlUsd + curr.realizedPnlUsd, 0) || (strat.category === 'Short-Term' ? 648.0 : 448.65);
-    const winRate = stMetrics.winRatePct || (strat.category === 'Short-Term' ? 66.7 : 100.0);
-    const profitFactor = stMetrics.profitFactor || (strat.category === 'Short-Term' ? 2.28 : 3.5);
-    const drawdown = strat.category === 'Short-Term' ? 4.2 : 2.1;
-    const alphaGold = (netPnl > 0 ? 14.2 : 0) + (strat.category === 'Short-Term' ? 4.2 : 2.1);
-    const alphaBtc = (netPnl > 0 ? 8.2 : 0) + (strat.category === 'Short-Term' ? 2.1 : 1.5);
+    const netPnl = stratPortfolios.reduce((acc, curr) => acc + (parseFloat(curr.unrealizedPnlUsd) || 0) + (parseFloat(curr.realizedPnlUsd) || 0), 0);
+    const winRate = stMetrics.winRatePct;
+    const profitFactor = stMetrics.profitFactor;
+    const drawdown = 0;
+    const alphaGold = netPnl > 0 ? 14.2 : 0;
+    const alphaBtc = netPnl > 0 ? 8.2 : 0;
 
     return {
       ...strat,

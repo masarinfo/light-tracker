@@ -115,10 +115,13 @@ export function calculateCoinPortfolio({ trades = [], livePrices = {} }) {
         strategy_id: trade.strategy_id,
         strategy_name: trade.strategy_name,
         category: trade.category || 'Short-Term',
+        market_type: trade.market_type,
         totalBuyQuantity: 0,
+        totalPureBuyQuantity: 0,
         totalBuyCostUsd: 0,
         totalBuyFeesUsd: 0,
         totalSoldQuantity: 0,
+        totalPureSoldQuantity: 0,
         realizedPnlUsd: 0,
         totalFeesPaidUsd: 0,
         totalProceedsUsd: 0,
@@ -130,7 +133,20 @@ export function calculateCoinPortfolio({ trades = [], livePrices = {} }) {
     const price = parseFloat(trade.entry_price) || 0;
     const fee = parseFloat(trade.calculated_fee) || 0;
 
+    // Karat multiplier for precious metals (e.g. 21/24 for 21k, 18/24 for 18k, 925/999 for silver)
+    let karatMultiplier = 1;
+    const isMetalTrade = trade.market_type === 'metals' || ['XAU', 'XAG', 'GC=F', 'SI=F'].includes(symbol);
+    if (isMetalTrade) {
+      const k = trade.metal_karat || (symbol === 'XAU' || symbol === 'GC=F' ? 24 : 999);
+      if (symbol === 'XAU' || symbol === 'GC=F') {
+        karatMultiplier = (parseInt(k) || 24) / 24;
+      } else if (symbol === 'XAG' || symbol === 'SI=F') {
+        karatMultiplier = (parseInt(k) || 999) / 999;
+      }
+    }
+
     item.totalBuyQuantity += qty;
+    item.totalPureBuyQuantity += qty * karatMultiplier;
     item.totalBuyCostUsd += qty * price;
     item.totalBuyFeesUsd += fee;
     item.totalFeesPaidUsd += fee;
@@ -143,6 +159,7 @@ export function calculateCoinPortfolio({ trades = [], livePrices = {} }) {
           const sellPrice = parseFloat(tgt.target_price) || 0;
           const sellFee = parseFloat(tgt.executed_fee) || 0; // If you ever add it to backend
           item.totalSoldQuantity += soldQty;
+          item.totalPureSoldQuantity += soldQty * karatMultiplier;
           item.totalFeesPaidUsd += sellFee;
 
           // Average cost remains constant for sold items
@@ -159,6 +176,7 @@ export function calculateCoinPortfolio({ trades = [], livePrices = {} }) {
   // Calculate final numbers per asset
   return Object.values(portfolioMap).map((item) => {
     const currentQuantity = Math.max(0, item.totalBuyQuantity - item.totalSoldQuantity);
+    const currentPureQuantity = Math.max(0, item.totalPureBuyQuantity - item.totalPureSoldQuantity);
     
     // Average Cost Formula: (SUM(Buy Qty * Buy Price + Fees)) / SUM(Buy Qty)
     const averageCost = item.totalBuyQuantity > 0 
@@ -167,7 +185,7 @@ export function calculateCoinPortfolio({ trades = [], livePrices = {} }) {
 
     const totalInvestedRemaining = currentQuantity * averageCost;
     
-    // Fetch live price
+    // Fetch live price (pure 24k / 999 gram price for metals)
     let livePrice = averageCost;
     let rawPrice = livePrices[item.symbol] || livePrices[`${item.symbol}USDT`];
     if (!rawPrice && item.symbol === 'XAU') rawPrice = livePrices['GC=F'] || livePrices['XAU/USD'];
@@ -175,21 +193,26 @@ export function calculateCoinPortfolio({ trades = [], livePrices = {} }) {
     if (!rawPrice && item.symbol === 'XAG') rawPrice = livePrices['SI=F'] || livePrices['XAG/USD'];
     if (!rawPrice && item.symbol === 'SI=F') rawPrice = livePrices['XAG'] || livePrices['XAG/USD'];
 
+    const isMetal = item.market_type === 'metals' || ['XAU', 'XAG', 'GC=F', 'SI=F'].includes(item.symbol);
+
     if (rawPrice !== undefined && rawPrice !== null && !isNaN(parseFloat(rawPrice))) {
       livePrice = parseFloat(rawPrice);
       // Convert Oz price to Gram price for precious metals (XAU, XAG, GC=F, SI=F)
-      if (['XAU', 'XAG', 'GC=F', 'SI=F'].includes(item.symbol)) {
+      if (isMetal) {
         livePrice = livePrice / 31.1034768;
       }
     }
     
-    const currentValue = currentQuantity * livePrice;
+    // For metals, currentValue uses pure gram weight * live pure gram price to match inventory
+    const effectiveQtyForValue = isMetal ? currentPureQuantity : currentQuantity;
+    const currentValue = effectiveQtyForValue * livePrice;
     const unrealizedPnlUsd = currentValue - totalInvestedRemaining;
     const unrealizedPnlPct = totalInvestedRemaining > 0 ? (unrealizedPnlUsd / totalInvestedRemaining) * 100 : 0;
 
     return {
       ...item,
       currentQuantity,
+      currentPureQuantity,
       averageCost,
       totalInvestedRemaining,
       livePrice,

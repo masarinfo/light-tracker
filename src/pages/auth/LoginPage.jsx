@@ -1,23 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Lock, User, ArrowRight } from 'lucide-react';
+import { Lock, User, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { login } = useAuth();
+  const { user, login } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    const res = await login(username, password);
-    if (res.success) {
-      navigate('/dashboard');
-    } else {
-      setError('اسم المستخدم أو كلمة المرور غير صحيحة');
+
+    const cleanUsername = username.trim();
+    if (!cleanUsername || !password) {
+      setError('يرجى إدخال اسم المستخدم وكلمة المرور');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await login(cleanUsername, password);
+      if (res.success) {
+        navigate('/dashboard');
+      } else {
+        const errorMsg = res.error || '';
+        if (errorMsg.includes('Incorrect') || errorMsg.includes('Unauthorized') || errorMsg.includes('401')) {
+          setError('اسم المستخدم أو كلمة المرور غير صحيحة');
+        } else {
+          setError(res.error || 'فشل تسجيل الدخول، يرجى التحقق من البيانات والمحاولة مجدداً');
+        }
+      }
+    } catch {
+      setError('حدث خطأ أثناء الاتصال بالخادم، يرجى المحاولة مرة أخرى');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -33,7 +61,7 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="bg-[var(--bg-card)] p-8 rounded-2xl border border-[var(--border-panel)] space-y-6 shadow-xl">
           {error && (
-            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm font-bold text-center">
+            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm font-bold text-center animate-fadeIn">
               {error}
             </div>
           )}
@@ -41,39 +69,64 @@ export default function LoginPage() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2 flex items-center gap-2">
-                <User className="w-4 h-4" />
+                <User className="w-4 h-4 text-cyan-400" />
                 اسم المستخدم
               </label>
               <input
                 type="text"
                 required
+                autoComplete="username"
                 value={username}
                 onChange={e => setUsername(e.target.value)}
+                placeholder="أدخل اسم المستخدم"
                 className="w-full bg-[var(--input-bg)] border border-[var(--input-border)] rounded-xl px-4 py-3 text-[var(--text-primary)] focus:outline-none focus:border-cyan-500 transition-colors"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2 flex items-center gap-2">
-                <Lock className="w-4 h-4" />
+                <Lock className="w-4 h-4 text-cyan-400" />
                 كلمة المرور
               </label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="w-full bg-[var(--input-bg)] border border-[var(--input-border)] rounded-xl px-4 py-3 text-[var(--text-primary)] focus:outline-none focus:border-cyan-500 transition-colors"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full bg-[var(--input-bg)] border border-[var(--input-border)] rounded-xl pr-4 pl-11 py-3 text-[var(--text-primary)] focus:outline-none focus:border-cyan-500 transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] p-1 rounded-lg transition-colors"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
           </div>
 
           <button
             type="submit"
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+            disabled={loading}
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20"
           >
-            <span>تسجيل الدخول</span>
-            <ArrowRight className="w-4 h-4" />
+            {loading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>جاري تسجيل الدخول...</span>
+              </>
+            ) : (
+              <>
+                <span>تسجيل الدخول</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
           </button>
 
           <div className="mt-8 text-center text-[var(--text-secondary)]">

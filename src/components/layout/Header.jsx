@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Globe, Radio, Wallet, PanelLeftClose, PanelLeftOpen, Sun, Moon, Eye, EyeOff, Timer, User, LogOut, Sparkles } from 'lucide-react';
+import { Globe, Radio, Wallet, PanelLeftClose, PanelLeftOpen, Sun, Moon, Eye, EyeOff, Timer, User, LogOut, Sparkles, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Header() {
@@ -97,11 +97,19 @@ export default function Header() {
               ? isDark ? 'bg-amber-500/10 border-amber-500/30 text-amber-300' : 'bg-amber-50 border-amber-300 text-amber-800'
               : isDark ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-emerald-50 border-emerald-300 text-emerald-800'
           }`}
-          title={overviewMetrics.hasNegativeCash ? `⚠️ Unlogged Deposit: $${overviewMetrics.unloggedDepositAmount.toLocaleString()}` : ''}
+          title={overviewMetrics.hasNegativeCash 
+            ? (isRtl ? `⚠️ عجز نقدي بقيمة $${overviewMetrics.unloggedDepositAmount.toLocaleString()} (يمكنك تعديل رصيد المنصة)` : `⚠️ Unlogged Deposit: $${overviewMetrics.unloggedDepositAmount.toLocaleString()}`) 
+            : ''}
         >
-          <Wallet className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${
-            overviewMetrics.hasNegativeCash ? (isDark ? 'text-amber-400' : 'text-amber-600') : (isDark ? 'text-emerald-400' : 'text-emerald-600')
-          }`} />
+          {overviewMetrics.hasNegativeCash ? (
+            <AlertTriangle className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${
+              isDark ? 'text-amber-400' : 'text-amber-600'
+            }`} />
+          ) : (
+            <Wallet className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${
+              isDark ? 'text-emerald-400' : 'text-emerald-600'
+            }`} />
+          )}
           <div className="flex items-center gap-1">
             <span className={isDark ? 'text-slate-400 hidden xl:inline' : 'text-slate-600 hidden xl:inline'}>{t('portfolioSummaryLabel')}</span>
             <span className={`font-mono text-xs sm:text-sm font-black ${

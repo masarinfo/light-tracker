@@ -246,10 +246,12 @@ export function calculateOverviewMetrics({ exchanges = [], coinPortfolios = [] }
   // We DO NOT cap at 0 anymore (Flexible Mode). Negative cash indicates an unlogged deposit!
   const totalCashBalance = initialCash + netWalletFlow - totalPurchases + totalSales;
   
-  // Total Portfolio Value (Net Worth) is theoretically the same. If cash is negative, it subtracts from invested value.
-  const totalPortfolioValue = totalCashBalance + totalInvestedValue;
   const hasNegativeCash = totalCashBalance < 0;
   const unloggedDepositAmount = hasNegativeCash ? Math.abs(totalCashBalance) : 0;
+
+  // In Flexible Mode: If cash is negative (unlogged deposit), display the full value of the held assets
+  // rather than a negative net worth, with the amber warning triangle indicating unlogged deposit.
+  const totalPortfolioValue = hasNegativeCash ? totalInvestedValue : (totalCashBalance + totalInvestedValue);
 
   // For percentages, if cash is negative, we can't really do standard pie charts, so we cap at 0 for visual percentages
   const visualCash = Math.max(0, totalCashBalance);

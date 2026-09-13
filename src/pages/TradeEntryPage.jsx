@@ -238,11 +238,11 @@ export default function TradeEntryPage() {
       setIsSubmitting(true);
       setError(null);
       const newEx = await addExchange({
-        name: isRtl ? "منصة تجريبية (تلقائية)" : "Dummy Exchange (Auto)",
+        name: isRtl ? "الافتتاحي الصفري التلقائي (يمكنك تعديل الرصيد)" : "Auto Zero Platform (Customizable Balance)",
         market_type: "crypto",
-        maker_fee_pct: 0.1,
-        taker_fee_pct: 0.1,
-        initial_cash_balance: 10000
+        maker_fee_pct: 0,
+        taker_fee_pct: 0,
+        initial_cash_balance: 0
       });
       setSelectedExchangeId(newEx.id);
       
@@ -598,7 +598,7 @@ export default function TradeEntryPage() {
                     {isSubmitting ? (
                       <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
                     ) : (
-                      isRtl ? 'إنشاء منصة تجريبية' : 'Create Dummy Exchange'
+                      isRtl ? 'إنشاء الافتتاحي الصفري' : 'Create Auto Zero Platform'
                     )}
                   </button>
                   <button

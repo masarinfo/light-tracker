@@ -254,11 +254,11 @@ export default function MetalTradeEntryPage() {
       setIsSubmitting(true);
       setError(null);
       const newEx = await addExchange({
-        name: isRtl ? "مخزن تجريبي (تلقائي)" : "Dummy Vault (Auto)",
+        name: isRtl ? "الافتتاحي الصفري التلقائي (يمكنك تعديل الرصيد)" : "Auto Zero Vault (Customizable Balance)",
         market_type: "metals",
-        maker_fee_pct: 0.1,
-        taker_fee_pct: 0.1,
-        initial_cash_balance: 10000
+        maker_fee_pct: 0,
+        taker_fee_pct: 0,
+        initial_cash_balance: 0
       });
       setExchangeId(newEx.id);
       
@@ -611,7 +611,7 @@ export default function MetalTradeEntryPage() {
                     {isSubmitting ? (
                       <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
                     ) : (
-                      isRtl ? 'إنشاء مخزن تجريبي' : 'Create Dummy Vault'
+                      isRtl ? 'إنشاء الافتتاحي الصفري' : 'Create Auto Zero Vault'
                     )}
                   </button>
                   <button

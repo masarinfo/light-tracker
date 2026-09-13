@@ -102,6 +102,8 @@ export const translations = {
     discountTokenSymbol: "رمز عملة الخصم",
     discountPct: "نسبة الخصم (%)",
     initialCash: "رصيد الكاش الأولي ($)",
+    totalTradesValue: "إجمالي قيمة الصفقات",
+    availableCash: "رصيد الكاش المتاح",
     effectiveFeePreview: "العمولة الصافية بعد الخصم",
     addExchangeModalTitle: "إضافة حساب منصة جديد",
 
@@ -336,6 +338,8 @@ export const translations = {
     discountTokenSymbol: "Discount Token Symbol",
     discountPct: "Discount (%)",
     initialCash: "Initial Cash Balance ($)",
+    totalTradesValue: "Total Trades Value",
+    availableCash: "Available Cash Balance",
     effectiveFeePreview: "Net Fee After Discount",
     addExchangeModalTitle: "Add New Exchange Account",
 

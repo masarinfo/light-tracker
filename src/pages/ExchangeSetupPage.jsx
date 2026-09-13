@@ -11,24 +11,24 @@ export default function ExchangeSetupPage() {
 
   const [formData, setFormData] = useState({
     name: '',
-    maker_fee_pct: 0.1,
-    taker_fee_pct: 0.1,
+    maker_fee_pct: 0.0,
+    taker_fee_pct: 0.0,
     use_discount_token: false,
     discount_token_symbol: '',
     discount_pct: 0.0,
-    initial_cash_balance: 10000.0
+    initial_cash_balance: 0.0
   });
 
   const handleOpenAddModal = () => {
     setEditingExchangeId(null);
     setFormData({
       name: '',
-      maker_fee_pct: 0.1,
-      taker_fee_pct: 0.1,
+      maker_fee_pct: 0.0,
+      taker_fee_pct: 0.0,
       use_discount_token: false,
       discount_token_symbol: '',
       discount_pct: 0.0,
-      initial_cash_balance: 10000.0
+      initial_cash_balance: 0.0
     });
     setShowModal(true);
   };
@@ -37,12 +37,12 @@ export default function ExchangeSetupPage() {
     setEditingExchangeId(ex.id);
     setFormData({
       name: ex.name,
-      maker_fee_pct: ex.maker_fee_pct !== undefined && ex.maker_fee_pct !== null ? ex.maker_fee_pct : 0.1,
-      taker_fee_pct: ex.taker_fee_pct !== undefined && ex.taker_fee_pct !== null ? ex.taker_fee_pct : 0.1,
+      maker_fee_pct: ex.maker_fee_pct !== undefined && ex.maker_fee_pct !== null ? ex.maker_fee_pct : 0.0,
+      taker_fee_pct: ex.taker_fee_pct !== undefined && ex.taker_fee_pct !== null ? ex.taker_fee_pct : 0.0,
       use_discount_token: ex.use_discount_token,
       discount_token_symbol: ex.discount_token_symbol || '',
       discount_pct: ex.discount_pct || 0.0,
-      initial_cash_balance: ex.initial_cash_balance
+      initial_cash_balance: ex.initial_cash_balance !== undefined && ex.initial_cash_balance !== null ? ex.initial_cash_balance : 0.0
     });
     setShowModal(true);
   };
@@ -134,19 +134,26 @@ export default function ExchangeSetupPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {exchanges.map((ex) => {
           const effectiveMakerFee = calculateEffectiveFeePct(
-            ex.maker_fee_pct !== undefined && ex.maker_fee_pct !== null ? ex.maker_fee_pct : 0.1,
+            ex.maker_fee_pct !== undefined && ex.maker_fee_pct !== null ? ex.maker_fee_pct : 0.0,
             ex.use_discount_token,
             ex.discount_pct
           );
 
           const effectiveTakerFee = calculateEffectiveFeePct(
-            ex.taker_fee_pct !== undefined && ex.taker_fee_pct !== null ? ex.taker_fee_pct : 0.1,
+            ex.taker_fee_pct !== undefined && ex.taker_fee_pct !== null ? ex.taker_fee_pct : 0.0,
             ex.use_discount_token,
             ex.discount_pct
           );
           
           const liveCash = calculateExchangeLiveBalance(ex, trades);
           const hasNegativeCash = liveCash < 0;
+          const exTrades = (trades || []).filter(t => t.exchange_id === ex.id);
+          const totalTradesValue = exTrades.reduce((sum, t) => {
+            const qty = parseFloat(t.quantity) || 0;
+            const price = parseFloat(t.entry_price) || 0;
+            const fee = parseFloat(t.calculated_fee) || 0;
+            return sum + (qty * price) + fee;
+          }, 0);
 
           return (
             <div key={ex.id} className="glass-panel p-4 sm:p-6 rounded-2xl border border-white/10 space-y-4 hover:border-cyan-500/40 transition-all flex flex-col justify-between">
@@ -179,11 +186,11 @@ export default function ExchangeSetupPage() {
                   <div className="grid grid-cols-2 gap-2">
                     <div className="p-2 rounded-lg bg-white/5">
                       <span className="text-gray-400 block text-[10px] font-sans">{t('makerFee')}:</span>
-                      <span className="text-white font-bold">{ex.maker_fee_pct !== undefined && ex.maker_fee_pct !== null ? ex.maker_fee_pct : 0.1}%</span>
+                      <span className="text-white font-bold">{ex.maker_fee_pct !== undefined && ex.maker_fee_pct !== null ? ex.maker_fee_pct : 0.0}%</span>
                     </div>
                     <div className="p-2 rounded-lg bg-white/5">
                       <span className="text-gray-400 block text-[10px] font-sans">{t('takerFee')}:</span>
-                      <span className="text-white font-bold">{ex.taker_fee_pct !== undefined && ex.taker_fee_pct !== null ? ex.taker_fee_pct : 0.1}%</span>
+                      <span className="text-white font-bold">{ex.taker_fee_pct !== undefined && ex.taker_fee_pct !== null ? ex.taker_fee_pct : 0.0}%</span>
                     </div>
                   </div>
 
@@ -209,22 +216,30 @@ export default function ExchangeSetupPage() {
                   <div className="flex justify-between items-center p-2 rounded-lg bg-white/5">
                     <span className="text-gray-400 font-sans">{t('initialCash')}:</span>
                     <span className="text-gray-300 font-bold text-sm" dir="ltr">
-                      ${ex.initial_cash_balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      ${(parseFloat(ex.initial_cash_balance) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+
+                  {/* Total Trades Value */}
+                  <div className="flex justify-between items-center p-2 rounded-lg bg-white/5 border border-white/5">
+                    <span className="text-gray-400 font-sans">{t('totalTradesValue')}:</span>
+                    <span className="text-cyan-400 font-bold text-sm" dir="ltr">
+                      ${totalTradesValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
                   </div>
                   
                   {/* Live Cash Balance */}
                   <div className={`flex flex-col p-2 rounded-lg border ${hasNegativeCash ? 'bg-amber-500/10 border-amber-500/30' : 'bg-emerald-500/10 border-emerald-500/30'}`}>
                     <div className="flex justify-between items-center">
-                      <span className={`font-sans ${hasNegativeCash ? 'text-amber-400' : 'text-emerald-400'}`}>رصيد الكاش المتاح:</span>
+                      <span className={`font-sans ${hasNegativeCash ? 'text-amber-400' : 'text-emerald-400'}`}>{t('availableCash')}:</span>
                       <span className={`font-bold text-sm ${hasNegativeCash ? 'text-amber-400' : 'text-emerald-400'}`} dir="ltr">
-                        ${liveCash.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        ${Math.max(0, liveCash).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </span>
                     </div>
                     {hasNegativeCash && (
                       <div className="mt-1 flex items-start gap-1 text-[10px] text-amber-300">
                         <AlertCircle className="w-3 h-3 shrink-0 mt-0.5" />
-                        <span>تحذير: إيداعات غير مسجلة بقيمة ${Math.abs(liveCash).toLocaleString()} (يرجى تسجيل الإيداع من صفحة المحفظة لتصحيح العجز).</span>
+                        <span>{isRtl ? `تحذير: إيداعات غير مسجلة بقيمة $${Math.abs(liveCash).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (يرجى تسجيل الإيداع من صفحة المحفظة لتصحيح العجز).` : `Warning: Unrecorded deposits of $${Math.abs(liveCash).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (please record deposit in Wallet to reconcile).`}</span>
                       </div>
                     )}
                   </div>
@@ -260,7 +275,7 @@ export default function ExchangeSetupPage() {
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="e.g. Binance, Bybit, KuCoin"
+                  placeholder={isRtl ? "مثال: Binance، بنك الراجحي، خزينة الذهب، تاجر محلي..." : "e.g. Binance, Bank, Gold Vault, Local Dealer..."}
                   required
                   className="w-full p-3 rounded-xl glass-input"
                 />

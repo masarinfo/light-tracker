@@ -218,12 +218,12 @@ export default function MetalTradeEntryPage() {
       setIsSubmitting(true);
       setError(null);
       const newStrat = await addStrategy({
-        name: isRtl ? "استراتيجية تجريبية (للذهب)" : "Dummy Strategy (Metals)",
+        name: isRtl ? "استراتيجية تخزين الذهب  ( التجريبية )" : "Gold Storage Strategy (Trial)",
         category: "Short-Term",
         market_type: "metals",
         default_order_type: "Limit",
-        tp_rules: [{ stage: 1, gain_pct: 5, sell_portion_pct: 100 }],
-        sl_rules: [{ stage: 1, loss_pct: 5, sell_portion_pct: 100 }],
+        tp_rules: [{ stage: 1, gain_pct: 100, sell_portion_pct: 50 }],
+        sl_rules: [{ stage: 1, loss_pct: 25, sell_portion_pct: 10 }],
         is_active: true
       });
       setStrategyId(newStrat.id);
@@ -656,7 +656,7 @@ export default function MetalTradeEntryPage() {
                     {isSubmitting ? (
                       <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
                     ) : (
-                      isRtl ? 'إنشاء استراتيجية تجريبية' : 'Create Dummy Strategy'
+                      isRtl ? 'إنشاء استراتيجية تخزين الذهب' : 'Create Gold Strategy'
                     )}
                   </button>
                   <button

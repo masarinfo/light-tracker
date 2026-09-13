@@ -21,6 +21,7 @@ def run_migrations():
     import logging
     try:
         with engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
+            for query in [
                 "ALTER TABLE strategies ADD COLUMN market_type VARCHAR DEFAULT 'crypto'",
                 "ALTER TABLE exchanges ADD COLUMN market_type VARCHAR DEFAULT 'crypto'",
                 "ALTER TABLE trades ADD COLUMN market_type VARCHAR DEFAULT 'crypto'",

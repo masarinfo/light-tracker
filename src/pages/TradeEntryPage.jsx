@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { generateTradeTargets, calculateTradePurchase, formatCryptoPrice, formatInputWithCommas, parseCommasToNumber, convertArabicNumerals } from '../utils/mathEngine';
 import { PlusCircle, Zap, Target, ShieldAlert, CheckCircle2, Sparkles, Building2, Copy, Check, Settings2, Search } from 'lucide-react';
@@ -74,13 +74,25 @@ export default function TradeEntryPage() {
   // Current active exchange object
   const currentExchange = exchanges.find((ex) => String(ex.id) === String(selectedExchangeId));
 
-  // Auto-fetch price if user types a known symbol
+  const currentLivePrice = symbol ? (livePrices[symbol.toUpperCase()] || 0) : 0;
+  const priceInitializedForSymbolRef = useRef('');
+
+  // Auto-fetch price ONLY ONCE when user selects/changes symbol (never overwrite user edits on live price background ticks)
   useEffect(() => {
-    if (symbol && livePrices[symbol.toUpperCase()]) {
-      const fetched = livePrices[symbol.toUpperCase()];
-      setEntryPriceStr(formatInputWithCommas(fetched.toString()));
+    const symUpper = symbol ? symbol.toUpperCase() : '';
+    if (symUpper && symUpper !== priceInitializedForSymbolRef.current) {
+      if (livePrices[symUpper]) {
+        priceInitializedForSymbolRef.current = symUpper;
+        setEntryPriceStr(formatInputWithCommas(livePrices[symUpper].toString()));
+      }
     }
   }, [symbol, livePrices]);
+
+  const handleUseLivePrice = () => {
+    if (currentLivePrice > 0) {
+      setEntryPriceStr(formatInputWithCommas(currentLivePrice.toString()));
+    }
+  };
 
   // Instant calculation of Quantity and Targets based on selected exchange fee
   const purchaseInfo = calculateTradePurchase({
@@ -356,10 +368,22 @@ export default function TradeEntryPage() {
             {/* Price & Amount Inputs with Automatic Eastern Arabic to English Digit Conversion */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-gray-300 mb-1 font-semibold flex items-center justify-between">
-                  <span>{t('entryPrice')}</span>
-                  <span className="text-[9px] text-emerald-400 font-mono">يقبل ٠١٢٣٤٥٦٧٨٩</span>
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-gray-300 font-semibold text-sm">
+                    {t('entryPrice')}
+                  </label>
+                  {currentLivePrice > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleUseLivePrice}
+                      className="text-xs font-bold text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-1 bg-cyan-500/10 hover:bg-cyan-500/20 px-2 py-0.5 rounded border border-cyan-500/20"
+                      title={isRtl ? 'تعبئة بسعر السوق اللحظي' : 'Fill with current live market price'}
+                    >
+                      <Zap className="w-3 h-3 text-cyan-400" />
+                      <span>{isRtl ? 'السعر المباشر' : 'Live'}: ${formatCryptoPrice(currentLivePrice)}</span>
+                    </button>
+                  )}
+                </div>
                 <input
                   type="text"
                   inputMode="decimal"

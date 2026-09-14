@@ -384,10 +384,11 @@ export default function MetalTradeEntryPage() {
                 <input
                   type="text"
                   inputMode="decimal"
+                  dir="ltr"
                   value={weight}
                   onChange={(e) => handleWeightChange(e.target.value)}
                   placeholder="e.g. 10.5"
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500/50"
+                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-mono focus:outline-none focus:border-amber-500/50"
                   required
                 />
               </div>
@@ -410,16 +411,17 @@ export default function MetalTradeEntryPage() {
                 </button>
               </div>
               <div className="relative">
-                <div className={`absolute top-1/2 -translate-y-1/2 text-gray-500 font-bold ${isRtl ? 'right-4' : 'left-4'}`}>$</div>
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</div>
                 <input
-                type="text"
-                inputMode="decimal"
-                value={totalPrice}
-                onChange={(e) => handlePriceChange(e.target.value)}
-                placeholder="0.00"
-                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 pl-12 text-white focus:outline-none focus:border-amber-500/50"
-                required
-              />
+                  type="text"
+                  inputMode="decimal"
+                  dir="ltr"
+                  value={totalPrice}
+                  onChange={(e) => handlePriceChange(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white font-mono focus:outline-none focus:border-amber-500/50"
+                  required
+                />
               </div>
             </div>
 

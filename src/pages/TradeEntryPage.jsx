@@ -88,12 +88,6 @@ export default function TradeEntryPage() {
     }
   }, [symbol, livePrices]);
 
-  const handleUseLivePrice = () => {
-    if (currentLivePrice > 0) {
-      setEntryPriceStr(formatInputWithCommas(currentLivePrice.toString()));
-    }
-  };
-
   // Instant calculation of Quantity and Targets based on selected exchange fee
   const purchaseInfo = calculateTradePurchase({
     amountUsd,
@@ -368,46 +362,28 @@ export default function TradeEntryPage() {
             {/* Price & Amount Inputs with Automatic Eastern Arabic to English Digit Conversion */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-gray-300 font-semibold text-sm">
-                    {t('entryPrice')}
-                  </label>
-                  {currentLivePrice > 0 && (
-                    <button
-                      type="button"
-                      onClick={handleUseLivePrice}
-                      className="text-xs font-bold text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-1 bg-cyan-500/10 hover:bg-cyan-500/20 px-2 py-0.5 rounded border border-cyan-500/20"
-                      title={isRtl ? 'تعبئة بسعر السوق اللحظي' : 'Fill with current live market price'}
-                    >
-                      <Zap className="w-3 h-3 text-cyan-400" />
-                      <span>{isRtl ? 'السعر المباشر' : 'Live'}: ${formatCryptoPrice(currentLivePrice)}</span>
-                    </button>
-                  )}
-                </div>
+                <label className="block text-gray-300 mb-1 font-semibold">{t('entryPrice')}</label>
                 <input
                   type="text"
                   inputMode="decimal"
                   dir="ltr"
                   value={entryPriceStr}
                   onChange={(e) => setEntryPriceStr(formatInputWithCommas(e.target.value))}
-                  placeholder="e.g. 1,000 / ١٠٠٠"
+                  placeholder="e.g. 1,000"
                   className="w-full p-3 rounded-xl glass-input font-mono font-bold text-white text-sm"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-gray-300 mb-1 font-semibold flex items-center justify-between">
-                  <span>{t('amountUsd')}</span>
-                  <span className="text-[9px] text-emerald-400 font-mono">تحويل آلي للإنجليزي</span>
-                </label>
+                <label className="block text-gray-300 mb-1 font-semibold">{t('amountUsd')}</label>
                 <input
                   type="text"
                   inputMode="decimal"
                   dir="ltr"
                   value={amountUsdStr}
                   onChange={(e) => setAmountUsdStr(formatInputWithCommas(e.target.value))}
-                  placeholder="e.g. 10,000 / ١٠٠٠٠"
+                  placeholder="e.g. 10,000"
                   className="w-full p-3 rounded-xl glass-input font-mono font-bold text-emerald-400 text-sm"
                   required
                 />

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { api } from '../api/client';
-import { calculateExchangeLiveBalance } from '../utils/mathEngine';
+import { calculateExchangeLiveBalance, convertArabicNumerals } from '../utils/mathEngine';
 import { 
   Wallet, ArrowDownToLine, ArrowUpFromLine, ArrowRightLeft, 
   History, CheckCircle2, AlertCircle, XCircle, Trash2
@@ -195,11 +195,13 @@ export default function WalletPage() {
               <div>
                 <label className="block text-gray-400 mb-1 text-sm">المبلغ ($)</label>
                 <input 
-                  type="number"
-                  step="0.01"
+                  type="text"
+                  inputMode="decimal"
+                  dir="ltr"
+                  placeholder="0.00"
                   className="w-full p-3 rounded-xl glass-input font-mono"
                   value={formData.amount}
-                  onChange={e => setFormData({...formData, amount: e.target.value})}
+                  onChange={e => setFormData({...formData, amount: convertArabicNumerals(e.target.value)})}
                   required
                 />
               </div>
@@ -208,11 +210,13 @@ export default function WalletPage() {
                 <div>
                   <label className="block text-gray-400 mb-1 text-sm">عمولة التحويل (اختياري)</label>
                   <input 
-                    type="number"
-                    step="0.01"
+                    type="text"
+                    inputMode="decimal"
+                    dir="ltr"
+                    placeholder="0.00"
                     className="w-full p-3 rounded-xl glass-input font-mono"
                     value={formData.fee}
-                    onChange={e => setFormData({...formData, fee: e.target.value})}
+                    onChange={e => setFormData({...formData, fee: convertArabicNumerals(e.target.value)})}
                   />
                   <span className="text-[10px] text-gray-500">سيتم خصمها من منصة المصدر.</span>
                 </div>

@@ -288,6 +288,7 @@ export default function MetalTradeEntryPage() {
     { label: '4g', value: '4' },
     { label: '8g', value: '8' },
     { label: 'Ounce', value: '31.103' },
+    { label: isRtl ? '١ كجم' : '1kg', value: '1000' },
   ];
 
   return (

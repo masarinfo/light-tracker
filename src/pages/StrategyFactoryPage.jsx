@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { convertArabicNumerals } from '../utils/mathEngine';
 import { Factory, Plus, Edit, Trash2, ShieldAlert, Target, Zap, Gem, XCircle } from 'lucide-react';
 
 export default function StrategyFactoryPage() {
@@ -56,7 +57,7 @@ export default function StrategyFactoryPage() {
 
   const handleTpChange = (index, field, value) => {
     const updated = [...formData.tp_rules];
-    updated[index][field] = parseFloat(value) || 0;
+    updated[index][field] = convertArabicNumerals(value);
     setFormData({ ...formData, tp_rules: updated });
   };
 
@@ -77,7 +78,7 @@ export default function StrategyFactoryPage() {
 
   const handleSlChange = (index, field, value) => {
     const updated = [...formData.sl_rules];
-    updated[index][field] = parseFloat(value) || 0;
+    updated[index][field] = convertArabicNumerals(value);
     setFormData({ ...formData, sl_rules: updated });
   };
 
@@ -101,10 +102,24 @@ export default function StrategyFactoryPage() {
     if (!formData.name.trim()) return;
 
     try {
+      const payload = {
+        ...formData,
+        tp_rules: formData.tp_rules.map(tp => ({
+          ...tp,
+          gain_pct: isNaN(parseFloat(tp.gain_pct)) ? 0 : parseFloat(tp.gain_pct),
+          sell_portion_pct: isNaN(parseFloat(tp.sell_portion_pct)) ? 0 : parseFloat(tp.sell_portion_pct),
+        })),
+        sl_rules: formData.sl_rules.map(sl => ({
+          ...sl,
+          loss_pct: isNaN(parseFloat(sl.loss_pct)) ? 0 : parseFloat(sl.loss_pct),
+          sell_portion_pct: isNaN(parseFloat(sl.sell_portion_pct)) ? 0 : parseFloat(sl.sell_portion_pct),
+        })),
+      };
+
       if (editingStrategyId) {
-        await updateStrategy({ ...formData, id: editingStrategyId });
+        await updateStrategy({ ...payload, id: editingStrategyId });
       } else {
-        await addStrategy(formData);
+        await addStrategy(payload);
       }
       await fetchData();
       setShowModal(false);
@@ -313,8 +328,9 @@ export default function StrategyFactoryPage() {
                     <span className="col-span-1 font-mono text-gray-400">S{tp.stage}</span>
                     <div className="col-span-3">
                       <input
-                        type="number"
-                        step="0.5"
+                        type="text"
+                        inputMode="decimal"
+                        dir="ltr"
                         placeholder="Gain %"
                         value={tp.gain_pct}
                         onChange={(e) => handleTpChange(idx, 'gain_pct', e.target.value)}
@@ -323,8 +339,9 @@ export default function StrategyFactoryPage() {
                     </div>
                     <div className="col-span-2">
                       <input
-                        type="number"
-                        step="5"
+                        type="text"
+                        inputMode="decimal"
+                        dir="ltr"
                         placeholder="Portion %"
                         value={tp.sell_portion_pct}
                         onChange={(e) => handleTpChange(idx, 'sell_portion_pct', e.target.value)}
@@ -368,8 +385,9 @@ export default function StrategyFactoryPage() {
                     <span className="col-span-1 font-mono text-gray-400">S{sl.stage}</span>
                     <div className="col-span-3">
                       <input
-                        type="number"
-                        step="0.5"
+                        type="text"
+                        inputMode="decimal"
+                        dir="ltr"
                         placeholder="Loss %"
                         value={sl.loss_pct}
                         onChange={(e) => handleSlChange(idx, 'loss_pct', e.target.value)}
@@ -378,8 +396,9 @@ export default function StrategyFactoryPage() {
                     </div>
                     <div className="col-span-2">
                       <input
-                        type="number"
-                        step="5"
+                        type="text"
+                        inputMode="decimal"
+                        dir="ltr"
                         placeholder="Portion %"
                         value={sl.sell_portion_pct}
                         onChange={(e) => handleSlChange(idx, 'sell_portion_pct', e.target.value)}

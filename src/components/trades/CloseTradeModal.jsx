@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { XCircle, Target, TrendingUp, TrendingDown, DollarSign, CheckCircle2, Copy, Check } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { formatCryptoPrice } from '../../utils/mathEngine';
+import { formatCryptoPrice, formatInputWithCommas, parseCommasToNumber } from '../../utils/mathEngine';
 
 export default function CloseTradeModal({ trade, onClose, onSave, livePrice }) {
   const { exchanges } = useApp();
@@ -25,35 +25,6 @@ export default function CloseTradeModal({ trade, onClose, onSave, livePrice }) {
   }, [trade]);
 
   if (!closingTrade) return null;
-
-  const convertArabicToEnglishDigits = (str) => {
-    if (str === undefined || str === null) return '';
-    const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-    const englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-    let result = String(str);
-    for (let i = 0; i < 10; i++) {
-      result = result.replace(new RegExp(arabicDigits[i], 'g'), englishDigits[i]);
-    }
-    result = result.replace(/٫/g, '.');
-    return result;
-  };
-
-  const formatInputWithCommas = (val) => {
-    if (val === undefined || val === null || val === '') return '';
-    const normalized = convertArabicToEnglishDigits(val);
-    const clean = normalized.replace(/,/g, '');
-    if (isNaN(clean) && clean !== '.') return normalized;
-    const parts = clean.split('.');
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    return parts.join('.');
-  };
-
-  const parseCommasToNumber = (val) => {
-    if (!val) return 0;
-    const normalized = convertArabicToEnglishDigits(val);
-    const clean = normalized.replace(/,/g, '');
-    return parseFloat(clean) || 0;
-  };
 
   const fmt = (num, decimals = 2) => {
     if (num === undefined || num === null || isNaN(num)) return '0.00';

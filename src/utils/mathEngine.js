@@ -412,20 +412,64 @@ export function calculateShortTermMetrics(trades = []) {
 }
 
 export function convertArabicNumerals(str) {
-  if (!str) return str;
-  const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-  return String(str).replace(/[٠-٩]/g, function(w) {
-    return arabicNumbers.indexOf(w);
-  }).replace(/٫/g, '.'); // Convert Arabic decimal comma to dot
+  if (str === undefined || str === null || str === '') return '';
+  let s = String(str).trim();
+  
+  // 1. Eastern Arabic numerals (٠-٩) and Persian numerals (۰-۹)
+  const easternArabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+  const persian = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+  
+  s = s.replace(/[٠-٩]/g, w => easternArabic.indexOf(w));
+  s = s.replace(/[۰-۹]/g, w => persian.indexOf(w));
+  
+  // 2. Arabic commas and separators
+  s = s.replace(/[،٫]/g, '.');
+  s = s.replace(/٬/g, '');
+
+  // 3. Decimal comma vs thousands comma
+  if (s.includes(',')) {
+    if (s.includes('.')) {
+      // Already contains dot, all commas are thousands separators
+      s = s.replace(/,/g, '');
+    } else {
+      // Check if it's formatted as standard thousands: e.g. 1,000 or 10,000 or 1,000,000
+      if (/^\d{1,3}(,\d{3})+$/.test(s)) {
+        s = s.replace(/,/g, '');
+      } else {
+        // Single comma used as decimal point (e.g. '10,5' or '0,25' or '10,')
+        s = s.replace(',', '.');
+        s = s.replace(/,/g, '');
+      }
+    }
+  }
+
+  // 4. Ensure at most one decimal point exists
+  const parts = s.split('.');
+  if (parts.length > 2) {
+    s = parts[0] + '.' + parts.slice(1).join('');
+  }
+  return s;
 }
 
 export function formatInputWithCommas(val) {
   if (val === undefined || val === null || val === '') return '';
   const normalized = convertArabicNumerals(val);
-  const clean = normalized.replace(/,/g, '');
+  const hasTrailingDot = normalized.endsWith('.');
+
+  let clean = normalized.replace(/,/g, '');
+  const dotParts = clean.split('.');
+  if (dotParts.length > 2) {
+    clean = dotParts[0] + '.' + dotParts.slice(1).join('');
+  }
+
   if (isNaN(clean) && clean !== '.') return normalized;
+
   const parts = clean.split('.');
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+  if (hasTrailingDot && parts.length === 1) {
+    return parts[0] + '.';
+  }
   return parts.join('.');
 }
 
@@ -434,4 +478,9 @@ export function parseCommasToNumber(val) {
   const normalized = convertArabicNumerals(val);
   const clean = normalized.replace(/,/g, '');
   return parseFloat(clean) || 0;
+}
+
+export function cleanNumericInput(val) {
+  if (val === undefined || val === null || val === '') return '';
+  return convertArabicNumerals(val);
 }

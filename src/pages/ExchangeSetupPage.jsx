@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { calculateEffectiveFeePct, calculateExchangeLiveBalance } from '../utils/mathEngine';
+import { calculateEffectiveFeePct, calculateExchangeLiveBalance, convertArabicNumerals } from '../utils/mathEngine';
 import { Building2, Plus, Edit, Trash2, Percent, DollarSign, Tag, CheckCircle2, AlertCircle, XCircle } from 'lucide-react';
 
 export default function ExchangeSetupPage() {
@@ -286,10 +286,11 @@ export default function ExchangeSetupPage() {
                 <div>
                   <label className="block text-gray-300 mb-1 font-semibold">{t('makerFee')}</label>
                   <input
-                    type="number"
-                    step="0.01"
+                    type="text"
+                    inputMode="decimal"
+                    dir="ltr"
                     value={formData.maker_fee_pct}
-                    onChange={(e) => setFormData({ ...formData, maker_fee_pct: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, maker_fee_pct: convertArabicNumerals(e.target.value) })}
                     className="w-full p-3 rounded-xl glass-input font-mono"
                     required
                   />
@@ -297,10 +298,11 @@ export default function ExchangeSetupPage() {
                 <div>
                   <label className="block text-gray-300 mb-1 font-semibold">{t('takerFee')}</label>
                   <input
-                    type="number"
-                    step="0.01"
+                    type="text"
+                    inputMode="decimal"
+                    dir="ltr"
                     value={formData.taker_fee_pct}
-                    onChange={(e) => setFormData({ ...formData, taker_fee_pct: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, taker_fee_pct: convertArabicNumerals(e.target.value) })}
                     className="w-full p-3 rounded-xl glass-input font-mono"
                     required
                   />
@@ -310,10 +312,11 @@ export default function ExchangeSetupPage() {
               <div>
                 <label className="block text-gray-300 mb-1 font-semibold">{t('initialCash')}</label>
                 <input
-                  type="number"
-                  step="100"
+                  type="text"
+                  inputMode="decimal"
+                  dir="ltr"
                   value={formData.initial_cash_balance}
-                  onChange={(e) => setFormData({ ...formData, initial_cash_balance: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, initial_cash_balance: convertArabicNumerals(e.target.value) })}
                   className="w-full p-3 rounded-xl glass-input font-mono"
                   required
                 />
@@ -346,12 +349,13 @@ export default function ExchangeSetupPage() {
                     <div>
                       <label className="block text-gray-400 mb-1">{t('discountPct')}</label>
                       <input
-                      type="number"
-                      step="0.01"
-                      value={formData.discount_pct}
-                      onChange={(e) => setFormData({ ...formData, discount_pct: e.target.value })}
-                      placeholder="e.g. 25"
-                      className="w-full p-3 rounded-xl glass-input font-mono text-emerald-400"
+                        type="text"
+                        inputMode="decimal"
+                        dir="ltr"
+                        value={formData.discount_pct}
+                        onChange={(e) => setFormData({ ...formData, discount_pct: convertArabicNumerals(e.target.value) })}
+                        placeholder="e.g. 25"
+                        className="w-full p-3 rounded-xl glass-input font-mono text-emerald-400"
                       />
                     </div>
                   </div>

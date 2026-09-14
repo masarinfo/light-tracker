@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { generateTradeTargets, calculateTradePurchase, formatCryptoPrice } from '../utils/mathEngine';
+import { generateTradeTargets, calculateTradePurchase, formatCryptoPrice, formatInputWithCommas, parseCommasToNumber, convertArabicNumerals } from '../utils/mathEngine';
 import { PlusCircle, Zap, Target, ShieldAlert, CheckCircle2, Sparkles, Building2, Copy, Check, Settings2, Search } from 'lucide-react';
 
 export default function TradeEntryPage() {
@@ -40,45 +40,6 @@ export default function TradeEntryPage() {
   const [manualQuantityStr, setManualQuantityStr] = useState('');
 
   const isRtl = lang === 'ar';
-
-  // Helper: Converts Eastern Arabic digits (٠١٢٣٤٥٦٧٨٩) to English digits (0123456789)
-  const convertArabicToEnglishDigits = (str) => {
-    if (str === undefined || str === null) return '';
-    const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-    const englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-    
-    let result = String(str);
-    for (let i = 0; i < 10; i++) {
-      result = result.replace(new RegExp(arabicDigits[i], 'g'), englishDigits[i]);
-    }
-    // Replace Arabic decimal comma or separator with standard dot
-    result = result.replace(/٫/g, '.');
-    return result;
-  };
-
-  // Format Helper: Normalizes Arabic numerals and adds commas to string input as user types
-  const formatInputWithCommas = (val) => {
-    if (val === undefined || val === null || val === '') return '';
-    
-    // First, convert any Eastern Arabic numerals to English digits
-    const normalized = convertArabicToEnglishDigits(val);
-    
-    // Strip existing commas for calculation
-    const clean = normalized.replace(/,/g, '');
-    if (isNaN(clean) && clean !== '.') return normalized;
-    
-    const parts = clean.split('.');
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    return parts.join('.');
-  };
-
-  // Parse Helper: Strips commas to raw float number for math calculations
-  const parseCommasToNumber = (val) => {
-    if (!val) return 0;
-    const normalized = convertArabicToEnglishDigits(val);
-    const clean = normalized.replace(/,/g, '');
-    return parseFloat(clean) || 0;
-  };
 
   const entryPrice = parseCommasToNumber(entryPriceStr);
   const amountUsd = parseCommasToNumber(amountUsdStr);
